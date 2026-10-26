@@ -76,7 +76,7 @@ export default function RegisterScreen() {
             style={styles.input}
             value={email}
           />
-
+{/* 
           <Text style={styles.labelSpaced}>Informe seu telefone</Text>
           <TextInput
             autoComplete="tel"
@@ -86,7 +86,7 @@ export default function RegisterScreen() {
             placeholderTextColor={theme.colors.placeholder}
             style={styles.input}
             value={phone}
-          />
+          /> */}
 
           <Text style={styles.labelSpaced}>Crie uma senha</Text>
           <TextInput

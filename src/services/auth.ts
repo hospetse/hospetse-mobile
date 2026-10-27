@@ -14,6 +14,28 @@ export async function requestPin(email: string): Promise<string> {
   return data.challengeId;
 }
 
+type RegisterInput = {
+  challengeId: string;
+  pin: string;
+  name: string;
+  password: string;
+  acceptedTerms: boolean;
+  termsVersion: string;
+};
+
+export type AuthTokens = {
+  accessToken: string;
+  tokenType: string;
+  expiresIn: number;
+  refreshToken: string;
+};
+
+// Valida o PIN e cria a conta. O e-mail não vai: o Auth usa o do challengeId
+export async function register(input: RegisterInput): Promise<AuthTokens> {
+  const { data } = await authApi.post<AuthTokens>('/api/v1/auth/register', input);
+  return data;
+}
+
 // Status HTTP do erro, ou null quando não houve resposta (sem rede, timeout)
 export function getErrorStatus(error: unknown): number | null {
   if (axios.isAxiosError(error) && error.response) {

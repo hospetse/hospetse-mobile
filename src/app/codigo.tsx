@@ -1,24 +1,83 @@
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Button } from '../components/Button';
 import { CodeInput } from '../components/CodeInput';
+import { TERMS_VERSION } from '../constants/terms';
 import { theme } from '../constants/theme';
+import { useSignup } from '../context/SignupContext';
+import { getErrorStatus, register } from '../services/auth';
 
 const CODE_LENGTH = 6;
 
+// Mensagens das respostas do register (409 é tratado à parte: leva ao login)
+function registerErrorMessage(status: number | null): string {
+  switch (status) {
+    case 401:
+      return 'Código inválido. Confira e digite de novo.';
+    case 404:
+    case 410:
+      return 'Este código expirou. Peça um novo código.';
+    case 429:
+      return 'Muitas tentativas. Peça um novo código.';
+    case 400:
+      return 'Alguns dados do cadastro estão inválidos. Volte e confira.';
+    case null:
+      return 'Não foi possível conectar. Verifique sua internet e tente de novo.';
+    default:
+      return 'Não foi possível concluir o cadastro. Tente de novo.';
+  }
+}
+
 export default function CodeScreen() {
+  const { signup, clearSignup } = useSignup();
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  function handleConfirm() {
+  // Sem os dados do cadastro em memória não há como concluir: volta ao início do fluxo
+  if (!signup) {
+    return <Redirect href="/cadastro" />;
+  }
+
+  async function handleConfirm() {
+    if (!signup) {
+      return;
+    }
+
     if (code.replace(/\s/g, '').length < CODE_LENGTH) {
       setError('Digite os 6 números do código enviado ao seu e-mail.');
       return;
     }
 
     setError('');
+    setLoading(true);
+
+    try {
+      await register({
+        challengeId: signup.challengeId,
+        pin: code,
+        name: signup.name,
+        password: signup.password,
+        acceptedTerms: signup.acceptedTerms,
+        termsVersion: TERMS_VERSION,
+      });
+      // Provisório até a etapa 4 (guardar os tokens e ir para a tela logada)
+      clearSignup();
+      router.replace('/');
+    } catch (registerError) {
+      const status = getErrorStatus(registerError);
+      if (status === 409) {
+        clearSignup();
+        router.replace({ pathname: '/', params: { aviso: 'email-cadastrado' } });
+        return;
+      }
+      // O código digitado continua na tela para tentar de novo
+      setError(registerErrorMessage(status));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -35,12 +94,17 @@ export default function CodeScreen() {
 
           {error ? <Text style={styles.formError}>{error}</Text> : null}
 
-          <Button onPress={handleConfirm} title="Criar conta" />
+          <Button loading={loading} onPress={handleConfirm} title="Criar conta" />
         </View>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>Já possui conta? </Text>
-          <TouchableOpacity onPress={() => router.replace('/')}>
+          <TouchableOpacity
+            onPress={() => {
+              clearSignup();
+              router.replace('/');
+            }}
+          >
             <Text style={styles.link}>Entrar</Text>
           </TouchableOpacity>
         </View>

@@ -12,19 +12,35 @@ import {
 import { Button } from '../components/Button';
 import { InfoIcon } from '../components/InfoIcon';
 import { theme } from '../constants/theme';
-import { formatPhone } from '../utils/formatPhone';
+import { useSignup } from '../context/SignupContext';
+import { getErrorStatus, requestPin } from '../services/auth';
 import { isStrongPassword } from '../utils/isStrongPassword';
 
+// Mensagens das respostas do request-pin (409 é tratado à parte: leva ao login)
+function requestPinErrorMessage(status: number | null): string {
+  switch (status) {
+    case 400:
+      return 'Informe um e-mail válido.';
+    case 429:
+      return 'Você pediu um código há pouco. Aguarde 1 minuto e tente de novo.';
+    case null:
+      return 'Não foi possível conectar. Verifique sua internet e tente de novo.';
+    default:
+      return 'Não foi possível enviar o código. Tente de novo.';
+  }
+}
+
 export default function RegisterScreen() {
+  const { saveSignup, clearSignup } = useSignup();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  function handleRegister() {
-    if (!name.trim() || !email.trim() || !phone || !password) {
+  async function handleRegister() {
+    if (!name.trim() || !email.trim() || !password) {
       setError('Preencha todos os campos para continuar.');
       return;
     }
@@ -40,7 +56,30 @@ export default function RegisterScreen() {
     }
 
     setError('');
-    router.push('/codigo');
+    setLoading(true);
+
+    try {
+      const challengeId = await requestPin(email);
+      saveSignup({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        password,
+        acceptedTerms,
+        challengeId,
+        pinRequestedAt: Date.now(),
+      });
+      router.push('/codigo');
+    } catch (requestError) {
+      const status = getErrorStatus(requestError);
+      if (status === 409) {
+        clearSignup();
+        router.replace({ pathname: '/', params: { aviso: 'email-cadastrado' } });
+        return;
+      }
+      setError(requestPinErrorMessage(status));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -76,17 +115,6 @@ export default function RegisterScreen() {
             style={styles.input}
             value={email}
           />
-{/* 
-          <Text style={styles.labelSpaced}>Informe seu telefone</Text>
-          <TextInput
-            autoComplete="tel"
-            keyboardType="phone-pad"
-            onChangeText={(text) => setPhone(formatPhone(text))}
-            placeholder="(12) 34567-8910"
-            placeholderTextColor={theme.colors.placeholder}
-            style={styles.input}
-            value={phone}
-          /> */}
 
           <Text style={styles.labelSpaced}>Crie uma senha</Text>
           <TextInput
@@ -120,12 +148,17 @@ export default function RegisterScreen() {
 
           {error ? <Text style={styles.formError}>{error}</Text> : null}
 
-          <Button onPress={handleRegister} title="Criar conta" />
+          <Button loading={loading} onPress={handleRegister} title="Criar conta" />
         </View>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>Já possui conta? </Text>
-          <TouchableOpacity onPress={() => router.replace('/')}>
+          <TouchableOpacity
+            onPress={() => {
+              clearSignup();
+              router.replace('/');
+            }}
+          >
             <Text style={styles.link}>Entrar</Text>
           </TouchableOpacity>
         </View>

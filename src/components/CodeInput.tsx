@@ -35,6 +35,7 @@ export function CodeInput({ length = 6, onChange, value }: CodeInputProps) {
       {Array.from({ length }, (_, index) => (
         <TextInput
           key={index}
+          accessibilityLabel={`Dígito ${index + 1} do código`}
           keyboardType="number-pad"
           maxLength={1}
           onChangeText={(text) => handleChange(text, index)}

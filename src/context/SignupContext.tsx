@@ -19,8 +19,14 @@ const SignupContext = createContext<SignupContextValue | null>(null);
 
 // Dados do cadastro só em memória, entre a tela de cadastro e a do código.
 // Nada aqui vai para AsyncStorage ou log: some ao concluir, cancelar ou fechar o app
-export function SignupProvider({ children }: { children: ReactNode }) {
-  const [signup, setSignup] = useState<SignupData | null>(null);
+type SignupProviderProps = {
+  children: ReactNode;
+  // Usado nos testes para começar com um cadastro em andamento
+  initialSignup?: SignupData | null;
+};
+
+export function SignupProvider({ children, initialSignup = null }: SignupProviderProps) {
+  const [signup, setSignup] = useState<SignupData | null>(initialSignup);
 
   return (
     <SignupContext.Provider

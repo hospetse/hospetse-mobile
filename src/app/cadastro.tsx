@@ -82,6 +82,7 @@ export default function RegisterScreen() {
         <View style={styles.form}>
           <Text style={styles.label}>Informe seu nome completo</Text>
           <TextInput
+            accessibilityLabel="Nome completo"
             autoCapitalize="words"
             autoComplete="name"
             onChangeText={setName}
@@ -93,6 +94,7 @@ export default function RegisterScreen() {
 
           <Text style={styles.labelSpaced}>Informe seu e-mail</Text>
           <TextInput
+            accessibilityLabel="E-mail"
             autoCapitalize="none"
             autoComplete="email"
             keyboardType="email-address"
@@ -105,6 +107,7 @@ export default function RegisterScreen() {
 
           <Text style={styles.labelSpaced}>Crie uma senha</Text>
           <TextInput
+            accessibilityLabel="Senha"
             autoCapitalize="none"
             autoComplete="new-password"
             onChangeText={setPassword}

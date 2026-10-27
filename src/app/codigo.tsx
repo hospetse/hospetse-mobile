@@ -182,7 +182,7 @@ export default function CodeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* TEMPORÁRIO: atalho de desenvolvimento enquanto a rota interna do back-end (#261) não existe. Remover antes do PR */}
+        {/* TEMPORÁRIO: atalho de desenvolvimento enquanto a rota interna do back-end (#261) não existe. Remover quando a #261 for integrada */}
         {__DEV__ ? (
           <TouchableOpacity
             onPress={() =>

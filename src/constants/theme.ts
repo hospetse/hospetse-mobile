@@ -11,6 +11,8 @@ export const theme = {
     white: '#FFFFFF',
     error: '#B42318',
     border: '#B8B8B8',
+    skeleton: '#EFE6DC',
+    overlay: 'rgba(0, 0, 0, 0.25)',
   },
   fonts: {
     regular: 'Poppins_400Regular',
@@ -34,6 +36,8 @@ export const theme = {
     input: 12,
     button: 12,
     checkbox: 10,
+    card: 16,
+    round: 999,
   },
   typography: {
     title: 24,

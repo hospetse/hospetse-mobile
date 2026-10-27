@@ -8,6 +8,7 @@ import { TERMS_VERSION } from '../constants/terms';
 import { theme } from '../constants/theme';
 import { useSignup } from '../context/SignupContext';
 import { getErrorStatus, register } from '../services/auth';
+import { saveTokens } from '../services/token-storage';
 
 const CODE_LENGTH = 6;
 
@@ -55,7 +56,7 @@ export default function CodeScreen() {
     setLoading(true);
 
     try {
-      await register({
+      const tokens = await register({
         challengeId: signup.challengeId,
         pin: code,
         name: signup.name,
@@ -63,9 +64,11 @@ export default function CodeScreen() {
         acceptedTerms: signup.acceptedTerms,
         termsVersion: TERMS_VERSION,
       });
-      // Provisório até a etapa 4 (guardar os tokens e ir para a tela logada)
+      await saveTokens(tokens);
+      const firstName = signup.name.split(' ')[0];
+      // Conta criada: a senha sai da memória e o voltar não retorna ao PIN
       clearSignup();
-      router.replace('/');
+      router.replace({ pathname: '/home', params: { nome: firstName } });
     } catch (registerError) {
       const status = getErrorStatus(registerError);
       if (status === 409) {
@@ -108,6 +111,18 @@ export default function CodeScreen() {
             <Text style={styles.link}>Entrar</Text>
           </TouchableOpacity>
         </View>
+
+        {/* TEMPORÁRIO: atalho de desenvolvimento enquanto a rota interna do back-end (#261) não existe. Remover antes do PR */}
+        {__DEV__ ? (
+          <TouchableOpacity
+            onPress={() =>
+              router.push({ pathname: '/home', params: { nome: signup.name.split(' ')[0] } })
+            }
+            style={styles.footer}
+          >
+            <Text style={styles.link}>Abrir Home (temporário)</Text>
+          </TouchableOpacity>
+        ) : null}
       </ScrollView>
     </View>
   );

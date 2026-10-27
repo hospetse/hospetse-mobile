@@ -1,5 +1,5 @@
 import { Redirect, router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Button } from '../components/Button';
@@ -7,10 +7,18 @@ import { CodeInput } from '../components/CodeInput';
 import { TERMS_VERSION } from '../constants/terms';
 import { theme } from '../constants/theme';
 import { useSignup } from '../context/SignupContext';
-import { getErrorStatus, register } from '../services/auth';
+import { getErrorStatus, register, requestPin } from '../services/auth';
 import { saveTokens } from '../services/token-storage';
+import { requestPinErrorMessage } from '../utils/requestPinErrorMessage';
 
 const CODE_LENGTH = 6;
+
+// Intervalo mínimo do Auth entre dois pedidos de PIN
+const RESEND_INTERVAL_MS = 60 * 1000;
+
+function formatCountdown(seconds: number): string {
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+}
 
 // Mensagens das respostas do register (409 é tratado à parte: leva ao login)
 function registerErrorMessage(status: number | null): string {
@@ -19,9 +27,9 @@ function registerErrorMessage(status: number | null): string {
       return 'Código inválido. Confira e digite de novo.';
     case 404:
     case 410:
-      return 'Este código expirou. Peça um novo código.';
+      return 'Este código expirou. Toque em Reenviar código.';
     case 429:
-      return 'Muitas tentativas. Peça um novo código.';
+      return 'Muitas tentativas. Toque em Reenviar código.';
     case 400:
       return 'Alguns dados do cadastro estão inválidos. Volte e confira.';
     case null:
@@ -32,14 +40,58 @@ function registerErrorMessage(status: number | null): string {
 }
 
 export default function CodeScreen() {
-  const { signup, clearSignup } = useSignup();
+  const { signup, saveSignup, clearSignup } = useSignup();
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [now, setNow] = useState(Date.now());
+
+  // Atualiza o contador do reenvio a cada segundo
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Sem os dados do cadastro em memória não há como concluir: volta ao início do fluxo
   if (!signup) {
     return <Redirect href="/cadastro" />;
+  }
+
+  // Calculado pela hora do pedido, então continua certo se o app for para segundo plano
+  const secondsToResend = Math.max(
+    0,
+    Math.ceil((signup.pinRequestedAt + RESEND_INTERVAL_MS - now) / 1000),
+  );
+
+  async function handleResend() {
+    if (!signup || secondsToResend > 0 || resending) {
+      return;
+    }
+
+    setError('');
+    setInfo('');
+    setResending(true);
+
+    try {
+      const challengeId = await requestPin(signup.email);
+      // O PIN anterior foi invalidado: troca o challengeId e reinicia o contador
+      saveSignup({ ...signup, challengeId, pinRequestedAt: Date.now() });
+      setNow(Date.now());
+      setCode('');
+      setInfo('Enviamos um novo código para seu e-mail.');
+    } catch (resendError) {
+      const status = getErrorStatus(resendError);
+      if (status === 409) {
+        clearSignup();
+        router.replace({ pathname: '/', params: { aviso: 'email-cadastrado' } });
+        return;
+      }
+      setError(requestPinErrorMessage(status));
+    } finally {
+      setResending(false);
+    }
   }
 
   async function handleConfirm() {
@@ -53,6 +105,7 @@ export default function CodeScreen() {
     }
 
     setError('');
+    setInfo('');
     setLoading(true);
 
     try {
@@ -96,8 +149,25 @@ export default function CodeScreen() {
           <CodeInput length={CODE_LENGTH} onChange={setCode} value={code} />
 
           {error ? <Text style={styles.formError}>{error}</Text> : null}
+          {info ? <Text style={styles.formInfo}>{info}</Text> : null}
 
           <Button loading={loading} onPress={handleConfirm} title="Criar conta" />
+
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityState={{ disabled: secondsToResend > 0 || resending }}
+            disabled={secondsToResend > 0 || resending}
+            onPress={handleResend}
+            style={styles.resend}
+          >
+            {secondsToResend > 0 ? (
+              <Text style={styles.resendDisabled}>
+                Reenviar código em {formatCountdown(secondsToResend)}
+              </Text>
+            ) : (
+              <Text style={styles.link}>{resending ? 'Reenviando...' : 'Reenviar código'}</Text>
+            )}
+          </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
@@ -153,6 +223,21 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.regular,
     fontSize: theme.typography.body,
     marginTop: theme.spacing.medium,
+  },
+  formInfo: {
+    color: theme.colors.subtitle,
+    fontFamily: theme.fonts.regular,
+    fontSize: theme.typography.body,
+    marginTop: theme.spacing.medium,
+  },
+  resend: {
+    alignItems: 'center',
+    marginTop: theme.spacing.section,
+  },
+  resendDisabled: {
+    color: theme.colors.placeholder,
+    fontFamily: theme.fonts.regular,
+    fontSize: theme.typography.body,
   },
   link: {
     color: theme.colors.button,

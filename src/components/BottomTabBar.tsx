@@ -23,7 +23,8 @@ const TABS: Tab[] = [
   { key: 'perfil', label: 'Perfil', icon: 'person' },
 ];
 
-// Barra de navegacao inferior; a aba ativa fica dentro de um quadrado laranja
+// Barra de navegacao inferior: cada aba ocupa a mesma largura
+// e a aba ativa fica dentro de um quadrado laranja
 export function BottomTabBar({ activeTab, onChangeTab }: BottomTabBarProps) {
   return (
     <View style={styles.bar}>
@@ -36,10 +37,12 @@ export function BottomTabBar({ activeTab, onChangeTab }: BottomTabBarProps) {
             key={tab.key}
             accessibilityLabel={tab.label}
             onPress={() => onChangeTab(tab.key)}
-            style={[styles.tab, isActive && styles.tabActive]}
+            style={styles.tab}
           >
-            <Icon color={color} name={tab.icon} size={theme.icon.large} />
-            <Text style={[styles.label, { color }]}>{tab.label}</Text>
+            <View style={[styles.item, isActive && styles.itemActive]}>
+              <Icon color={color} name={tab.icon} size={theme.icon.medium} />
+              <Text style={[styles.label, { color }]}>{tab.label}</Text>
+            </View>
           </TouchableOpacity>
         );
       })}
@@ -52,28 +55,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: theme.colors.white,
     borderRadius: theme.radius.tabBar,
+    boxShadow: theme.shadow.bar,
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    minHeight: theme.spacing.tabBar,
+    height: theme.spacing.tabBar,
     paddingHorizontal: theme.spacing.small,
-    shadowColor: theme.colors.title,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: theme.shadow.opacity,
-    shadowRadius: theme.shadow.radius,
-    elevation: theme.shadow.elevation,
   },
   tab: {
     alignItems: 'center',
-    borderRadius: theme.radius.tabItem,
-    height: theme.spacing.tabItem,
+    flex: 1,
     justifyContent: 'center',
-    width: theme.spacing.tabItem,
   },
-  tabActive: {
+  item: {
+    alignItems: 'center',
+    borderRadius: theme.radius.tabItem,
+    height: theme.spacing.tabItemHeight,
+    justifyContent: 'center',
+    width: theme.spacing.tabItemWidth,
+  },
+  itemActive: {
     backgroundColor: theme.colors.button,
+    boxShadow: theme.shadow.active,
   },
   label: {
-    fontFamily: theme.fonts.semiBold,
+    fontFamily: theme.fonts.bold,
     fontSize: theme.typography.tabLabel,
     marginTop: theme.spacing.tiny / 2,
   },

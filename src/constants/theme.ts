@@ -12,7 +12,7 @@ export const theme = {
     error: '#B42318',
     border: '#B8B8B8',
     overlay: 'rgba(0, 0, 0, 0.45)',
-    divider: '#EDEDED',
+    iconButton: '#ECECEC',
   },
   fonts: {
     regular: 'Poppins_400Regular',
@@ -35,8 +35,9 @@ export const theme = {
     avatar: 44,
     bell: 40,
     chip: 40,
-    tabBar: 72,
-    tabItem: 56,
+    tabBar: 64,
+    tabItemWidth: 52,
+    tabItemHeight: 48,
   },
   icon: {
     small: 12,
@@ -50,8 +51,8 @@ export const theme = {
     chip: 10,
     card: 14,
     badge: 8,
-    tabBar: 28,
-    tabItem: 18,
+    tabBar: 32,
+    tabItem: 16,
     pill: 999,
   },
   typography: {
@@ -68,11 +69,16 @@ export const theme = {
     captionSmall: 8,
     price: 15,
     priceSmall: 11,
-    tabLabel: 10,
+    tabLabel: 9,
   },
   shadow: {
     opacity: 0.12,
     radius: 8,
     elevation: 4,
+    // Sombras da Home no formato boxShadow (funciona em Android, iOS e web)
+    soft: '0px 2px 10px rgba(0, 0, 0, 0.10)',
+    card: '0px 4px 14px rgba(0, 0, 0, 0.12)',
+    bar: '0px 6px 20px rgba(0, 0, 0, 0.16)',
+    active: '0px 4px 12px rgba(255, 121, 15, 0.40)',
   },
 } as const;

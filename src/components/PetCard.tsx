@@ -72,11 +72,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: theme.colors.white,
     borderRadius: theme.radius.card,
-    shadowColor: theme.colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: theme.shadow.opacity,
-    shadowRadius: theme.shadow.radius,
-    elevation: theme.shadow.elevation,
+    boxShadow: theme.shadow.card,
   },
   image: {
     borderTopLeftRadius: theme.radius.card,

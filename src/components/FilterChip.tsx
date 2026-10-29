@@ -29,17 +29,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     minHeight: theme.spacing.chip,
-    shadowColor: theme.colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: theme.shadow.opacity,
-    shadowRadius: theme.shadow.radius,
-    elevation: theme.shadow.elevation,
   },
   chipActive: {
     backgroundColor: theme.colors.button,
+    boxShadow: theme.shadow.active,
   },
   chipInactive: {
     backgroundColor: theme.colors.white,
+    boxShadow: theme.shadow.soft,
   },
   label: {
     fontFamily: theme.fonts.regular,

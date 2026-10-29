@@ -26,7 +26,12 @@ type Hotel = {
   rating: string;
 };
 
-const FILTERS = ['Pet-Hotel', 'Pet-Sitter', 'Pet-Walker'];
+// Cada filtro tem o seu titulo para a secao de "proximos de voce"
+const FILTERS = [
+  { label: 'Pet-Hotel', title: 'Pet-Hotéis próximos de você' },
+  { label: 'Pet-Sitter', title: 'Pet-Sitters próximos de você' },
+  { label: 'Pet-Walker', title: 'Pet-Walkers próximos de você' },
+];
 
 const USER = {
   avatar: 'https://i.pravatar.cc/150?img=12',
@@ -93,6 +98,8 @@ export default function HomeScreen() {
   const nearbyCardWidth = width * 0.68;
   const popularCardWidth = width * 0.36;
 
+  const nearbyTitle = FILTERS.find((filter) => filter.label === activeFilter)?.title;
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -118,15 +125,15 @@ export default function HomeScreen() {
         <View style={styles.filters}>
           {FILTERS.map((filter) => (
             <FilterChip
-              key={filter}
-              active={filter === activeFilter}
-              label={filter}
-              onPress={() => setActiveFilter(filter)}
+              key={filter.label}
+              active={filter.label === activeFilter}
+              label={filter.label}
+              onPress={() => setActiveFilter(filter.label)}
             />
           ))}
         </View>
 
-        <Text style={styles.sectionTitle}>Pet-Hotéis próximos de você</Text>
+        <Text style={styles.sectionTitle}>{nearbyTitle}</Text>
         <ScrollView
           contentContainerStyle={styles.rowContent}
           horizontal
@@ -149,7 +156,7 @@ export default function HomeScreen() {
         </ScrollView>
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Mais populares</Text>
+          <Text style={styles.sectionHeaderTitle}>Mais populares</Text>
           <TouchableOpacity>
             <Text style={styles.seeMore}>ver mais</Text>
           </TouchableOpacity>
@@ -221,10 +228,9 @@ const styles = StyleSheet.create({
   },
   bell: {
     alignItems: 'center',
-    backgroundColor: theme.colors.white,
-    borderColor: theme.colors.divider,
+    backgroundColor: theme.colors.iconButton,
     borderRadius: theme.radius.pill,
-    borderWidth: 1,
+    boxShadow: theme.shadow.soft,
     height: theme.spacing.bell,
     justifyContent: 'center',
     width: theme.spacing.bell,
@@ -240,25 +246,32 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.sectionTitle,
     marginTop: theme.spacing.page,
   },
+  // Vem logo depois de uma lista, que ja tem espaco embaixo para a sombra
   sectionHeader: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: theme.spacing.small,
+  },
+  sectionHeaderTitle: {
+    color: theme.colors.title,
+    fontFamily: theme.fonts.bold,
+    fontSize: theme.typography.sectionTitle,
   },
   seeMore: {
     color: theme.colors.button,
     fontFamily: theme.fonts.bold,
     fontSize: theme.typography.body,
-    marginTop: theme.spacing.page,
   },
-  // Faz a lista horizontal "vazar" ate a borda direita da tela, como no print
+  // A lista horizontal ocupa a largura toda da tela, como no print.
+  // O padding interno deixa espaco para a sombra dos cards nao ser cortada.
   row: {
-    marginRight: -theme.spacing.page,
+    marginHorizontal: -theme.spacing.page,
   },
   rowContent: {
     gap: theme.spacing.medium,
-    paddingBottom: theme.spacing.small,
-    paddingRight: theme.spacing.page,
+    paddingBottom: theme.spacing.section,
+    paddingHorizontal: theme.spacing.page,
     paddingTop: theme.spacing.medium,
   },
   tabBarWrapper: {

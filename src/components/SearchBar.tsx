@@ -34,11 +34,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing.medium,
     minHeight: 48,
     paddingHorizontal: theme.spacing.input,
-    shadowColor: theme.colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: theme.shadow.opacity,
-    shadowRadius: theme.shadow.radius,
-    elevation: theme.shadow.elevation,
+    boxShadow: theme.shadow.soft,
   },
   input: {
     color: theme.colors.text,

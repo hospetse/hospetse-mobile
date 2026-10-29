@@ -1,16 +1,28 @@
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import { theme } from '../constants/theme';
 
 type ButtonProps = {
   onPress: () => void;
   title: string;
+  loading?: boolean;
 };
 
-export function Button({ onPress, title }: ButtonProps) {
+// Enquanto loading, o botão fica desabilitado para não enviar duas vezes
+export function Button({ onPress, title, loading = false }: ButtonProps) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.button}>
-      <Text style={styles.text}>{title}</Text>
+    <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityState={{ busy: loading, disabled: loading }}
+      disabled={loading}
+      onPress={onPress}
+      style={[styles.button, loading && styles.buttonLoading]}
+    >
+      {loading ? (
+        <ActivityIndicator color={theme.colors.white} />
+      ) : (
+        <Text style={styles.text}>{title}</Text>
+      )}
     </TouchableOpacity>
   );
 }
@@ -28,6 +40,9 @@ const styles = StyleSheet.create({
     shadowOpacity: theme.shadow.opacity,
     shadowRadius: theme.shadow.radius,
     elevation: theme.shadow.elevation,
+  },
+  buttonLoading: {
+    opacity: 0.7,
   },
   text: {
     color: theme.colors.white,

@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   ratingBadge: {
     alignItems: 'center',
-    backgroundColor: theme.colors.overlay,
+    backgroundColor: theme.colors.badge,
     borderRadius: theme.radius.badge,
     flexDirection: 'row',
     gap: theme.spacing.tiny / 2,

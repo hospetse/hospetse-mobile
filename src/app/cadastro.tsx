@@ -12,19 +12,22 @@ import {
 import { Button } from '../components/Button';
 import { InfoIcon } from '../components/InfoIcon';
 import { theme } from '../constants/theme';
-import { formatPhone } from '../utils/formatPhone';
+import { useSignup } from '../context/SignupContext';
+import { getErrorStatus, requestPin } from '../services/auth';
 import { isStrongPassword } from '../utils/isStrongPassword';
+import { requestPinErrorMessage } from '../utils/requestPinErrorMessage';
 
 export default function RegisterScreen() {
+  const { saveSignup, clearSignup } = useSignup();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  function handleRegister() {
-    if (!name.trim() || !email.trim() || !phone || !password) {
+  async function handleRegister() {
+    if (!name.trim() || !email.trim() || !password) {
       setError('Preencha todos os campos para continuar.');
       return;
     }
@@ -40,7 +43,30 @@ export default function RegisterScreen() {
     }
 
     setError('');
-    router.push('/codigo');
+    setLoading(true);
+
+    try {
+      const challengeId = await requestPin(email);
+      saveSignup({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        password,
+        acceptedTerms,
+        challengeId,
+        pinRequestedAt: Date.now(),
+      });
+      router.push('/codigo');
+    } catch (requestError) {
+      const status = getErrorStatus(requestError);
+      if (status === 409) {
+        clearSignup();
+        router.replace({ pathname: '/', params: { aviso: 'email-cadastrado' } });
+        return;
+      }
+      setError(requestPinErrorMessage(status));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -56,6 +82,7 @@ export default function RegisterScreen() {
         <View style={styles.form}>
           <Text style={styles.label}>Informe seu nome completo</Text>
           <TextInput
+            accessibilityLabel="Nome completo"
             autoCapitalize="words"
             autoComplete="name"
             onChangeText={setName}
@@ -67,6 +94,7 @@ export default function RegisterScreen() {
 
           <Text style={styles.labelSpaced}>Informe seu e-mail</Text>
           <TextInput
+            accessibilityLabel="E-mail"
             autoCapitalize="none"
             autoComplete="email"
             keyboardType="email-address"
@@ -77,19 +105,9 @@ export default function RegisterScreen() {
             value={email}
           />
 
-          <Text style={styles.labelSpaced}>Informe seu telefone</Text>
-          <TextInput
-            autoComplete="tel"
-            keyboardType="phone-pad"
-            onChangeText={(text) => setPhone(formatPhone(text))}
-            placeholder="(12) 34567-8910"
-            placeholderTextColor={theme.colors.placeholder}
-            style={styles.input}
-            value={phone}
-          />
-
           <Text style={styles.labelSpaced}>Crie uma senha</Text>
           <TextInput
+            accessibilityLabel="Senha"
             autoCapitalize="none"
             autoComplete="new-password"
             onChangeText={setPassword}
@@ -120,12 +138,17 @@ export default function RegisterScreen() {
 
           {error ? <Text style={styles.formError}>{error}</Text> : null}
 
-          <Button onPress={handleRegister} title="Criar conta" />
+          <Button loading={loading} onPress={handleRegister} title="Criar conta" />
         </View>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>Já possui conta? </Text>
-          <TouchableOpacity onPress={() => router.replace('/')}>
+          <TouchableOpacity
+            onPress={() => {
+              clearSignup();
+              router.replace('/');
+            }}
+          >
             <Text style={styles.link}>Entrar</Text>
           </TouchableOpacity>
         </View>

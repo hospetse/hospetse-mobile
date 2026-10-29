@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
   ScrollView,
@@ -13,10 +13,14 @@ import { Button } from '../components/Button';
 import { theme } from '../constants/theme';
 
 export default function LoginScreen() {
+  // Vem do cadastro quando o e-mail já tem conta (409)
+  const { aviso } = useLocalSearchParams<{ aviso?: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(
+    aviso === 'email-cadastrado' ? 'Este e-mail já tem conta. Entre com sua senha.' : '',
+  );
 
   function handleLogin() {
     if (!email.trim() || !password) {

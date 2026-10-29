@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
   Image,
@@ -89,6 +90,9 @@ const POPULAR_HOTELS: Hotel[] = [
 ];
 
 export default function HomeScreen() {
+  // Primeiro nome enviado pela tela de codigo depois do cadastro
+  const { nome } = useLocalSearchParams<{ nome?: string }>();
+  const userName = nome || USER.name;
   const { width } = useWindowDimensions();
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('Pet-Hotel');
@@ -107,7 +111,7 @@ export default function HomeScreen() {
           <View style={styles.userRow}>
             <Image source={{ uri: USER.avatar }} style={styles.avatar} />
             <View>
-              <Text style={styles.userName}>{USER.name}</Text>
+              <Text style={styles.userName}>{userName}</Text>
               <Text style={styles.userCity}>{USER.city}</Text>
             </View>
           </View>
@@ -212,7 +216,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing.medium,
   },
   avatar: {
-    borderRadius: theme.radius.pill,
+    borderRadius: theme.radius.round,
     height: theme.spacing.avatar,
     width: theme.spacing.avatar,
   },
@@ -229,7 +233,7 @@ const styles = StyleSheet.create({
   bell: {
     alignItems: 'center',
     backgroundColor: theme.colors.iconButton,
-    borderRadius: theme.radius.pill,
+    borderRadius: theme.radius.round,
     boxShadow: theme.shadow.soft,
     height: theme.spacing.bell,
     justifyContent: 'center',

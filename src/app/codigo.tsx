@@ -19,6 +19,7 @@ export default function CodeScreen() {
     }
 
     setError('');
+    router.replace('/home');
   }
 
   return (

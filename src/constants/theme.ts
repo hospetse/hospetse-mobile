@@ -13,6 +13,8 @@ export const theme = {
     border: '#B8B8B8',
     skeleton: '#EFE6DC',
     overlay: 'rgba(0, 0, 0, 0.25)',
+    iconBackground: '#FDE3DE',
+    icon: '#E8676B',
   },
   fonts: {
     regular: 'Poppins_400Regular',
@@ -31,6 +33,8 @@ export const theme = {
     checkbox: 20,
     codeBoxWidth: 46,
     codeBoxHeight: 56,
+    modalIconCircle: 48,
+    modalIcon: 28,
   },
   radius: {
     input: 12,
@@ -45,6 +49,7 @@ export const theme = {
     label: 12,
     body: 12,
     button: 14,
+    modalTitle: 16,
   },
   shadow: {
     opacity: 0.12,

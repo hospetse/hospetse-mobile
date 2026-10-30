@@ -36,6 +36,15 @@ export async function register(input: RegisterInput): Promise<AuthTokens> {
   return data;
 }
 
+// Entra com e-mail e senha. O Auth responde 401 com a mesma mensagem para e-mail sem conta e senha errada
+export async function login(email: string, password: string): Promise<AuthTokens> {
+  const { data } = await authApi.post<AuthTokens>('/api/v1/auth/login', {
+    email: email.trim().toLowerCase(),
+    password,
+  });
+  return data;
+}
+
 // Status HTTP do erro, ou null quando não houve resposta (sem rede, timeout)
 export function getErrorStatus(error: unknown): number | null {
   if (axios.isAxiosError(error) && error.response) {

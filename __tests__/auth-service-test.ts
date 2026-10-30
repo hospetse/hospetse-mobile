@@ -1,5 +1,5 @@
 import { authApi } from '../src/services/api';
-import { getErrorStatus, register, requestPin } from '../src/services/auth';
+import { getErrorStatus, login, register, requestPin } from '../src/services/auth';
 import { httpError, networkError } from '../test-utils/http';
 
 jest.mock('../src/services/api', () => ({
@@ -41,6 +41,22 @@ describe('services/auth', () => {
 
     await expect(register(input)).resolves.toEqual(tokens);
     expect(post).toHaveBeenCalledWith('/api/v1/auth/register', input);
+  });
+
+  test('login envia o e-mail normalizado e a senha e devolve os tokens', async () => {
+    const tokens = {
+      accessToken: 'access',
+      tokenType: 'Bearer',
+      expiresIn: 900,
+      refreshToken: 'refresh',
+    };
+    post.mockResolvedValue({ data: tokens });
+
+    await expect(login('  Ana@Exemplo.COM ', 'Senha@123')).resolves.toEqual(tokens);
+    expect(post).toHaveBeenCalledWith('/api/v1/auth/login', {
+      email: 'ana@exemplo.com',
+      password: 'Senha@123',
+    });
   });
 
   test('getErrorStatus devolve o status HTTP ou null sem resposta', () => {

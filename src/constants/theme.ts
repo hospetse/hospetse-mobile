@@ -15,6 +15,10 @@ export const theme = {
     overlay: 'rgba(0, 0, 0, 0.25)',
     badge: 'rgba(0, 0, 0, 0.45)',
     iconButton: '#ECECEC',
+    // Busca e filtros
+    backdrop: 'rgba(0, 0, 0, 0.35)',
+    divider: '#EDEDED',
+    rangeFill: '#FFDDC2',
   },
   fonts: {
     regular: 'Poppins_400Regular',
@@ -40,6 +44,10 @@ export const theme = {
     tabBar: 64,
     tabItemWidth: 52,
     tabItemHeight: 48,
+    field: 40,
+    calendarDay: 32,
+    calendarMark: 24,
+    petAvatar: 64,
   },
   icon: {
     small: 12,
@@ -56,6 +64,7 @@ export const theme = {
     badge: 8,
     tabBar: 32,
     tabItem: 16,
+    calendarMark: 4,
   },
   typography: {
     title: 24,
@@ -72,6 +81,7 @@ export const theme = {
     price: 15,
     priceSmall: 11,
     tabLabel: 9,
+    filterTitle: 16,
   },
   shadow: {
     opacity: 0.12,

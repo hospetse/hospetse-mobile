@@ -16,6 +16,12 @@ import { FilterChip } from '../components/FilterChip';
 import { Icon } from '../components/Icon';
 import { PetCard } from '../components/PetCard';
 import { SearchBar } from '../components/SearchBar';
+import {
+  EMPTY_FILTERS,
+  PetSummary,
+  SearchFilters,
+  SearchModal,
+} from '../components/SearchModal';
 import { theme } from '../constants/theme';
 
 type Hotel = {
@@ -39,6 +45,20 @@ const USER = {
   city: 'Em Maringá',
   name: 'Murilo Barbosa',
 };
+
+// Pets de exemplo ate a lista de pets do Tutor (#371) existir
+const PETS: PetSummary[] = [
+  {
+    id: 'pet-1',
+    name: 'Paçoca',
+    imageUri: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=300',
+  },
+  {
+    id: 'pet-2',
+    name: 'Luna',
+    imageUri: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=300',
+  },
+];
 
 const HOTEL_IMAGE =
   'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600';
@@ -94,9 +114,21 @@ export default function HomeScreen() {
   const { nome } = useLocalSearchParams<{ nome?: string }>();
   const userName = nome || USER.name;
   const { width } = useWindowDimensions();
-  const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('Pet-Hotel');
   const [activeTab, setActiveTab] = useState<TabKey>('home');
+  // Filtros da ultima busca feita. A busca sempre reabre vazia; estes filtros
+  // vao para a tela de resultados (#480) quando ela existir
+  const [lastSearch, setLastSearch] = useState<SearchFilters>(EMPTY_FILTERS);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // A aba Buscar abre a busca por cima da Home, sem trocar a aba ativa
+  function handleChangeTab(key: TabKey) {
+    if (key === 'buscar') {
+      setSearchOpen(true);
+      return;
+    }
+    setActiveTab(key);
+  }
 
   // Largura dos cards proporcional a tela, como na referencia
   const nearbyCardWidth = width * 0.68;
@@ -120,11 +152,20 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <SearchBar
-          onChangeText={setSearch}
-          placeholder="Endereço, cidade ou proximidade"
-          value={search}
-        />
+        {/* Na Home a busca só abre o modal; a digitação acontece dentro dele */}
+        <TouchableOpacity
+          accessibilityLabel="Abrir busca"
+          accessibilityRole="button"
+          onPress={() => setSearchOpen(true)}
+        >
+          <View style={styles.searchPreview}>
+            <SearchBar
+              onChangeText={() => {}}
+              placeholder="Endereço, cidade ou proximidade"
+              value=""
+            />
+          </View>
+        </TouchableOpacity>
 
         <View style={styles.filters}>
           {FILTERS.map((filter) => (
@@ -188,8 +229,15 @@ export default function HomeScreen() {
       </ScrollView>
 
       <View style={styles.tabBarWrapper}>
-        <BottomTabBar activeTab={activeTab} onChangeTab={setActiveTab} />
+        <BottomTabBar activeTab={activeTab} onChangeTab={handleChangeTab} />
       </View>
+
+      <SearchModal
+        onClose={() => setSearchOpen(false)}
+        onSearch={setLastSearch}
+        pets={PETS}
+        visible={searchOpen}
+      />
     </SafeAreaView>
   );
 }
@@ -238,6 +286,10 @@ const styles = StyleSheet.create({
     height: theme.spacing.bell,
     justifyContent: 'center',
     width: theme.spacing.bell,
+  },
+  // O campo é só uma prévia: o toque vai para o botão em volta
+  searchPreview: {
+    pointerEvents: 'none',
   },
   filters: {
     flexDirection: 'row',

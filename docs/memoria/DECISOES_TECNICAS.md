@@ -97,3 +97,34 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
   - A **Memória nativa do Kiro** é opcional e complementar: fica desligada por padrão, guarda tudo localmente para um só usuário e não é compartilhada com o time.
 - **Alternativa avaliada:** o **ai-memory** (akitaonrails/ai-memory) **não foi instalado**. Ele exige um servidor local, grava os prompts e as chamadas de ferramenta e tem suporte documentado para o Kiro **CLI**, não para o Kiro IDE.
 - **A confirmar:** o steering `hospetse-architecture.md` diz "Não crie pastas fora do diretório `src/`", e `docs/` está fora. Ficou entendido que a regra vale para código. Falta a desenvolvedora confirmar e, se for o caso, ajustar o texto do steering.
+
+## Busca e filtros
+
+### DT-11: A busca é um modal por cima da Home
+- **Data:** 2026-10-30 · **Task:** #477 · **Status:** Aceita
+- **Decisão:** a busca é o componente `SearchModal` (um `Modal` do React Native, transparente), aberto pela Home, e não uma rota.
+  - O campo de busca da Home e a aba Buscar abrem o modal. A aba ativa continua sendo a Home, como no print.
+  - O campo da Home virou só um atalho: um `TouchableOpacity` em volta do `SearchBar`, com `pointerEvents: 'none'`. Ele mostra sempre o texto de exemplo (veja a DT-12).
+  - Tocar fora do cartão ou no botão voltar do Android fecha o modal.
+  - O fundo fica escurecido (`colors.backdrop`) em vez de desfocado como no print. O desfoque exigiria `expo-blur`, e nenhuma dependência é instalada sem autorização.
+- **Motivo:** nos prints, a busca aparece por cima da Home, com a barra inferior visível.
+- **Alternativa descartada:** uma rota `/buscar` com `presentation: 'transparentModal'`. Daria mais trabalho para manter os filtros entre a Home e a busca.
+
+### DT-12: Regras de estado e de interação da busca
+- **Data:** 2026-10-30 · **Task:** #477 · **Status:** Aceita, com dados Provisórios
+- **Estado:**
+  - Os filtros (`SearchFilters`: cidade, check-in, check-out, serviço e pet) ficam no formulário do modal, em `useState`, e só são enviados ao tocar em "Buscar". Fechar sem buscar descarta tudo.
+  - **A cada abertura, a busca começa vazia** (`EMPTY_FILTERS`). O formulário só é montado com o modal aberto.
+  - A Home guarda a última busca feita em `lastSearch`, para a tela de resultados (#480). O campo de busca da Home não mostra a cidade.
+- **Revisão de 2026-10-30:** na primeira versão, o modal reabria com os últimos filtros e o campo da Home mostrava a cidade. A desenvolvedora pediu que a busca reabrisse vazia.
+  - O card da #477 pede "filtros mantidos ao voltar dos resultados". Esse caso vai ser tratado na #480: ao voltar dos resultados, abrir a busca com o `lastSearch`.
+- **Seções:**
+  - Só uma fica aberta por vez, e a primeira a abrir é "Onde?".
+  - A seta laranja aparece só nas seções abaixo da aberta, como no protótipo.
+  - Escolher uma opção não abre a próxima seção, porque os prints mostram a escolha com a seção ainda aberta.
+- **Calendário:**
+  - Mostra o mês real, com dias passados desabilitados e setas para trocar de mês. O print começa outubro num domingo, mas o calendário real foi mantido.
+  - O primeiro toque marca o check-in e o segundo, depois dele, o check-out. Tocar antes do check-in, ou com o período completo, recomeça a escolha (`selectRangeDay` em `utils/calendar.ts`).
+- **Serviço:** um por vez, com os nomes do print: "Pet Hotel", "Pet Walker" e "Pet Sitter". Os chips da Home usam hífen e não estão ligados à busca.
+- **Pet:** opcional, e tocar de novo desmarca. Sem pets, a seção mostra um texto, até existirem a tela 08I e os campos de porte e raça.
+- **Provisório:** as sugestões de cidade estão fixas no `SearchModal` e os pets de exemplo estão em `PETS`, na Home. Vão ser trocados pela API (#476) e pela lista de pets (#371).

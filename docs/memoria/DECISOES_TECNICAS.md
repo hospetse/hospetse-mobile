@@ -52,7 +52,7 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
 - **Ao integrar:** troque as constantes por dados da API e use o `Skeleton` no estado de carregamento.
 
 ### DT-06: Fluxos que levam à Home
-- **Data:** 2026-10-28, revisada em 2026-10-29 · **Status:** Provisória (login)
+- **Data:** 2026-10-28, revisada em 2026-10-29 · **Status:** Aceita para o cadastro; a parte do login foi **Substituída por DT-11**
 - **Decisão:**
   - **Login** (`index.tsx`): com os campos preenchidos, faz `router.replace('/home')` **sem chamar o Auth**. É provisório, até a integração do login.
   - **Cadastro:** a navegação depois do `register` é a do PR !18, `router.replace({ pathname: '/home', params: { nome } })`, com o primeiro nome. A Home lê o `nome` por `useLocalSearchParams` e, sem ele, usa o nome de exemplo.
@@ -66,6 +66,25 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
 - O cliente do Auth é uma instância do axios com `baseURL` vinda do `EXPO_PUBLIC_AUTH_URL` e `timeout` de 15 s.
 - Uma resposta 409 no `request-pin` ou no `register` limpa o cadastro e leva ao login com `aviso=email-cadastrado`.
 - O atalho "Abrir Home (temporário)" na `codigo.tsx` só aparece em `__DEV__` e deve sair quando a #261 for integrada.
+
+### DT-11: Login integrado ao Auth
+- **Data:** 2026-10-30 · **Task:** #267 · **Status:** Aceita · **Substitui:** a parte do login da DT-06
+- **Decisão:** o `index.tsx` chama `login()` (`POST /api/v1/auth/login`), salva os tokens com `saveTokens` e faz `router.replace('/home')`.
+  - 401: modal "Login ou senha incorretos", com o texto do design.
+  - 403 (cadastro não concluído): modal com o botão "Concluir cadastro", que leva a `/cadastro`.
+  - 400: erro no campo de e-mail. Sem resposta: modal "Sem conexão".
+- **Motivo:** o login provisório deixava entrar na Home com qualquer senha.
+- **Limite conhecido:** o SecureStore não funciona na web, então o login certo só funciona no Android e no iOS.
+
+### DT-12: Validação local dos formulários
+- **Data:** 2026-10-30 · **Task:** #267 · **Status:** Aceita
+- **Decisão:**
+  - O cadastro é uma tela única (nome, e-mail, senha, confirmação e termos), e não três telas separadas.
+  - `validateSignup` e `validateLogin` (em `src/utils/`) devolvem um erro por campo. A tela mostra todos juntos, com o `FieldError` embaixo de cada campo, e leva o foco ao primeiro campo com erro.
+  - Os limites espelham o Auth (nome e e-mail até 255 caracteres, formato do e-mail). A política da senha é a do app (`isStrongPassword`), porque o Auth ainda não tem uma (#252).
+  - A confirmação da senha fica só na tela e não vai para o `SignupContext` nem para a API.
+  - Erros do servidor e da conexão aparecem no `ErrorModal`; erros de formato, nunca em modal.
+- **Motivo:** critérios de aceite da TSK-09 (#267) e decisão da desenvolvedora pela tela única.
 
 ## Configuração
 

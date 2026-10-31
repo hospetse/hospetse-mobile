@@ -115,3 +115,20 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Ficou pendente:**
   - Push e PR da #503. Esse PR tem que ser mergeado **depois** do PR !32, porque a memória descreve a Home e os steerings dele.
   - Confirmação da regra de pastas fora de `src/` (DT-10).
+
+## 2026-10-30: Validação do cadastro e login integrado ao Auth (#267)
+- **Objetivo:** TSK-09 (validar o cadastro no app, com todos os erros de uma vez) e trocar o login provisório pelo login do Auth.
+- **Arquivos criados:** `src/utils/validateSignup.ts`, `src/utils/validateLogin.ts`, `src/components/FieldError.tsx`, `src/components/ErrorModal.tsx`, `assets/pets.png`, `__tests__/validateSignup-test.ts` e `__tests__/login-test.tsx`.
+- **Arquivos alterados:** `src/app/cadastro.tsx`, `src/app/index.tsx`, `src/services/auth.ts` (`login`), `src/utils/requestPinErrorMessage.ts` (títulos do modal), `src/constants/theme.ts` (só acréscimos), `__tests__/cadastro-test.tsx` e `__tests__/auth-service-test.ts`.
+- **Decisões:** DT-11 e DT-12 (DT-06 parcialmente substituída).
+- **Verificação:**
+  - `tsc --noEmit` sem erros e 46 de 46 testes Jest passando. Na primeira rodada, o primeiro teste de 3 arquivos estourou o limite de 5 s enquanto o cache era montado.
+  - `expo export` para Android e web sem erros.
+  - Contra o Auth de produção: login sem conta respondeu 401 e e-mail inválido respondeu 400, como o app espera; `request-pin` respondeu 201.
+  - **Não rodou:** o cadastro completo até a Home, porque o Auth de produção usa o `ConsoleEmailSender` e o PIN só aparece no log do servidor. Também não houve teste num aparelho.
+- **Problemas e soluções:**
+  - O tipo do `ref` do `TextInput` no React Native 0.88 é `TextInputInstance`, e não `TextInput`.
+  - Conflitos ao integrar a `develop` (PRs !32 e !35): no `index.tsx` ficou o login integrado; no `theme.ts` ficaram os tokens das duas branches, sem mudar valores.
+- **Ficou pendente:** push do login e do merge, PR para a `develop` com revisor que não seja o autor e teste do cadastro com um PIN real.
+- **Explicações para a banca:** os trechos que fogem do básico estão explicados em `docs/memoria/EXPLICACOES_CADASTRO_LOGIN.md`.
+- **Commits:** `7b0e4b7` (validação do cadastro, enviado), `c4f8cb7` (login) e `c4c0a72` (merge da `develop`), ainda locais.

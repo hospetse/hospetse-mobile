@@ -1,7 +1,7 @@
 # Contexto do projeto: Hospetse Mobile
 
 > Resumo principal para retomar o trabalho. Mantenha curto e fiel ao código.
-> Última atualização: 2026-10-29. Descreve o código da branch `feature/472-implementar-a-tela-home-no-mobile` (commit `53654bd`, PR !32). A memória está na branch `docs/503-criar-a-memoria-persistente-do-desenvolvimento-no-mobile`.
+> Última atualização: 2026-10-30. Descreve o código da branch `feature/267-implementar-telas-de-email-dados-e-senha-do-cadastro`, com a `develop` (PRs !32 e !35) já integrada.
 
 ## Objetivo
 
@@ -34,8 +34,8 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `src/constants/theme.ts` | Cores, fontes, espaçamentos, raios, tipografia e sombras. É a única fonte de valores visuais. |
 | `src/constants/terms.ts` | Versão dos Termos de Uso enviada no cadastro. |
 | `src/context/SignupContext.tsx` | Dados do cadastro em memória, entre `/cadastro` e `/codigo`. |
-| `src/services/` | `api.ts` (instância do axios do Auth), `auth.ts` (`requestPin`, `register`, `getErrorStatus`) e `token-storage.ts` (SecureStore). |
-| `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`). |
+| `src/services/` | `api.ts` (instância do axios do Auth), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`) e `token-storage.ts` (SecureStore). |
+| `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`, `validateSignup`, `validateLogin`). |
 | `__tests__/`, `test-utils/` | Testes Jest e utilitários de teste (erros HTTP falsos, espião do console). |
 | `.kiro/steering/` | Regras do Kiro: arquitetura e código (`hospetse-architecture.md`), git (`git-workflow.md`), memória (`memoria-projeto.md`) e retomada (`retomar-contexto.md`, manual). |
 | `AGENTS.md` | Regras do Expo e a seção "Project memory", que inclui o `memoria-projeto.md`. É o único arquivo de regras que o Kiro carrega quando o workspace é aberto na pasta `HOSPETSE`. |
@@ -45,8 +45,8 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 
 | Rota | Arquivo | Estado atual |
 | --- | --- | --- |
-| `/` | `index.tsx` | Login **sem integração**: só confere se os campos estão preenchidos e vai para `/home`. Mostra um aviso quando chega com `aviso=email-cadastrado`. |
-| `/cadastro` | `cadastro.tsx` | Integrado ao Auth. Chama `request-pin`, guarda os dados no `SignupContext` e vai para `/codigo`. Se a resposta for 409, volta ao login com o aviso. |
+| `/` | `index.tsx` | Login integrado ao Auth (`POST /api/v1/auth/login`). Mostra os erros de e-mail e senha juntos, salva os tokens no SecureStore e vai para `/home`. 401 abre o modal "Login ou senha incorretos"; 403 avisa que o cadastro não foi concluído. Mostra um aviso quando chega com `aviso=email-cadastrado`. |
+| `/cadastro` | `cadastro.tsx` | Tela única com nome, e-mail, senha, confirmação e termos. Mostra todos os erros de formato juntos, embaixo de cada campo, antes do envio. Chama `request-pin`, guarda os dados (sem a confirmação) no `SignupContext` e vai para `/codigo`. 409 volta ao login com o aviso; 400 aparece no campo de e-mail; os outros erros abrem o `ErrorModal`. |
 | `/codigo` | `codigo.tsx` | Integrado ao Auth. Chama `register`, salva os tokens e vai para `/home` com o parâmetro `nome`. Reenvio do código a cada 60 s. Em modo dev, tem o atalho temporário "Abrir Home (temporário)" (ligado à #261). |
 | `/recuperar-senha` | `recuperar-senha.tsx` | Só valida o formato do e-mail no aparelho; não chama nenhuma API. |
 | `/home` | `home.tsx` | Visual completo da task #472, com dados fixos no código. Os filtros mudam o título da seção. O cabeçalho mostra o `nome` vindo do cadastro ou o nome de exemplo. As abas e o "ver mais" ainda não navegam. |
@@ -66,6 +66,8 @@ Telas que o código já indica e que ainda não existem: Buscar, Reservas e Perf
 | `FilterChip` | Chip de categoria, ativo ou inativo. |
 | `PetCard` | Card de hospedagem (foto, avaliação, nome, cidade e preço), nos tamanhos `large` e `small`. |
 | `BottomTabBar` | Barra inferior com as abas Home, Buscar, Reservas e Perfil (exporta o tipo `TabKey`). |
+| `FieldError` | Texto de erro embaixo de um campo. Sem mensagem, não mostra nada. |
+| `ErrorModal` | Aviso de erro do servidor ou da conexão, no estilo do design: ícone `pets` (`assets/pets.png`), título, texto e botão. |
 
 ## Padrões obrigatórios
 
@@ -80,7 +82,8 @@ Telas que o código já indica e que ainda não existem: Buscar, Reservas e Perf
 
 ## Integrações
 
-- Auth Server (`EXPO_PUBLIC_AUTH_URL`): `POST /api/v1/auth/request-pin` e `POST /api/v1/auth/register`. O login do Auth existe no serviço, mas o mobile ainda não usa.
+- Auth Server (`EXPO_PUBLIC_AUTH_URL`): `POST /api/v1/auth/request-pin`, `POST /api/v1/auth/register` e `POST /api/v1/auth/login`.
+- Contratos atuais: `https://auth-service-production-36e0.up.railway.app/docs` e `https://backend-production-7298.up.railway.app/docs` (o arquivo é o `/docs/openapi.yaml`).
 - Tokens: SecureStore (Keychain ou Keystore), nunca AsyncStorage (ADR-005).
 - O mobile ainda não chama o back-end principal.
 
@@ -91,9 +94,8 @@ Telas que o código já indica e que ainda não existem: Buscar, Reservas e Perf
 - Commit, push, PR e merge só com autorização da desenvolvedora.
 - Bibliotecas com código nativo fora do Expo Go exigem development build: evite.
 
-## Último estado conhecido (2026-10-29)
+## Último estado conhecido (2026-10-30)
 
-- Branch `feature/472-implementar-a-tela-home-no-mobile`, com a `develop` já integrada.
-- PR !32 aberto para a `develop`, sem conflitos, aguardando o revisor. A task #472 está "Em Andamento".
-- Verificações em 2026-10-29: `tsc --noEmit` sem erros e 19 de 19 testes Jest passando.
-- Memória do projeto aprovada pelo time (task #503), na branch `docs/503-...`, que saiu da `develop`. Ela descreve a Home e os steerings do PR !32, então o PR da #503 tem que ser **mergeado depois do PR !32**.
+- PRs !32 (Home, #472) e !35 (memória, #503) mergeados na `develop`.
+- Branch `feature/267-implementar-telas-de-email-dados-e-senha-do-cadastro`, com a `develop` integrada. Só o commit da validação do cadastro (`7b0e4b7`) foi enviado ao Azure; o login e o merge ainda são locais.
+- Verificações em 2026-10-30: `tsc --noEmit` sem erros, 46 de 46 testes Jest passando e `expo export` para Android e web sem erros.

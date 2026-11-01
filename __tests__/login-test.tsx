@@ -146,6 +146,19 @@ describe('Tela de login', () => {
     expect(await screen.findByText('Sem conexão')).toBeOnTheScreen();
   });
 
+  test('falha ao salvar os tokens não aparece como falta de conexão', async () => {
+    mockedLogin.mockResolvedValue(TOKENS);
+    mockedSaveTokens.mockRejectedValueOnce(new Error('SecureStore indisponível'));
+    const user = await renderScreen();
+
+    await fillForm(user);
+    await pressEnter(user);
+
+    expect(await screen.findByText('Não foi possível entrar')).toBeOnTheScreen();
+    expect(screen.queryByText('Sem conexão')).not.toBeOnTheScreen();
+    expect(router.replace).not.toHaveBeenCalled();
+  });
+
   test('toque duplo durante o envio chama o Auth uma vez só', async () => {
     mockedLogin.mockReturnValue(new Promise(() => {}));
     const user = await renderScreen();

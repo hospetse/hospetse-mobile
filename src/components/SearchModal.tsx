@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 
+import { SERVICES, ServiceType } from '../constants/search';
 import { theme } from '../constants/theme';
 import { formatDate } from '../utils/calendar';
 import { Button } from './Button';
@@ -18,7 +19,7 @@ import { FilterSection } from './FilterSection';
 import { Icon } from './Icon';
 import { PetOption } from './PetOption';
 
-export type ServiceType = 'Pet Hotel' | 'Pet Walker' | 'Pet Sitter';
+export type { ServiceType } from '../constants/search';
 
 export type SearchFilters = {
   city: string;
@@ -50,8 +51,6 @@ const SECTIONS: { key: SectionKey; title: string }[] = [
   { key: 'service', title: 'Qual serviço?' },
   { key: 'who', title: 'Para quem?' },
 ];
-
-const SERVICES: ServiceType[] = ['Pet Hotel', 'Pet Walker', 'Pet Sitter'];
 
 // Sugestoes fixas ate existir a busca de cidades na API
 const CITY_SUGGESTIONS = ['Maringá, PR', 'Londrina, PR', 'Sarandi, PR'];

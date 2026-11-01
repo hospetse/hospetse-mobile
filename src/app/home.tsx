@@ -1,7 +1,6 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
-  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,16 +12,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BottomTabBar, TabKey } from '../components/BottomTabBar';
 import { FilterChip } from '../components/FilterChip';
-import { Icon } from '../components/Icon';
 import { PetCard } from '../components/PetCard';
 import { SearchBar } from '../components/SearchBar';
-import {
-  EMPTY_FILTERS,
-  PetSummary,
-  SearchFilters,
-  SearchModal,
-} from '../components/SearchModal';
+import { SearchFilters, SearchModal } from '../components/SearchModal';
+import { UserHeader } from '../components/UserHeader';
+import { SAMPLE_PETS, SAMPLE_USER } from '../constants/sampleData';
 import { theme } from '../constants/theme';
+import { toSearchParams } from '../utils/searchParams';
 
 type Hotel = {
   id: string;
@@ -38,26 +34,6 @@ const FILTERS = [
   { label: 'Pet-Hotel', title: 'Pet-Hotéis próximos de você' },
   { label: 'Pet-Sitter', title: 'Pet-Sitters próximos de você' },
   { label: 'Pet-Walker', title: 'Pet-Walkers próximos de você' },
-];
-
-const USER = {
-  avatar: 'https://i.pravatar.cc/150?img=12',
-  city: 'Em Maringá',
-  name: 'Murilo Barbosa',
-};
-
-// Pets de exemplo ate a lista de pets do Tutor (#371) existir
-const PETS: PetSummary[] = [
-  {
-    id: 'pet-1',
-    name: 'Paçoca',
-    imageUri: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=300',
-  },
-  {
-    id: 'pet-2',
-    name: 'Luna',
-    imageUri: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=300',
-  },
 ];
 
 const HOTEL_IMAGE =
@@ -112,14 +88,16 @@ const POPULAR_HOTELS: Hotel[] = [
 export default function HomeScreen() {
   // Primeiro nome enviado pela tela de codigo depois do cadastro
   const { nome } = useLocalSearchParams<{ nome?: string }>();
-  const userName = nome || USER.name;
+  const userName = nome || SAMPLE_USER.name;
   const { width } = useWindowDimensions();
   const [activeFilter, setActiveFilter] = useState('Pet-Hotel');
   const [activeTab, setActiveTab] = useState<TabKey>('home');
-  // Filtros da ultima busca feita. A busca sempre reabre vazia; estes filtros
-  // vao para a tela de resultados (#480) quando ela existir
-  const [lastSearch, setLastSearch] = useState<SearchFilters>(EMPTY_FILTERS);
   const [searchOpen, setSearchOpen] = useState(false);
+
+  // "Buscar" leva aos resultados com os filtros escolhidos no modal
+  function handleSearch(filters: SearchFilters) {
+    router.push({ pathname: '/resultados', params: toSearchParams(filters) });
+  }
 
   // A aba Buscar abre a busca por cima da Home, sem trocar a aba ativa
   function handleChangeTab(key: TabKey) {
@@ -139,18 +117,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <View style={styles.userRow}>
-            <Image source={{ uri: USER.avatar }} style={styles.avatar} />
-            <View>
-              <Text style={styles.userName}>{userName}</Text>
-              <Text style={styles.userCity}>{USER.city}</Text>
-            </View>
-          </View>
-          <TouchableOpacity accessibilityLabel="Notificações" style={styles.bell}>
-            <Icon color={theme.colors.title} name="notifications" size={theme.icon.medium} />
-          </TouchableOpacity>
-        </View>
+        <UserHeader avatarUri={SAMPLE_USER.avatar} city={SAMPLE_USER.city} name={userName} />
 
         {/* Na Home a busca só abre o modal; a digitação acontece dentro dele */}
         <TouchableOpacity
@@ -191,7 +158,7 @@ export default function HomeScreen() {
               imageUri={hotel.imageUri}
               location={hotel.location}
               name={hotel.name}
-              onPress={() => {}}
+              onPress={() => router.push(`/host/${hotel.id}`)}
               price={hotel.price}
               rating={hotel.rating}
               size="large"
@@ -218,7 +185,7 @@ export default function HomeScreen() {
               imageUri={hotel.imageUri}
               location={hotel.location}
               name={hotel.name}
-              onPress={() => {}}
+              onPress={() => router.push(`/host/${hotel.id}`)}
               price={hotel.price}
               rating={hotel.rating}
               size="small"
@@ -234,8 +201,8 @@ export default function HomeScreen() {
 
       <SearchModal
         onClose={() => setSearchOpen(false)}
-        onSearch={setLastSearch}
-        pets={PETS}
+        onSearch={handleSearch}
+        pets={SAMPLE_PETS}
         visible={searchOpen}
       />
     </SafeAreaView>
@@ -251,41 +218,6 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.tabBar + theme.spacing.page * 2,
     paddingHorizontal: theme.spacing.page,
     paddingTop: theme.spacing.large,
-  },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.section,
-  },
-  userRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: theme.spacing.medium,
-  },
-  avatar: {
-    borderRadius: theme.radius.round,
-    height: theme.spacing.avatar,
-    width: theme.spacing.avatar,
-  },
-  userName: {
-    color: theme.colors.title,
-    fontFamily: theme.fonts.semiBold,
-    fontSize: theme.typography.userName,
-  },
-  userCity: {
-    color: theme.colors.placeholder,
-    fontFamily: theme.fonts.regular,
-    fontSize: theme.typography.caption,
-  },
-  bell: {
-    alignItems: 'center',
-    backgroundColor: theme.colors.iconButton,
-    borderRadius: theme.radius.round,
-    boxShadow: theme.shadow.soft,
-    height: theme.spacing.bell,
-    justifyContent: 'center',
-    width: theme.spacing.bell,
   },
   // O campo é só uma prévia: o toque vai para o botão em volta
   searchPreview: {

@@ -66,3 +66,19 @@ export function selectRangeDay(range: DateRange, day: Date): DateRange {
   }
   return { checkIn, checkOut: day };
 }
+
+// Data para parâmetro de rota (2026-10-18), no dia local
+export function toIsoDate(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+// Lê 2026-10-18 como dia local; texto fora do formato vira null
+export function fromIsoDate(text: string | undefined): Date | null {
+  const match = text ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(text) : null;
+  if (!match) {
+    return null;
+  }
+  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+}

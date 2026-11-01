@@ -1,5 +1,5 @@
 import { authApi } from '../src/services/api';
-import { getErrorStatus, login, register, requestPin } from '../src/services/auth';
+import { getErrorStatus, isRequestError, login, register, requestPin } from '../src/services/auth';
 import { httpError, networkError } from '../test-utils/http';
 
 jest.mock('../src/services/api', () => ({
@@ -63,5 +63,11 @@ describe('services/auth', () => {
     expect(getErrorStatus(httpError(409))).toBe(409);
     expect(getErrorStatus(networkError())).toBeNull();
     expect(getErrorStatus(new Error('qualquer'))).toBeNull();
+  });
+
+  test('isRequestError separa erro de rede de erro que não veio da chamada', () => {
+    expect(isRequestError(httpError(401))).toBe(true);
+    expect(isRequestError(networkError())).toBe(true);
+    expect(isRequestError(new Error('SecureStore indisponível'))).toBe(false);
   });
 });

@@ -21,6 +21,8 @@ export const theme = {
     backdrop: 'rgba(0, 0, 0, 0.35)',
     divider: '#EDEDED',
     rangeFill: '#FFDDC2',
+    // Filtros
+    selectedTint: '#FFF4EB',
   },
   fonts: {
     regular: 'Poppins_400Regular',
@@ -52,6 +54,16 @@ export const theme = {
     calendarDay: 32,
     calendarMark: 24,
     petAvatar: 64,
+    // Detalhe do Host
+    backButton: 36,
+    amenityCircle: 48,
+    galleryThumb: 64,
+    footer: 48,
+    // Filtros
+    serviceIcon: 36,
+    sliderTrack: 4,
+    sliderThumb: 20,
+    sliderArea: 32,
   },
   icon: {
     small: 12,
@@ -87,6 +99,7 @@ export const theme = {
     priceSmall: 11,
     tabLabel: 9,
     filterTitle: 16,
+    hostName: 20,
   },
   shadow: {
     opacity: 0.12,

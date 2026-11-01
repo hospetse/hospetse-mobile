@@ -14,7 +14,7 @@ import { Button } from '../components/Button';
 import { ErrorModal } from '../components/ErrorModal';
 import { FieldError } from '../components/FieldError';
 import { theme } from '../constants/theme';
-import { getErrorStatus, login } from '../services/auth';
+import { getErrorStatus, isRequestError, login } from '../services/auth';
 import { saveTokens } from '../services/token-storage';
 import { LoginFormErrors, validateLogin } from '../utils/validateLogin';
 
@@ -73,8 +73,12 @@ export default function LoginScreen() {
   const emailRef = useRef<TextInputInstance>(null);
   const passwordRef = useRef<TextInputInstance>(null);
 
-  const notice =
-    aviso === 'email-cadastrado' ? 'Este e-mail já tem conta. Entre com sua senha.' : '';
+  // Avisos que chegam de outras telas pelo parâmetro "aviso"
+  const notices: Record<string, string> = {
+    'email-cadastrado': 'Este e-mail já tem conta. Entre com sua senha.',
+    'conta-criada': 'Sua conta foi criada. Entre com seu e-mail e senha.',
+  };
+  const notice = aviso ? (notices[aviso] ?? '') : '';
 
   async function handleLogin() {
     // Segunda proteção contra envio duplicado (o botão também fica desabilitado)
@@ -103,6 +107,17 @@ export default function LoginScreen() {
       await saveTokens(tokens);
       router.replace('/home');
     } catch (loginError) {
+      // O login deu certo, mas o aparelho não guardou os tokens (ex.: na web, sem SecureStore)
+      if (!isRequestError(loginError)) {
+        setServerError({
+          title: 'Não foi possível entrar',
+          message: 'Não conseguimos salvar seu acesso neste aparelho. Tente de novo.',
+          buttonTitle: 'Voltar',
+          goToSignup: false,
+        });
+        return;
+      }
+
       const status = getErrorStatus(loginError);
 
       if (status === 400) {

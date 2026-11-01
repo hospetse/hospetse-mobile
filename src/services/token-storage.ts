@@ -15,3 +15,20 @@ export async function clearTokens(): Promise<void> {
   await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
   await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
 }
+
+// Lê um token guardado. Sem token, ou onde o SecureStore não existe (web), devolve null
+async function readToken(key: string): Promise<string | null> {
+  try {
+    return await SecureStore.getItemAsync(key);
+  } catch {
+    return null;
+  }
+}
+
+export function getAccessToken(): Promise<string | null> {
+  return readToken(ACCESS_TOKEN_KEY);
+}
+
+export function getRefreshToken(): Promise<string | null> {
+  return readToken(REFRESH_TOKEN_KEY);
+}

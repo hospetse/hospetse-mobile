@@ -190,3 +190,29 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
   - Na tela do código: a conta já foi criada, então limpa o cadastro e vai ao login com `aviso=conta-criada`.
 - **Motivo:** na web, o SecureStore falha, e o app dizia "Sem conexão" mesmo com o servidor respondendo.
 - **Limite:** na web, o login continua mostrando "Sem conexão" de verdade, porque o navegador bloqueia a resposta do Auth (CORS). O time de back-end vai tratar isso.
+
+## Integração com o back-end
+
+### DT-19: Cliente do back-end com renovação do token em fila única
+- **Data:** 2026-11-01 · **Task:** #518 · **Status:** Aceita
+- **Decisão:** `backendApi` (axios, em `services/api.ts`) com `baseURL` vinda de `EXPO_PUBLIC_API_URL`.
+  - Toda chamada leva `Authorization: Bearer <accessToken>`, lido do SecureStore.
+  - Um 401 do back-end renova o token pelo `POST /api/v1/auth/refresh`, salva os tokens novos e repete a chamada **uma vez**.
+  - **Fila única:** a variável `refreshing` guarda a renovação em andamento, e as outras chamadas esperam por ela. O refresh token vale uma vez só, e usá-lo duas vezes derruba todas as sessões da conta (regra da Wiki do back-end).
+  - Refresh recusado (400 ou 401) ou sem refresh token: apaga os tokens e leva ao login com `aviso=sessao-expirada`. Falha de rede no refresh não encerra a sessão.
+- **Motivo:** o access token vence em 15 minutos.
+- **Limite:** na web não há SecureStore, então não há token. A busca e o detalhe levam ao login. Para testar, use o Expo Go.
+
+### DT-20: Busca e detalhe com dados reais; filtros que a API não aceita ficam sem efeito
+- **Data:** 2026-11-01 · **Task:** #518 · **Status:** Aceita (filtros Provisórios)
+- **Decisão:** `searchHosts` chama `GET /api/v1/hosts/search` e `getHostPage` chama `GET /api/v1/hosts/{id}`. Saíram os 6 Hosts de exemplo (substitui a DT-17 nesses dois pontos).
+  - A cidade vai sem o estado ("Maringá, PR" vira "Maringá"), porque a API compara a cidade inteira.
+  - As datas vão como `startDate` e `endDate`, sempre as duas juntas.
+  - O preço máximo vai como `maxPrice`.
+  - O pet vai como `petId` só se o id for um UUID (os pets de exemplo ficam de fora).
+  - O porte vai como `size` só com **um** porte marcado, porque a API aceita um só.
+  - `pageSize` é 50, sem paginação na tela por enquanto. O título usa o `total` da API.
+  - **Sem efeito por enquanto (decisão da desenvolvedora):** tipo de serviço, comodidades e vários portes continuam na tela, mas não vão para a busca. O back-end vai acrescentar esses filtros depois.
+  - Comodidades, requisitos e rotina do detalhe continuam de exemplo (`HostExtras`), porque a API não tem esses campos.
+  - Card sem foto (`pictureUrl: null`) mostra um fundo neutro.
+- **Erros da busca:** sem rede, 400 (filtro recusado, como data no passado) e outros, todos com "Tentar de novo".

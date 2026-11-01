@@ -4,7 +4,8 @@ import { theme } from '../constants/theme';
 import { Icon } from './Icon';
 
 type PetCardProps = {
-  imageUri: string;
+  // null = Host sem foto: mostra um fundo neutro
+  imageUri: string | null;
   location: string;
   name: string;
   onPress: () => void;
@@ -36,7 +37,11 @@ export function PetCard({
 
   return (
     <TouchableOpacity onPress={onPress} style={[styles.card, { width }]}>
-      <Image source={{ uri: imageUri }} style={[styles.image, { height: imageHeight }]} />
+      {imageUri ? (
+        <Image source={{ uri: imageUri }} style={[styles.image, { height: imageHeight }]} />
+      ) : (
+        <View style={[styles.image, styles.noImage, { height: imageHeight }]} />
+      )}
 
       <View style={styles.ratingBadge}>
         <Icon color={theme.colors.white} name="star" size={theme.icon.small} />
@@ -78,6 +83,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: theme.radius.card,
     borderTopRightRadius: theme.radius.card,
     width: '100%',
+  },
+  noImage: {
+    backgroundColor: theme.colors.skeleton,
   },
   ratingBadge: {
     alignItems: 'center',

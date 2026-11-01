@@ -28,7 +28,10 @@ App do Hospetse para tutores encontrarem e contratarem cuidadores de pets. Feito
 
 | Variável | Para quê |
 | --- | --- |
-| `EXPO_PUBLIC_AUTH_URL` | Endereço do Auth Server. O valor publicado está no `.env.example` e na Wiki, em Desenvolvimento > Back-end > APIs publicadas. |
+| `EXPO_PUBLIC_AUTH_URL` | Endereço do Auth Server. |
+| `EXPO_PUBLIC_API_URL` | Endereço do back-end principal (busca e detalhe dos Hosts). As chamadas levam o token do usuário, renovado automaticamente quando vence. |
+
+Os valores publicados estão no `.env.example` e na Wiki, em Desenvolvimento > Back-end > APIs publicadas.
 
 Variáveis `EXPO_PUBLIC_` vão dentro do app e qualquer pessoa consegue ler. Nunca coloque segredos nelas.
 

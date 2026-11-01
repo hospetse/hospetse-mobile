@@ -234,3 +234,34 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
   - `docs:` da memória.
   - O `177c961` (`fix:`, mensagem "Sem conexão") cita a #480, mas faz parte do #516. Isso é explicado no PR.
 - **Ficou pendente:** push e PR, testar o CORS depois do deploy do PR !55 e a task da ADR-005 para os tokens na web.
+
+## 2026-11-01: Merge da #480 e repositórios do back-end ao lado
+- PR !57 (#480 e parte mobile do #516) mergeado na `develop` (`2c48eca`) pela desenvolvedora, aprovado pelo Raul. Pelo MCP, o merge falhou de novo ("Unexpected end of JSON input").
+- `hospetse-backend` e `hospetse-auth-service` clonados em `HOSPETSE/`, ao lado do mobile, para ler as rotas reais. Rodar `git pull` antes de consultar. Não editar sem pedido.
+- CORS publicado nos dois serviços para `http://localhost:8081` (PRs !55 e !56), conferido daqui.
+
+## 2026-11-01: Integração da busca e do detalhe com o back-end (#518)
+- **Objetivo:** trocar os dados de exemplo pelas rotas reais da #476 e da #479.
+- **Arquivos:**
+  - `services/api.ts`: `backendApi`, `refreshAccessToken` e `SessionExpiredError`.
+  - `services/token-storage.ts`: `getAccessToken` e `getRefreshToken`.
+  - `services/hosts.ts`: busca e detalhe pela API e `toSearchQuery`.
+  - `app/resultados.tsx`: erro com "Tentar de novo", total da API e campos da resposta.
+  - `components/PetCard.tsx`: aceita card sem foto.
+  - `app/index.tsx`: aviso `sessao-expirada`.
+  - `.env.example` e `README.md`: `EXPO_PUBLIC_API_URL`.
+  - Testes: `__tests__/api-client-test.ts` (novo) e os testes de resultados e detalhe reescritos com o back-end simulado.
+- **Decisões:** DT-19 e DT-20 (DT-17 substituída na busca e no detalhe).
+- **Contrato lido no código do `hospetse-backend`:** `host-search-policy.js`, `host-search.controller.js` e `host-details.controller.js`. No `hospetse-auth-service`: `refresh-token.service.js`.
+- **Verificação:**
+  - `tsc --noEmit` sem erros e 95 de 95 testes passando.
+  - As rotas publicadas respondem 401 sem token.
+  - A desenvolvedora testou no Expo Go, com login real: busca, resultados, filtros, detalhe e o erro sem rede. Deu tudo certo.
+  - Antes do commit, o back-end recebeu a agenda do Host (#482, PR !62). As rotas de busca e de detalhe e a lista `OCCUPYING` não mudaram, então não houve ajuste.
+- **Problemas e soluções:**
+  - Na repetição depois do refresh, o interceptor lia de novo o token antigo do SecureStore. Solução: ele pula a leitura nas chamadas repetidas.
+  - A tela de resultados buscava duas vezes ao abrir, por causa do efeito que recomeçava os filtros. Solução: guardar o último serviço.
+- **Commits:** `feat:` e `docs:` da #518.
+- **Ficou pendente:**
+  - Push e PR.
+  - Os cards de exemplo da Home abrem um id que não existe na API ("Hospedagem não encontrada").

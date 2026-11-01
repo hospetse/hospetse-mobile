@@ -115,3 +115,45 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Ficou pendente:**
   - Push e PR da #503. Esse PR tem que ser mergeado **depois** do PR !32, porque a memória descreve a Home e os steerings dele.
   - Confirmação da regra de pastas fora de `src/` (DT-10).
+
+## 2026-10-30: Merges da Home e da memória (PR !32 e PR !35)
+- **O que aconteceu:**
+  - O PR !32 (#472) foi mergeado na `develop` (`a3ca8f0`).
+  - O PR !35 (#503) foi mergeado depois dele (`70de57c`), na ordem combinada.
+- **Ficou pendente:**
+  - Na #472, os critérios de aceite que ainda não foram feitos (veja o `PROXIMOS_PASSOS.md`).
+  - Mudar o status das tasks no Azure Boards e registrar o tempo trabalhado. Isso cabe à desenvolvedora.
+
+## 2026-10-30: Busca e filtros, modal (#477)
+- **Objetivo:** implementar o modal de busca a partir dos 6 prints: Onde?, Para quando? (vazio e com período), Qual serviço? (vazio e com escolha) e Para quem?.
+- **Arquivos:**
+  - Criados: `src/components/SearchModal.tsx`, `FilterSection.tsx`, `Calendar.tsx` e `PetOption.tsx`, e `src/utils/calendar.ts`.
+  - Alterados: `src/app/home.tsx`, `src/components/Icon.tsx` (3 ícones novos) e `src/constants/theme.ts` (só acréscimos).
+- **O que mudou:**
+  - O modal abre pela busca ou pela aba Buscar, e só uma seção fica aberta por vez.
+  - **Onde?:** sugestões de cidade fixas.
+  - **Para quando?:** calendário com check-in e check-out.
+  - **Qual serviço?:** um serviço por vez.
+  - **Para quem?:** pets de exemplo, e dá para desmarcar o pet escolhido.
+  - **Buscar:** guarda os filtros na Home.
+- **Decisões:** DT-11 e DT-12.
+- **Verificação:**
+  - `tsc --noEmit` sem erros e 19 de 19 testes Jest passando.
+  - `expo export --platform web` gerou o bundle da rota `home`.
+  - **Não verificado:** o visual. O servidor web foi iniciado para a desenvolvedora conferir. Não houve teste em aparelho e não foram criados testes novos.
+- **Problemas e soluções:** a primeira rodada de typecheck e testes foi interrompida (`^C`). Rodando os dois separados, passaram.
+- **Ficou pendente:** veja a #477 em `PROXIMOS_PASSOS.md`. O commit aguarda o retorno visual e a autorização.
+
+## 2026-10-30: Busca reabre vazia e testes da busca (#477)
+- **Objetivo:** atender ao retorno visual (a cidade escolhida continuava preenchida ao reabrir o modal) e criar os testes que o card pede.
+- **Arquivos:**
+  - Alterados: `SearchModal.tsx` (saiu a prop `initialFilters` e o formulário começa de `EMPTY_FILTERS`) e `home.tsx` (agora guarda `lastSearch`, e o campo não mostra mais a cidade).
+  - Criados: `__tests__/calendar-test.ts` (7 testes) e `__tests__/search-modal-test.tsx` (9 testes).
+- **Decisões:** DT-12, revisada.
+- **Verificação:** `tsc --noEmit` sem erros e `jest` com 35 de 35 testes passando, em duas rodadas completas.
+- **Problemas e soluções:**
+  - O teste do fluxo completo (9 toques) estourou os 5 s padrão do Jest, e a falha deixou um toque pendente que derrubou o teste seguinte (`Pressability: Invalid signal`).
+  - Solução: limite de 20 s só nesse teste.
+  - Os testes do calendário usam o mês seguinte, para não depender da data de hoje.
+- **Commits:** um `feat:` com o código e os testes e um `docs:` com a memória, autorizados pela desenvolvedora.
+- **Ficou pendente:** push e PR. A correção de "reabrir vazia" foi coberta por teste, mas não foi conferida de novo na web.

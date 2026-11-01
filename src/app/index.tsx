@@ -77,6 +77,7 @@ export default function LoginScreen() {
   const notices: Record<string, string> = {
     'email-cadastrado': 'Este e-mail já tem conta. Entre com sua senha.',
     'conta-criada': 'Sua conta foi criada. Entre com seu e-mail e senha.',
+    'sessao-expirada': 'Sua sessão expirou. Entre de novo para continuar.',
   };
   const notice = aviso ? (notices[aviso] ?? '') : '';
 

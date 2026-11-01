@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -22,7 +22,8 @@ import { UserHeader } from '../components/UserHeader';
 import { SAMPLE_PETS, SAMPLE_USER } from '../constants/sampleData';
 import { SERVICE_PLURAL, SERVICE_SINGULAR, ServiceType } from '../constants/search';
 import { theme } from '../constants/theme';
-import { HostSummary, searchHosts } from '../services/hosts';
+import { getErrorStatus, isRequestError } from '../services/auth';
+import { formatHostLocation, HostSearchResult, HostSummary, searchHosts } from '../services/hosts';
 import { formatDate, fromIsoDate } from '../utils/calendar';
 import { SearchRouteParams, serviceFromParam, toSearchParams } from '../utils/searchParams';
 
@@ -48,6 +49,21 @@ function countFilters(filters: ResultFilters): number {
   );
 }
 
+// Mensagem para cada falha da busca. 400 = filtro recusado pela API (ex.: data no passado)
+export function searchErrorMessage(error: unknown): string {
+  if (!isRequestError(error)) {
+    return 'Não foi possível carregar os resultados. Tente de novo.';
+  }
+  const status = getErrorStatus(error);
+  if (status === null) {
+    return 'Não foi possível conectar. Verifique sua internet e tente de novo.';
+  }
+  if (status === 400) {
+    return 'Algum filtro da busca não é válido. Confira as datas e tente de novo.';
+  }
+  return 'Não foi possível carregar os resultados. Tente de novo.';
+}
+
 export default function ResultsScreen() {
   const params = useLocalSearchParams<SearchRouteParams>();
   const { width } = useWindowDimensions();
@@ -57,29 +73,48 @@ export default function ResultsScreen() {
     ...EMPTY_RESULT_FILTERS,
     services: initialService ? [initialService] : [],
   });
-  const [results, setResults] = useState<HostSummary[] | null>(null);
+  const [results, setResults] = useState<HostSearchResult | null>(null);
+  const [error, setError] = useState('');
+  // Aumentar este número refaz a busca (botão "Tentar de novo")
+  const [attempt, setAttempt] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  // Uma busca nova (outro serviço na rota) recomeça os filtros a partir dele
+  // Uma busca nova (outro serviço na rota) recomeça os filtros a partir dele.
+  // Na abertura da tela os filtros já começam assim: sem isso, a busca rodaria duas vezes
+  const lastService = useRef(initialService);
   useEffect(() => {
+    if (lastService.current === initialService) {
+      return;
+    }
+    lastService.current = initialService;
     setFilters({ ...EMPTY_RESULT_FILTERS, services: initialService ? [initialService] : [] });
   }, [initialService]);
 
   const city = params.city ?? '';
+  const checkInParam = params.checkIn ?? null;
+  const checkOutParam = params.checkOut ?? null;
+  const petId = params.petId ?? null;
 
   useEffect(() => {
     let active = true;
     setResults(null);
-    searchHosts({ city, ...filters }).then((found) => {
-      if (active) {
-        setResults(found);
-      }
-    });
+    setError('');
+    searchHosts({ city, checkIn: checkInParam, checkOut: checkOutParam, petId, ...filters })
+      .then((found) => {
+        if (active) {
+          setResults(found);
+        }
+      })
+      .catch((searchError) => {
+        if (active) {
+          setError(searchErrorMessage(searchError));
+        }
+      });
     return () => {
       active = false;
     };
-  }, [city, filters]);
+  }, [city, checkInParam, checkOutParam, petId, filters, attempt]);
 
   const checkIn = fromIsoDate(params.checkIn);
   const checkOut = fromIsoDate(params.checkOut);
@@ -118,7 +153,7 @@ export default function ResultsScreen() {
     router.push({
       pathname: '/host/[id]',
       params: {
-        id: host.id,
+        id: host.hostId,
         ...(params.checkIn ? { checkIn: params.checkIn } : {}),
         ...(params.checkOut ? { checkOut: params.checkOut } : {}),
       },
@@ -159,7 +194,15 @@ export default function ResultsScreen() {
           </TouchableOpacity>
         </View>
 
-        {results === null ? (
+        {error ? (
+          <View style={styles.empty}>
+            <Text accessibilityRole="header" style={styles.emptyTitle}>
+              Algo deu errado
+            </Text>
+            <Text style={styles.emptyText}>{error}</Text>
+            <Button onPress={() => setAttempt(attempt + 1)} title="Tentar de novo" />
+          </View>
+        ) : results === null ? (
           <View accessibilityLabel="Carregando resultados" style={styles.list}>
             <Skeleton height={24} width={220} />
             <Skeleton height={260} radius={theme.radius.card} width="100%" />
@@ -168,11 +211,11 @@ export default function ResultsScreen() {
         ) : (
           <>
             <Text accessibilityRole="header" style={styles.title}>
-              {resultsTitle(results.length, filters.services)}
+              {resultsTitle(results.total, filters.services)}
             </Text>
             <Text style={styles.summary}>{summary}</Text>
 
-            {results.length === 0 ? (
+            {results.items.length === 0 ? (
               <View style={styles.empty}>
                 <Text style={styles.emptyTitle}>Nenhuma hospedagem encontrada</Text>
                 <Text style={styles.emptyText}>
@@ -182,15 +225,17 @@ export default function ResultsScreen() {
               </View>
             ) : (
               <View style={styles.list}>
-                {results.map((host) => (
+                {results.items.map((host) => (
                   <PetCard
-                    key={host.id}
-                    imageUri={host.imageUri}
-                    location={`${host.neighborhood}, ${host.city}`}
+                    key={host.serviceId}
+                    imageUri={host.pictureUrl}
+                    location={formatHostLocation(host)}
                     name={host.name}
                     onPress={() => openHost(host)}
-                    price={`R$${host.price}`}
-                    rating={host.rating !== null ? host.rating.toFixed(1) : 'Novo'}
+                    price={`R$${host.dailyPrice}`}
+                    rating={
+                      host.reputation.rating !== null ? host.reputation.rating.toFixed(1) : 'Novo'
+                    }
                     size="large"
                     width={cardWidth}
                   />

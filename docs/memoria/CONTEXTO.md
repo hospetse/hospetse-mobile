@@ -1,7 +1,7 @@
 # Contexto do projeto: Hospetse Mobile
 
 > Resumo principal para retomar o trabalho. Mantenha curto e fiel ao código.
-> Última atualização: 2026-10-30. Descreve o código da branch `feature/267-implementar-telas-de-email-dados-e-senha-do-cadastro`, com a `develop` (PRs !32 e !35) já integrada.
+> Última atualização: 2026-10-31. Descreve o código da branch `feature/267-implementar-telas-de-email-dados-e-senha-do-cadastro`, com a `develop` (PRs !32, !35 e !47) já integrada.
 
 ## Objetivo
 
@@ -35,7 +35,7 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `src/constants/terms.ts` | Versão dos Termos de Uso enviada no cadastro. |
 | `src/context/SignupContext.tsx` | Dados do cadastro em memória, entre `/cadastro` e `/codigo`. |
 | `src/services/` | `api.ts` (instância do axios do Auth), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`) e `token-storage.ts` (SecureStore). |
-| `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`, `validateSignup`, `validateLogin`). |
+| `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`, `validateSignup`, `validateLogin` e `calendar`, que monta o mês, formata datas e escolhe o período). |
 | `__tests__/`, `test-utils/` | Testes Jest e utilitários de teste (erros HTTP falsos, espião do console). |
 | `.kiro/steering/` | Regras do Kiro: arquitetura e código (`hospetse-architecture.md`), git (`git-workflow.md`), memória (`memoria-projeto.md`) e retomada (`retomar-contexto.md`, manual). |
 | `AGENTS.md` | Regras do Expo e a seção "Project memory", que inclui o `memoria-projeto.md`. É o único arquivo de regras que o Kiro carrega quando o workspace é aberto na pasta `HOSPETSE`. |
@@ -49,9 +49,11 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/cadastro` | `cadastro.tsx` | Tela única com nome, e-mail, senha, confirmação e termos. Mostra todos os erros de formato juntos, embaixo de cada campo, antes do envio. Chama `request-pin`, guarda os dados (sem a confirmação) no `SignupContext` e vai para `/codigo`. 409 volta ao login com o aviso; 400 aparece no campo de e-mail; os outros erros abrem o `ErrorModal`. |
 | `/codigo` | `codigo.tsx` | Integrado ao Auth. Chama `register`, salva os tokens e vai para `/home` com o parâmetro `nome`. Reenvio do código a cada 60 s. Em modo dev, tem o atalho temporário "Abrir Home (temporário)" (ligado à #261). |
 | `/recuperar-senha` | `recuperar-senha.tsx` | Só valida o formato do e-mail no aparelho; não chama nenhuma API. |
-| `/home` | `home.tsx` | Visual completo da task #472, com dados fixos no código. Os filtros mudam o título da seção. O cabeçalho mostra o `nome` vindo do cadastro ou o nome de exemplo. As abas e o "ver mais" ainda não navegam. |
+| `/home` | `home.tsx` | Visual completo da task #472, com dados fixos no código. Os chips mudam o título da seção. O cabeçalho mostra o `nome` vindo do cadastro ou o nome de exemplo. **#477:** o campo de busca e a aba Buscar abrem o `SearchModal`. A busca sempre abre vazia, e a Home guarda a última busca em `lastSearch`. Reservas, Perfil, "ver mais" e os cards ainda não navegam. |
 
-Telas que o código já indica e que ainda não existem: Buscar, Reservas e Perfil (abas da Home); conclusão do perfil do Tutor (ADR-011; a rota `PUT /api/v1/me/tutor-profile` existe no back-end). Para a lista completa, consulte o Figma e a Wiki (Desenvolvimento > Front-end > Fluxo de Telas).
+A busca (#477) é um modal por cima da Home, não uma rota. A tela de resultados é a task #480.
+
+Telas que o código já indica e que ainda não existem: resultados e detalhe do Host (#480); Reservas e Perfil (abas da Home); conclusão do perfil do Tutor (ADR-011; a rota `PUT /api/v1/me/tutor-profile` existe no back-end). Para a lista completa, consulte o Figma e a Wiki (Desenvolvimento > Front-end > Fluxo de Telas).
 
 ## Componentes reutilizáveis
 
@@ -61,7 +63,11 @@ Telas que o código já indica e que ainda não existem: Buscar, Reservas e Perf
 | `CodeInput` | Caixas de dígitos do código (PIN). |
 | `InfoIcon` | Ícone "i" laranja das dicas de formulário. |
 | `Skeleton` | Bloco que pulsa durante o carregamento. Hoje nenhuma tela usa. |
-| `Icon` | Ícones Material Symbols Outlined (`home`, `search`, `calendar_month`, `person`, `notifications`, `location_on`, `star`). |
+| `Icon` | Ícones Material Symbols Outlined (`home`, `search`, `calendar_month`, `person`, `notifications`, `location_on`, `star`, `expand_more`, `chevron_left`, `chevron_right`). |
+| `SearchModal` | Busca com 4 seções (Onde?, Para quando?, Qual serviço?, Para quem?). Exporta `SearchFilters`, `EMPTY_FILTERS`, `ServiceType` e `PetSummary`. |
+| `FilterSection` | Seção que abre e fecha (título, seta opcional e conteúdo). |
+| `Calendar` | Um mês com setas, dias passados desabilitados e seleção de check-in e check-out. |
+| `PetOption` | Foto redonda e nome do pet, com estado escolhido. |
 | `SearchBar` | Campo de busca com lupa. |
 | `FilterChip` | Chip de categoria, ativo ou inativo. |
 | `PetCard` | Card de hospedagem (foto, avaliação, nome, cidade e preço), nos tamanhos `large` e `small`. |
@@ -96,6 +102,7 @@ Telas que o código já indica e que ainda não existem: Buscar, Reservas e Perf
 
 ## Último estado conhecido (2026-10-30)
 
-- PRs !32 (Home, #472) e !35 (memória, #503) mergeados na `develop`.
-- Branch `feature/267-implementar-telas-de-email-dados-e-senha-do-cadastro`, com a `develop` integrada. Só o commit da validação do cadastro (`7b0e4b7`) foi enviado ao Azure; o login e o merge ainda são locais.
-- Verificações em 2026-10-30: `tsc --noEmit` sem erros, 46 de 46 testes Jest passando e `expo export` para Android e web sem erros.
+- PRs !32 (Home, #472), !35 (memória, #503) e !47 (busca, #477) mergeados na `develop`.
+- Branch `feature/267-implementar-telas-de-email-dados-e-senha-do-cadastro`, com a `develop` integrada. PR da #267 aberto para a `develop`, aguardando revisão.
+- Verificações em 2026-10-31, com a busca e o cadastro juntos: `tsc --noEmit` sem erros, 62 de 62 testes Jest passando e `expo export` para Android e web sem erros.
+- A busca, o cadastro e o login ainda não foram conferidos num aparelho.

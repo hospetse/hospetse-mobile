@@ -116,11 +116,53 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
   - Push e PR da #503. Esse PR tem que ser mergeado **depois** do PR !32, porque a memória descreve a Home e os steerings dele.
   - Confirmação da regra de pastas fora de `src/` (DT-10).
 
+## 2026-10-30: Merges da Home e da memória (PR !32 e PR !35)
+- **O que aconteceu:**
+  - O PR !32 (#472) foi mergeado na `develop` (`a3ca8f0`).
+  - O PR !35 (#503) foi mergeado depois dele (`70de57c`), na ordem combinada.
+- **Ficou pendente:**
+  - Na #472, os critérios de aceite que ainda não foram feitos (veja o `PROXIMOS_PASSOS.md`).
+  - Mudar o status das tasks no Azure Boards e registrar o tempo trabalhado. Isso cabe à desenvolvedora.
+
+## 2026-10-30: Busca e filtros, modal (#477)
+- **Objetivo:** implementar o modal de busca a partir dos 6 prints: Onde?, Para quando? (vazio e com período), Qual serviço? (vazio e com escolha) e Para quem?.
+- **Arquivos:**
+  - Criados: `src/components/SearchModal.tsx`, `FilterSection.tsx`, `Calendar.tsx` e `PetOption.tsx`, e `src/utils/calendar.ts`.
+  - Alterados: `src/app/home.tsx`, `src/components/Icon.tsx` (3 ícones novos) e `src/constants/theme.ts` (só acréscimos).
+- **O que mudou:**
+  - O modal abre pela busca ou pela aba Buscar, e só uma seção fica aberta por vez.
+  - **Onde?:** sugestões de cidade fixas.
+  - **Para quando?:** calendário com check-in e check-out.
+  - **Qual serviço?:** um serviço por vez.
+  - **Para quem?:** pets de exemplo, e dá para desmarcar o pet escolhido.
+  - **Buscar:** guarda os filtros na Home.
+- **Decisões:** DT-11 e DT-12.
+- **Verificação:**
+  - `tsc --noEmit` sem erros e 19 de 19 testes Jest passando.
+  - `expo export --platform web` gerou o bundle da rota `home`.
+  - **Não verificado:** o visual. O servidor web foi iniciado para a desenvolvedora conferir. Não houve teste em aparelho e não foram criados testes novos.
+- **Problemas e soluções:** a primeira rodada de typecheck e testes foi interrompida (`^C`). Rodando os dois separados, passaram.
+- **Ficou pendente:** veja a #477 em `PROXIMOS_PASSOS.md`. O commit aguarda o retorno visual e a autorização.
+
+## 2026-10-30: Busca reabre vazia e testes da busca (#477)
+- **Objetivo:** atender ao retorno visual (a cidade escolhida continuava preenchida ao reabrir o modal) e criar os testes que o card pede.
+- **Arquivos:**
+  - Alterados: `SearchModal.tsx` (saiu a prop `initialFilters` e o formulário começa de `EMPTY_FILTERS`) e `home.tsx` (agora guarda `lastSearch`, e o campo não mostra mais a cidade).
+  - Criados: `__tests__/calendar-test.ts` (7 testes) e `__tests__/search-modal-test.tsx` (9 testes).
+- **Decisões:** DT-12, revisada.
+- **Verificação:** `tsc --noEmit` sem erros e `jest` com 35 de 35 testes passando, em duas rodadas completas.
+- **Problemas e soluções:**
+  - O teste do fluxo completo (9 toques) estourou os 5 s padrão do Jest, e a falha deixou um toque pendente que derrubou o teste seguinte (`Pressability: Invalid signal`).
+  - Solução: limite de 20 s só nesse teste.
+  - Os testes do calendário usam o mês seguinte, para não depender da data de hoje.
+- **Commits:** um `feat:` com o código e os testes e um `docs:` com a memória, autorizados pela desenvolvedora.
+- **Ficou pendente:** push e PR. A correção de "reabrir vazia" foi coberta por teste, mas não foi conferida de novo na web.
+
 ## 2026-10-30: Validação do cadastro e login integrado ao Auth (#267)
 - **Objetivo:** TSK-09 (validar o cadastro no app, com todos os erros de uma vez) e trocar o login provisório pelo login do Auth.
 - **Arquivos criados:** `src/utils/validateSignup.ts`, `src/utils/validateLogin.ts`, `src/components/FieldError.tsx`, `src/components/ErrorModal.tsx`, `assets/pets.png`, `__tests__/validateSignup-test.ts` e `__tests__/login-test.tsx`.
 - **Arquivos alterados:** `src/app/cadastro.tsx`, `src/app/index.tsx`, `src/services/auth.ts` (`login`), `src/utils/requestPinErrorMessage.ts` (títulos do modal), `src/constants/theme.ts` (só acréscimos), `__tests__/cadastro-test.tsx` e `__tests__/auth-service-test.ts`.
-- **Decisões:** DT-11 e DT-12 (DT-06 parcialmente substituída).
+- **Decisões:** DT-13 e DT-14 (DT-06 parcialmente substituída). Criadas como DT-11 e DT-12 e renumeradas no merge do PR !47, que usou esses números antes.
 - **Verificação:**
   - `tsc --noEmit` sem erros e 46 de 46 testes Jest passando. Na primeira rodada, o primeiro teste de 3 arquivos estourou o limite de 5 s enquanto o cache era montado.
   - `expo export` para Android e web sem erros.
@@ -129,6 +171,7 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Problemas e soluções:**
   - O tipo do `ref` do `TextInput` no React Native 0.88 é `TextInputInstance`, e não `TextInput`.
   - Conflitos ao integrar a `develop` (PRs !32 e !35): no `index.tsx` ficou o login integrado; no `theme.ts` ficaram os tokens das duas branches, sem mudar valores.
-- **Ficou pendente:** push do login e do merge, PR para a `develop` com revisor que não seja o autor e teste do cadastro com um PIN real.
+  - Segunda integração da `develop` (PR !47, busca): conflitos só na memória (`CONTEXTO`, `LOG` e `PROXIMOS_PASSOS`), com o texto das duas tasks mantido. O `theme.ts` juntou sem conflito. Depois do merge: `tsc --noEmit` sem erros, 62 de 62 testes e `expo export` sem erros.
+- **Ficou pendente:** revisão do PR da #267 por outra pessoa, teste do cadastro com um PIN real e teste num aparelho.
 - **Explicações para a banca:** os trechos que fogem do básico estão explicados em `docs/memoria/EXPLICACOES_CADASTRO_LOGIN.md`.
-- **Commits:** `7b0e4b7` (validação do cadastro, enviado), `c4f8cb7` (login) e `c4c0a72` (merge da `develop`), ainda locais.
+- **Commits:** `7b0e4b7` (validação do cadastro), `c4f8cb7` (login), `c4c0a72` (merge da `develop` com !32 e !35), `9a50f96` (memória e explicações) e o merge da `develop` com o !47. PR da #267 aberto para a `develop`.

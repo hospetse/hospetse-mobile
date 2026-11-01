@@ -1,7 +1,7 @@
 # Contexto do projeto: Hospetse Mobile
 
 > Resumo principal para retomar o trabalho. Mantenha curto e fiel ao código.
-> Última atualização: 2026-10-30. Descreve a `develop` (`70de57c`, com os PRs !32 e !35) mais a busca da #477, na branch `feature/477-implementar-a-tela-de-busca-e-filtros-no-mobile`.
+> Última atualização: 2026-10-31. Descreve o código da branch `feature/267-implementar-telas-de-email-dados-e-senha-do-cadastro`, com a `develop` (PRs !32, !35 e !47) já integrada.
 
 ## Objetivo
 
@@ -34,8 +34,8 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `src/constants/theme.ts` | Cores, fontes, espaçamentos, raios, tipografia e sombras. É a única fonte de valores visuais. |
 | `src/constants/terms.ts` | Versão dos Termos de Uso enviada no cadastro. |
 | `src/context/SignupContext.tsx` | Dados do cadastro em memória, entre `/cadastro` e `/codigo`. |
-| `src/services/` | `api.ts` (instância do axios do Auth), `auth.ts` (`requestPin`, `register`, `getErrorStatus`) e `token-storage.ts` (SecureStore). |
-| `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage` e `calendar`, que monta o mês, formata datas e escolhe o período). |
+| `src/services/` | `api.ts` (instância do axios do Auth), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`) e `token-storage.ts` (SecureStore). |
+| `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`, `validateSignup`, `validateLogin` e `calendar`, que monta o mês, formata datas e escolhe o período). |
 | `__tests__/`, `test-utils/` | Testes Jest e utilitários de teste (erros HTTP falsos, espião do console). |
 | `.kiro/steering/` | Regras do Kiro: arquitetura e código (`hospetse-architecture.md`), git (`git-workflow.md`), memória (`memoria-projeto.md`) e retomada (`retomar-contexto.md`, manual). |
 | `AGENTS.md` | Regras do Expo e a seção "Project memory", que inclui o `memoria-projeto.md`. É o único arquivo de regras que o Kiro carrega quando o workspace é aberto na pasta `HOSPETSE`. |
@@ -45,8 +45,8 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 
 | Rota | Arquivo | Estado atual |
 | --- | --- | --- |
-| `/` | `index.tsx` | Login **sem integração**: só confere se os campos estão preenchidos e vai para `/home`. Mostra um aviso quando chega com `aviso=email-cadastrado`. |
-| `/cadastro` | `cadastro.tsx` | Integrado ao Auth. Chama `request-pin`, guarda os dados no `SignupContext` e vai para `/codigo`. Se a resposta for 409, volta ao login com o aviso. |
+| `/` | `index.tsx` | Login integrado ao Auth (`POST /api/v1/auth/login`). Mostra os erros de e-mail e senha juntos, salva os tokens no SecureStore e vai para `/home`. 401 abre o modal "Login ou senha incorretos"; 403 avisa que o cadastro não foi concluído. Mostra um aviso quando chega com `aviso=email-cadastrado`. |
+| `/cadastro` | `cadastro.tsx` | Tela única com nome, e-mail, senha, confirmação e termos. Mostra todos os erros de formato juntos, embaixo de cada campo, antes do envio. Chama `request-pin`, guarda os dados (sem a confirmação) no `SignupContext` e vai para `/codigo`. 409 volta ao login com o aviso; 400 aparece no campo de e-mail; os outros erros abrem o `ErrorModal`. |
 | `/codigo` | `codigo.tsx` | Integrado ao Auth. Chama `register`, salva os tokens e vai para `/home` com o parâmetro `nome`. Reenvio do código a cada 60 s. Em modo dev, tem o atalho temporário "Abrir Home (temporário)" (ligado à #261). |
 | `/recuperar-senha` | `recuperar-senha.tsx` | Só valida o formato do e-mail no aparelho; não chama nenhuma API. |
 | `/home` | `home.tsx` | Visual completo da task #472, com dados fixos no código. Os chips mudam o título da seção. O cabeçalho mostra o `nome` vindo do cadastro ou o nome de exemplo. **#477:** o campo de busca e a aba Buscar abrem o `SearchModal`. A busca sempre abre vazia, e a Home guarda a última busca em `lastSearch`. Reservas, Perfil, "ver mais" e os cards ainda não navegam. |
@@ -72,6 +72,8 @@ Telas que o código já indica e que ainda não existem: resultados e detalhe do
 | `FilterChip` | Chip de categoria, ativo ou inativo. |
 | `PetCard` | Card de hospedagem (foto, avaliação, nome, cidade e preço), nos tamanhos `large` e `small`. |
 | `BottomTabBar` | Barra inferior com as abas Home, Buscar, Reservas e Perfil (exporta o tipo `TabKey`). |
+| `FieldError` | Texto de erro embaixo de um campo. Sem mensagem, não mostra nada. |
+| `ErrorModal` | Aviso de erro do servidor ou da conexão, no estilo do design: ícone `pets` (`assets/pets.png`), título, texto e botão. |
 
 ## Padrões obrigatórios
 
@@ -86,7 +88,8 @@ Telas que o código já indica e que ainda não existem: resultados e detalhe do
 
 ## Integrações
 
-- Auth Server (`EXPO_PUBLIC_AUTH_URL`): `POST /api/v1/auth/request-pin` e `POST /api/v1/auth/register`. O login do Auth existe no serviço, mas o mobile ainda não usa.
+- Auth Server (`EXPO_PUBLIC_AUTH_URL`): `POST /api/v1/auth/request-pin`, `POST /api/v1/auth/register` e `POST /api/v1/auth/login`.
+- Contratos atuais: `https://auth-service-production-36e0.up.railway.app/docs` e `https://backend-production-7298.up.railway.app/docs` (o arquivo é o `/docs/openapi.yaml`).
 - Tokens: SecureStore (Keychain ou Keystore), nunca AsyncStorage (ADR-005).
 - O mobile ainda não chama o back-end principal.
 
@@ -99,8 +102,7 @@ Telas que o código já indica e que ainda não existem: resultados e detalhe do
 
 ## Último estado conhecido (2026-10-30)
 
-- PRs !32 (Home, #472) e !35 (memória, #503) mergeados na `develop` em 2026-10-30.
-- Branch atual: `feature/477-implementar-a-tela-de-busca-e-filtros-no-mobile`, saindo da `develop` (`70de57c`). A busca está implementada e commitada (`feat:` com o código e os testes, e `docs:` com a memória). Push e PR pendentes.
-- Verificações em 2026-10-30: `tsc --noEmit` sem erros e 35 de 35 testes Jest passando (19 antigos e 16 novos da busca).
-  - A desenvolvedora conferiu na web e pediu que a busca reabrisse vazia. A correção já foi feita, mas ainda não foi conferida na web.
-  - A tela ainda não foi conferida num aparelho.
+- PRs !32 (Home, #472), !35 (memória, #503) e !47 (busca, #477) mergeados na `develop`.
+- Branch `feature/267-implementar-telas-de-email-dados-e-senha-do-cadastro`, com a `develop` integrada. PR da #267 aberto para a `develop`, aguardando revisão.
+- Verificações em 2026-10-31, com a busca e o cadastro juntos: `tsc --noEmit` sem erros, 62 de 62 testes Jest passando e `expo export` para Android e web sem erros.
+- A busca, o cadastro e o login ainda não foram conferidos num aparelho.

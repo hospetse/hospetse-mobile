@@ -11,3 +11,17 @@ export function requestPinErrorMessage(status: number | null): string {
       return 'Não foi possível enviar o código. Tente de novo.';
   }
 }
+
+// Título do aviso (modal) que acompanha a mensagem acima
+export function requestPinErrorTitle(status: number | null): string {
+  switch (status) {
+    case 400:
+      return 'E-mail inválido';
+    case 429:
+      return 'Aguarde um pouco';
+    case null:
+      return 'Sem conexão';
+    default:
+      return 'Algo deu errado';
+  }
+}

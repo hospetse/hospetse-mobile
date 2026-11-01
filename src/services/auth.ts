@@ -45,6 +45,12 @@ export async function login(email: string, password: string): Promise<AuthTokens
   return data;
 }
 
+// true quando o erro veio da chamada HTTP (com ou sem resposta). Erros de outras
+// etapas, como salvar os tokens no aparelho, não são falta de conexão
+export function isRequestError(error: unknown): boolean {
+  return axios.isAxiosError(error);
+}
+
 // Status HTTP do erro, ou null quando não houve resposta (sem rede, timeout)
 export function getErrorStatus(error: unknown): number | null {
   if (axios.isAxiosError(error) && error.response) {

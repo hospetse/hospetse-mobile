@@ -143,6 +143,20 @@ describe('Tela do código', () => {
     ).toBeOnTheScreen();
   });
 
+  test('conta criada sem conseguir salvar os tokens leva ao login com aviso', async () => {
+    mockedRegister.mockResolvedValue(TOKENS);
+    mockedSaveTokens.mockRejectedValueOnce(new Error('SecureStore indisponível'));
+    const user = await renderScreen();
+    await typeCode(user);
+
+    await confirm(user);
+
+    expect(router.replace).toHaveBeenCalledWith({ pathname: '/', params: { aviso: 'conta-criada' } });
+    expect(
+      screen.queryByText('Não foi possível conectar. Verifique sua internet e tente de novo.'),
+    ).not.toBeOnTheScreen();
+  });
+
   test('409 leva ao login com aviso de e-mail cadastrado', async () => {
     mockedRegister.mockRejectedValue(httpError(409));
     const user = await renderScreen();

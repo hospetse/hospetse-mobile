@@ -7,7 +7,7 @@ import { CodeInput } from '../components/CodeInput';
 import { TERMS_VERSION } from '../constants/terms';
 import { theme } from '../constants/theme';
 import { useSignup } from '../context/SignupContext';
-import { getErrorStatus, register, requestPin } from '../services/auth';
+import { getErrorStatus, isRequestError, register, requestPin } from '../services/auth';
 import { saveTokens } from '../services/token-storage';
 import { requestPinErrorMessage } from '../utils/requestPinErrorMessage';
 
@@ -123,6 +123,14 @@ export default function CodeScreen() {
       clearSignup();
       router.replace({ pathname: '/home', params: { nome: firstName } });
     } catch (registerError) {
+      // A conta foi criada, mas o aparelho não guardou os tokens (ex.: na web, sem SecureStore).
+      // Não é falta de conexão: leva ao login, que já funciona com a conta nova
+      if (!isRequestError(registerError)) {
+        clearSignup();
+        router.replace({ pathname: '/', params: { aviso: 'conta-criada' } });
+        return;
+      }
+
       const status = getErrorStatus(registerError);
       if (status === 409) {
         clearSignup();

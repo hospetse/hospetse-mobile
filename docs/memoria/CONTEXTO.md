@@ -1,7 +1,9 @@
 # Contexto do projeto: Hospetse Mobile
 
 > Resumo principal para retomar o trabalho. Mantenha curto e fiel ao código.
-> Última atualização: 2026-11-01. Descreve a `develop` (`79b7a95`, com os PRs !32, !35, !47 e !52) mais o trabalho da #480 na branch `feature/480-implementar-a-lista-de-resultados-e-a-tela-de-detalhes-do-host-no-mobile`.
+> Última atualização: 2026-11-01. Descreve a `develop` (`2c48eca`, com os PRs até o !57) mais a integração da #518 na branch `feature/518-integrar-a-lista-de-resultados-e-o-detalhe-do-host-com-a-api-no-mobile`.
+>
+> Os repositórios `hospetse-backend` e `hospetse-auth-service` estão clonados em `HOSPETSE/`, ao lado deste. Use-os para ler as rotas reais (rodar `git pull` antes). Não edite sem pedido.
 
 ## Objetivo
 
@@ -23,7 +25,7 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 - Testes: Jest 30, `jest-expo` e `@testing-library/react-native`. Comando: `npm test`.
 - Typecheck: `npx tsc --noEmit` (o binário local fica em `node_modules\.bin\tsc`).
 - ESLint ainda não está configurado no mobile.
-- Variável de ambiente: `EXPO_PUBLIC_AUTH_URL`, no `.env.local`, que fica fora do git. O modelo é o `.env.example`, que fica no git e tem o endereço publicado. Como rodar: `README.md`.
+- Variáveis de ambiente: `EXPO_PUBLIC_AUTH_URL` e `EXPO_PUBLIC_API_URL`, no `.env.local`, que fica fora do git. O modelo é o `.env.example`, que fica no git e tem o endereço publicado. Como rodar: `README.md`.
 - Endereços publicados e regras dos tokens (access token de 15 min, refresh de uma vez só, com fila): Wiki, em Desenvolvimento > Back-end > "APIs publicadas - URLs e contratos". Back-end: `https://backend-production-7298.up.railway.app`.
 
 ## Estrutura de pastas
@@ -53,8 +55,8 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/codigo` | `codigo.tsx` | Integrado ao Auth. Chama `register`, salva os tokens e vai para `/home` com o parâmetro `nome`. Se a conta for criada e os tokens não puderem ser salvos, vai ao login com `aviso=conta-criada`. Reenvio do código a cada 60 s. Em modo dev, tem o atalho temporário "Abrir Home (temporário)" (ligado à #261). |
 | `/recuperar-senha` | `recuperar-senha.tsx` | Só valida o formato do e-mail no aparelho; não chama nenhuma API. |
 | `/home` | `home.tsx` | Visual completo da task #472, com dados fixos no código. Os chips mudam o título da seção. O cabeçalho mostra o `nome` vindo do cadastro ou o nome de exemplo. O campo de busca e a aba Buscar abrem o `SearchModal`, que sempre abre vazio. "Buscar" leva a `/resultados`. Os cards abrem `/host/[id]`. Reservas, Perfil e "ver mais" ainda não navegam. |
-| `/resultados` | `resultados.tsx` | **#480.** Recebe `city`, `checkIn`, `checkOut`, `service` e `petId` pela rota. O título mostra a contagem e o serviço ("1 Pet-Sitter encontrado"). Lista vertical de `PetCard`, com o botão `tune` que abre o `FiltersModal` (com o número de filtros ativos) e o estado vazio com "Ajustar filtros". O campo e a aba Buscar refazem a busca. Dados de exemplo até a #476. |
-| `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), ainda com dados de exemplo: capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição e rotina com "Ler mais", galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas" e "Solicitar reserva", os dois sem ação. Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
+| `/resultados` | `resultados.tsx` | **#480.** Recebe `city`, `checkIn`, `checkOut`, `service` e `petId` pela rota. O título mostra a contagem e o serviço ("1 Pet-Sitter encontrado"). Lista vertical de `PetCard`, com o botão `tune` que abre o `FiltersModal` (com o número de filtros ativos) e o estado vazio com "Ajustar filtros". O campo e a aba Buscar refazem a busca. **#518:** dados reais do `GET /api/v1/hosts/search`, com erro e "Tentar de novo". |
+| `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição e rotina com "Ler mais", galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas" e "Solicitar reserva", os dois sem ação. Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
 
 A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
@@ -101,8 +103,11 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 - Auth Server (`EXPO_PUBLIC_AUTH_URL`): `POST /api/v1/auth/request-pin`, `POST /api/v1/auth/register` e `POST /api/v1/auth/login`.
 - Contratos atuais: `https://auth-service-production-36e0.up.railway.app/docs` e `https://backend-production-7298.up.railway.app/docs` (o arquivo é o `/docs/openapi.yaml`).
 - Tokens: SecureStore (Keychain ou Keystore), nunca AsyncStorage (ADR-005).
-- O mobile ainda não chama o back-end principal. A rota de detalhe do Host (`GET /api/v1/hosts/{id}`, #479) já existe e manda só bairro e cidade, nunca rua, número ou CEP. A rota de busca (#476) ainda não existe.
-- Na web, o login e o cadastro não funcionam: o Auth não libera CORS para `localhost:8081`, e o SecureStore não existe no navegador. O time de back-end vai tratar o CORS. Para testar, use o Expo Go.
+- Back-end principal (`EXPO_PUBLIC_API_URL`), pelo `backendApi` com token e renovação em fila (DT-19):
+  - `GET /api/v1/hosts/search` (#476), usado nos resultados;
+  - `GET /api/v1/hosts/{id}` (#479), usado no detalhe. Manda só bairro e cidade.
+  - Os filtros de serviço, comodidades e vários portes ainda não existem na API e ficam sem efeito (DT-20).
+- O CORS para `localhost:8081` está liberado no Auth e no back-end. Na web, o que falta é guardar o token, porque não há SecureStore no navegador (ADR-005). Para testar, use o Expo Go.
 
 ## Restrições
 

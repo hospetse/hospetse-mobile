@@ -1,7 +1,7 @@
 # Contexto do projeto: Hospetse Mobile
 
 > Resumo principal para retomar o trabalho. Mantenha curto e fiel ao código.
-> Última atualização: 2026-10-31. Descreve o código da branch `feature/267-implementar-telas-de-email-dados-e-senha-do-cadastro`, com a `develop` (PRs !32, !35 e !47) já integrada.
+> Última atualização: 2026-11-01. Descreve a `develop` (`79b7a95`, com os PRs !32, !35, !47 e !52) mais o trabalho da #480 na branch `feature/480-implementar-a-lista-de-resultados-e-a-tela-de-detalhes-do-host-no-mobile`.
 
 ## Objetivo
 
@@ -23,7 +23,8 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 - Testes: Jest 30, `jest-expo` e `@testing-library/react-native`. Comando: `npm test`.
 - Typecheck: `npx tsc --noEmit` (o binário local fica em `node_modules\.bin\tsc`).
 - ESLint ainda não está configurado no mobile.
-- Variável de ambiente: `EXPO_PUBLIC_AUTH_URL`, no arquivo `.env.local`, que fica fora do git.
+- Variável de ambiente: `EXPO_PUBLIC_AUTH_URL`, no `.env.local`, que fica fora do git. O modelo é o `.env.example`, que fica no git e tem o endereço publicado. Como rodar: `README.md`.
+- Endereços publicados e regras dos tokens (access token de 15 min, refresh de uma vez só, com fila): Wiki, em Desenvolvimento > Back-end > "APIs publicadas - URLs e contratos". Back-end: `https://backend-production-7298.up.railway.app`.
 
 ## Estrutura de pastas
 
@@ -33,9 +34,11 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `src/components/` | Componentes visuais reutilizáveis. |
 | `src/constants/theme.ts` | Cores, fontes, espaçamentos, raios, tipografia e sombras. É a única fonte de valores visuais. |
 | `src/constants/terms.ts` | Versão dos Termos de Uso enviada no cadastro. |
+| `src/constants/search.ts` | Serviços (com nomes no singular e no plural), portes, comodidades filtráveis e faixa de preço. |
+| `src/constants/sampleData.ts` | Tutor e pets de exemplo, compartilhados pela Home e pelos resultados (provisório). |
 | `src/context/SignupContext.tsx` | Dados do cadastro em memória, entre `/cadastro` e `/codigo`. |
-| `src/services/` | `api.ts` (instância do axios do Auth), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`) e `token-storage.ts` (SecureStore). |
-| `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`, `validateSignup`, `validateLogin` e `calendar`, que monta o mês, formata datas e escolhe o período). |
+| `src/services/` | `api.ts` (instância do axios do Auth), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`, `isRequestError`), `token-storage.ts` (SecureStore) e `hosts.ts` (`searchHosts` e `getHostPage`, ainda com dados de exemplo, no formato da API). |
+| `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`, `validateSignup`, `validateLogin`, `calendar` e `searchParams`, que converte a busca em parâmetros da rota). |
 | `__tests__/`, `test-utils/` | Testes Jest e utilitários de teste (erros HTTP falsos, espião do console). |
 | `.kiro/steering/` | Regras do Kiro: arquitetura e código (`hospetse-architecture.md`), git (`git-workflow.md`), memória (`memoria-projeto.md`) e retomada (`retomar-contexto.md`, manual). |
 | `AGENTS.md` | Regras do Expo e a seção "Project memory", que inclui o `memoria-projeto.md`. É o único arquivo de regras que o Kiro carrega quando o workspace é aberto na pasta `HOSPETSE`. |
@@ -45,15 +48,17 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 
 | Rota | Arquivo | Estado atual |
 | --- | --- | --- |
-| `/` | `index.tsx` | Login integrado ao Auth (`POST /api/v1/auth/login`). Mostra os erros de e-mail e senha juntos, salva os tokens no SecureStore e vai para `/home`. 401 abre o modal "Login ou senha incorretos"; 403 avisa que o cadastro não foi concluído. Mostra um aviso quando chega com `aviso=email-cadastrado`. |
+| `/` | `index.tsx` | Login integrado ao Auth (`POST /api/v1/auth/login`). Mostra os erros de e-mail e senha juntos, salva os tokens no SecureStore e vai para `/home`. 401 abre o modal "Login ou senha incorretos"; 403 avisa que o cadastro não foi concluído. Mostra um aviso quando chega com `aviso=email-cadastrado` ou `aviso=conta-criada`. Falha ao salvar os tokens mostra "Não foi possível entrar", e não "Sem conexão". |
 | `/cadastro` | `cadastro.tsx` | Tela única com nome, e-mail, senha, confirmação e termos. Mostra todos os erros de formato juntos, embaixo de cada campo, antes do envio. Chama `request-pin`, guarda os dados (sem a confirmação) no `SignupContext` e vai para `/codigo`. 409 volta ao login com o aviso; 400 aparece no campo de e-mail; os outros erros abrem o `ErrorModal`. |
-| `/codigo` | `codigo.tsx` | Integrado ao Auth. Chama `register`, salva os tokens e vai para `/home` com o parâmetro `nome`. Reenvio do código a cada 60 s. Em modo dev, tem o atalho temporário "Abrir Home (temporário)" (ligado à #261). |
+| `/codigo` | `codigo.tsx` | Integrado ao Auth. Chama `register`, salva os tokens e vai para `/home` com o parâmetro `nome`. Se a conta for criada e os tokens não puderem ser salvos, vai ao login com `aviso=conta-criada`. Reenvio do código a cada 60 s. Em modo dev, tem o atalho temporário "Abrir Home (temporário)" (ligado à #261). |
 | `/recuperar-senha` | `recuperar-senha.tsx` | Só valida o formato do e-mail no aparelho; não chama nenhuma API. |
-| `/home` | `home.tsx` | Visual completo da task #472, com dados fixos no código. Os chips mudam o título da seção. O cabeçalho mostra o `nome` vindo do cadastro ou o nome de exemplo. **#477:** o campo de busca e a aba Buscar abrem o `SearchModal`. A busca sempre abre vazia, e a Home guarda a última busca em `lastSearch`. Reservas, Perfil, "ver mais" e os cards ainda não navegam. |
+| `/home` | `home.tsx` | Visual completo da task #472, com dados fixos no código. Os chips mudam o título da seção. O cabeçalho mostra o `nome` vindo do cadastro ou o nome de exemplo. O campo de busca e a aba Buscar abrem o `SearchModal`, que sempre abre vazio. "Buscar" leva a `/resultados`. Os cards abrem `/host/[id]`. Reservas, Perfil e "ver mais" ainda não navegam. |
+| `/resultados` | `resultados.tsx` | **#480.** Recebe `city`, `checkIn`, `checkOut`, `service` e `petId` pela rota. O título mostra a contagem e o serviço ("1 Pet-Sitter encontrado"). Lista vertical de `PetCard`, com o botão `tune` que abre o `FiltersModal` (com o número de filtros ativos) e o estado vazio com "Ajustar filtros". O campo e a aba Buscar refazem a busca. Dados de exemplo até a #476. |
+| `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), ainda com dados de exemplo: capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição e rotina com "Ler mais", galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas" e "Solicitar reserva", os dois sem ação. Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
 
-A busca (#477) é um modal por cima da Home, não uma rota. A tela de resultados é a task #480.
+A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
-Telas que o código já indica e que ainda não existem: resultados e detalhe do Host (#480); Reservas e Perfil (abas da Home); conclusão do perfil do Tutor (ADR-011; a rota `PUT /api/v1/me/tutor-profile` existe no back-end). Para a lista completa, consulte o Figma e a Wiki (Desenvolvimento > Front-end > Fluxo de Telas).
+Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas da Home); conclusão do perfil do Tutor (ADR-011; a rota `PUT /api/v1/me/tutor-profile` existe no back-end). Para a lista completa, consulte o Figma e a Wiki (Desenvolvimento > Front-end > Fluxo de Telas).
 
 ## Componentes reutilizáveis
 
@@ -62,8 +67,13 @@ Telas que o código já indica e que ainda não existem: resultados e detalhe do
 | `Button` | Botão laranja padrão, com `loading` (desabilita e mostra um indicador). |
 | `CodeInput` | Caixas de dígitos do código (PIN). |
 | `InfoIcon` | Ícone "i" laranja das dicas de formulário. |
-| `Skeleton` | Bloco que pulsa durante o carregamento. Hoje nenhuma tela usa. |
-| `Icon` | Ícones Material Symbols Outlined (`home`, `search`, `calendar_month`, `person`, `notifications`, `location_on`, `star`, `expand_more`, `chevron_left`, `chevron_right`). |
+| `Skeleton` | Bloco que pulsa durante o carregamento. Usado nos resultados e no detalhe do Host. |
+| `Icon` | Ícones Material Symbols Outlined. A lista está em `ICON_PATHS`, no `Icon.tsx`. |
+| `UserHeader` | Foto, nome e cidade do Tutor e o sino. Usado na Home e nos resultados. |
+| `FiltersModal` | Filtros em tela cheia: tipo de serviço, porte, faixa de preço e comodidades, com "Limpar filtros" e "Aplicar Filtros". Exporta `ResultFilters` e `EMPTY_RESULT_FILTERS`. |
+| `PriceSlider` | Barra de preço máximo feita só com Views (sem biblioteca), com ações de aumentar e diminuir para o leitor de tela. |
+| `AmenityItem` | Comodidade do Host: ícone num círculo e nome. |
+| `OutlineButton` | Botão secundário com borda laranja e ícone opcional. |
 | `SearchModal` | Busca com 4 seções (Onde?, Para quando?, Qual serviço?, Para quem?). Exporta `SearchFilters`, `EMPTY_FILTERS`, `ServiceType` e `PetSummary`. |
 | `FilterSection` | Seção que abre e fecha (título, seta opcional e conteúdo). |
 | `Calendar` | Um mês com setas, dias passados desabilitados e seleção de check-in e check-out. |
@@ -91,7 +101,8 @@ Telas que o código já indica e que ainda não existem: resultados e detalhe do
 - Auth Server (`EXPO_PUBLIC_AUTH_URL`): `POST /api/v1/auth/request-pin`, `POST /api/v1/auth/register` e `POST /api/v1/auth/login`.
 - Contratos atuais: `https://auth-service-production-36e0.up.railway.app/docs` e `https://backend-production-7298.up.railway.app/docs` (o arquivo é o `/docs/openapi.yaml`).
 - Tokens: SecureStore (Keychain ou Keystore), nunca AsyncStorage (ADR-005).
-- O mobile ainda não chama o back-end principal.
+- O mobile ainda não chama o back-end principal. A rota de detalhe do Host (`GET /api/v1/hosts/{id}`, #479) já existe e manda só bairro e cidade, nunca rua, número ou CEP. A rota de busca (#476) ainda não existe.
+- Na web, o login e o cadastro não funcionam: o Auth não libera CORS para `localhost:8081`, e o SecureStore não existe no navegador. O time de back-end vai tratar o CORS. Para testar, use o Expo Go.
 
 ## Restrições
 
@@ -100,9 +111,16 @@ Telas que o código já indica e que ainda não existem: resultados e detalhe do
 - Commit, push, PR e merge só com autorização da desenvolvedora.
 - Bibliotecas com código nativo fora do Expo Go exigem development build: evite.
 
-## Último estado conhecido (2026-10-30)
+## Último estado conhecido (2026-11-01)
 
-- PRs !32 (Home, #472), !35 (memória, #503) e !47 (busca, #477) mergeados na `develop`.
-- Branch `feature/267-implementar-telas-de-email-dados-e-senha-do-cadastro`, com a `develop` integrada. PR da #267 aberto para a `develop`, aguardando revisão.
-- Verificações em 2026-10-31, com a busca e o cadastro juntos: `tsc --noEmit` sem erros, 62 de 62 testes Jest passando e `expo export` para Android e web sem erros.
-- A busca, o cadastro e o login ainda não foram conferidos num aparelho.
+- PRs !32 (Home, #472), !35 (memória, #503), !47 (busca, #477) e !52 (cadastro e login, #267) mergeados na `develop`. A branch `feature/267-...` ainda existe no servidor, e só o Murilo pode apagá-la.
+- Branch atual: `feature/480-...`, a partir da `develop` (`79b7a95`), com os commits:
+  - `177c961`: `fix:` da mensagem "Sem conexão";
+  - `3365963`: `feat:` com as três telas;
+  - `6dd91c6`: `fix:` do bug #516, com `.env.example` e README;
+  - mais o `docs:` da memória.
+- A desenvolvedora aprovou o visual dos resultados, dos filtros e do detalhe.
+- Verificações em 2026-11-01: `tsc --noEmit` sem erros e 86 de 86 testes Jest passando.
+- Back-end em 2026-11-01:
+  - A rota de busca (#476, PR !53 do `hospetse-backend`) foi mergeada.
+  - O CORS do Auth para `localhost:8081` (PR !55 do `hospetse-auth-service`, bug #516) estava aberto e ainda não estava publicado.

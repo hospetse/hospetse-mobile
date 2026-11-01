@@ -175,3 +175,62 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Ficou pendente:** revisão do PR da #267 por outra pessoa, teste do cadastro com um PIN real e teste num aparelho.
 - **Explicações para a banca:** os trechos que fogem do básico estão explicados em `docs/memoria/EXPLICACOES_CADASTRO_LOGIN.md`.
 - **Commits:** `7b0e4b7` (validação do cadastro), `c4f8cb7` (login), `c4c0a72` (merge da `develop` com !32 e !35), `9a50f96` (memória e explicações) e o merge da `develop` com o !47. PR da #267 aberto para a `develop`.
+
+## 2026-11-01: Merges do cadastro e do login (PR !52)
+- **O que aconteceu:** depois da revisão, o PR !52 (#267, Murilo) foi mergeado na `develop` (`79b7a95`), sem fast-forward. Antes, ele trouxe a `develop` com o PR !47 e renumerou as decisões dele para DT-13 e DT-14.
+- **Verificação:** na `develop` já mergeada, `tsc --noEmit` sem erros e 62 de 62 testes passando.
+- **Problemas e soluções:**
+  - O voto e a conclusão automática pelo MCP do Azure DevOps falharam ("Unexpected end of JSON input"). A desenvolvedora aprovou e concluiu pela página do PR.
+  - Não deu para marcar "apagar a branch", porque isso exige a permissão de force push, que só o autor tem.
+- **Ficou pendente:** o Murilo apagar a branch `feature/267-...` no servidor.
+
+## 2026-11-01: Detalhe do Host, resultados e filtros (#480)
+- **Objetivo:** fazer os 4 prints da #480: lista de resultados, filtros e detalhe do Host (em duas partes). A tela de filtros é da #477, mas foi feita aqui por decisão da desenvolvedora.
+- **Arquivos criados:**
+  - Telas: `src/app/host/[id].tsx` e `src/app/resultados.tsx`.
+  - Componentes: `FiltersModal.tsx`, `PriceSlider.tsx`, `UserHeader.tsx`, `AmenityItem.tsx` e `OutlineButton.tsx`.
+  - Dados e funções: `src/services/hosts.ts`, `src/constants/search.ts`, `src/constants/sampleData.ts` e `src/utils/searchParams.ts`.
+  - Testes: `__tests__/host-details-test.tsx` e `__tests__/results-test.tsx`.
+- **Arquivos alterados:**
+  - `home.tsx`: usa o `UserHeader`, os cards abrem o detalhe e "Buscar" vai aos resultados.
+  - `SearchModal.tsx`: o `ServiceType` passou para `constants/search.ts`.
+  - `Icon.tsx`: 14 ícones novos.
+  - `theme.ts` (só acréscimos) e `utils/calendar.ts` (`toIsoDate` e `fromIsoDate`).
+- **Decisões:** DT-15, DT-16 e DT-17. DT-12 revisada.
+- **Contrato conferido:** o `GET /api/v1/hosts/{id}` no OpenAPI do `hospetse-backend` (#479 em Done). A rota de busca (#476) estava Em Andamento.
+- **Verificação:**
+  - `tsc --noEmit` sem erros e 86 de 86 testes passando (15 novos).
+  - Numa rodada, testes antigos do login e do cadastro estouraram o limite de 5 s enquanto o cache era montado. Na rodada seguinte, todos passaram.
+  - As rotas `/resultados` e `/host/[id]` respondem no servidor web.
+- **Não verificado:** a conferência visual dos resultados e dos filtros pela desenvolvedora e o teste num aparelho.
+- **Problemas e soluções:**
+  - Na primeira conferência, "Buscar" só fechava o modal, e o título não seguia o serviço. A solução foi a tela de resultados (DT-15).
+  - Durante as edições, o servidor mostrou erros de atualização na Home (`USER is not defined`) por causa de estados intermediários do arquivo. O código final não usa mais esses nomes: basta recarregar a página.
+- **Ficou pendente:** veja a #480 em `PROXIMOS_PASSOS.md`.
+
+## 2026-11-01: Mensagem "Sem conexão" no login e no cadastro (#480)
+- **Objetivo:** a desenvolvedora viu "Sem conexão" ao entrar na web.
+- **Causa:**
+  - Faltava o `.env.local`. Ele foi criado na máquina dela e fica fora do git.
+  - O Auth não manda `Access-Control-Allow-Origin` para `localhost:8081`, então o navegador bloqueia a resposta.
+  - O SecureStore não funciona na web.
+- **O que mudou:** `isRequestError` e mensagens corretas para a falha ao salvar os tokens (DT-18).
+- **Verificação:** 3 testes novos, e o login sem conta respondeu 401 no Auth de produção, chamado daqui.
+- **Commit:** `177c961` (`fix:`), na branch da #480, conforme a opção (a) escolhida pela desenvolvedora.
+- **Ficou pendente:** o CORS no Auth, com o time de back-end.
+
+## 2026-11-01: Commits da #480 e parte mobile do bug #516
+- **Contexto:**
+  - A desenvolvedora aprovou o visual dos resultados, dos filtros e do detalhe.
+  - O bug #516 ("Erro de conexão ao acessar a tela login") passou a ser dela, e a parte do mobile foi feita na branch da #480.
+- **Arquivos do bug:** `.env.example` (novo, com `EXPO_PUBLIC_AUTH_URL`; o endereço não é segredo) e `README.md` (reescrito: como rodar, limites na web, variáveis, testes e como contribuir).
+- **Conferido:**
+  - O endereço do Auth no `.env.example` é o mesmo da página da Wiki "APIs publicadas - URLs e contratos".
+  - O PR !55 do `hospetse-auth-service` (Lucas, CORS pela variável `CORS_ORIGINS`) estava aberto. Testado daqui, o Auth de produção ainda não mandava `Access-Control-Allow-Origin`.
+  - A #476 foi mergeada no back-end (PR !53).
+- **Commits:**
+  - `3365963`: `feat:` da #480.
+  - `6dd91c6`: `fix:` do #516.
+  - `docs:` da memória.
+  - O `177c961` (`fix:`, mensagem "Sem conexão") cita a #480, mas faz parte do #516. Isso é explicado no PR.
+- **Ficou pendente:** push e PR, testar o CORS depois do deploy do PR !55 e a task da ADR-005 para os tokens na web.

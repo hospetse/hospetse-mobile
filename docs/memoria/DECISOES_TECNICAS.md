@@ -134,7 +134,7 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
 - **Estado:**
   - Os filtros (`SearchFilters`: cidade, check-in, check-out, serviço e pet) ficam no formulário do modal, em `useState`, e só são enviados ao tocar em "Buscar". Fechar sem buscar descarta tudo.
   - **A cada abertura, a busca começa vazia** (`EMPTY_FILTERS`). O formulário só é montado com o modal aberto.
-  - A Home guarda a última busca feita em `lastSearch`, para a tela de resultados (#480). O campo de busca da Home não mostra a cidade.
+  - ~~A Home guarda a última busca feita em `lastSearch`, para a tela de resultados (#480).~~ **Revisado em 2026-11-01 (DT-15):** a Home não guarda mais a busca. "Buscar" leva a `/resultados` com os filtros nos parâmetros da rota. O campo de busca da Home não mostra a cidade.
 - **Revisão de 2026-10-30:** na primeira versão, o modal reabria com os últimos filtros e o campo da Home mostrava a cidade. A desenvolvedora pediu que a busca reabrisse vazia.
   - O card da #477 pede "filtros mantidos ao voltar dos resultados". Esse caso vai ser tratado na #480: ao voltar dos resultados, abrir a busca com o `lastSearch`.
 - **Seções:**
@@ -147,3 +147,46 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
 - **Serviço:** um por vez, com os nomes do print: "Pet Hotel", "Pet Walker" e "Pet Sitter". Os chips da Home usam hífen e não estão ligados à busca.
 - **Pet:** opcional, e tocar de novo desmarca. Sem pets, a seção mostra um texto, até existirem a tela 08I e os campos de porte e raça.
 - **Provisório:** as sugestões de cidade estão fixas no `SearchModal` e os pets de exemplo estão em `PETS`, na Home. Vão ser trocados pela API (#476) e pela lista de pets (#371).
+
+## Resultados e detalhe do Host
+
+### DT-15: A busca vai para os resultados pelos parâmetros da rota
+- **Data:** 2026-11-01 · **Task:** #480 · **Status:** Aceita
+- **Decisão:** "Buscar", no `SearchModal`, faz `router.push('/resultados')` com `city`, `checkIn` e `checkOut` (`2026-12-18`), `service` e `petId`, sem os campos vazios (`utils/searchParams.ts`). São só valores leves, como pede o steering (seção 6).
+  - Nos resultados, o campo e a aba Buscar abrem o modal de novo, e a nova busca troca os parâmetros da mesma tela (`router.setParams`).
+  - O título segue o serviço da busca: "1 Pet-Sitter encontrado", "2 Pet-Hotéis encontrados". Sem serviço ou com vários, "N resultados encontrados".
+  - Abrir um resultado leva a `/host/[id]` com as datas da busca, para a seção "Disponibilidade".
+- **Motivo:** na conferência, "Buscar" só fechava o modal, e o título não mudava com o serviço escolhido.
+
+### DT-16: Filtros dos resultados em tela cheia, feitos na #480
+- **Data:** 2026-11-01 · **Task:** #480 (o item "faixa de preço" é da #477) · **Status:** Aceita, com dados Provisórios
+- **Decisão:** `FiltersModal` em tela cheia, aberto pelo botão `tune` dos resultados ou por "Ajustar filtros" no estado vazio.
+  - Tipo de serviço (um ou mais), porte (um ou mais), preço máximo e comodidades.
+  - "Aplicar Filtros" troca a lista. Fechar sem aplicar descarta as mudanças. "Limpar filtros" desmarca tudo, inclusive o serviço que veio da busca.
+  - Os filtros valem enquanto a tela de resultados estiver aberta. Uma busca nova recomeça os filtros a partir do serviço dela.
+  - **Regras** (`matchesSearch`, em `services/hosts.ts`):
+    - Serviço: o Host oferece **algum** dos escolhidos.
+    - Porte: o Host aceita **todos** os escolhidos, porque o Tutor pode levar pets de portes diferentes.
+    - Preço: o preço do Host é até o máximo escolhido. R$ 400+ significa sem limite.
+    - Comodidades: o Host tem **todas** as escolhidas.
+    - Cidade: compara sem acento e sem o estado ("Maringá, PR" acha "Maringá").
+- **Barra de preço:** `PriceSlider` feita com Views e o sistema de toque do React Native, sem instalar biblioteca. Para o leitor de tela, é `adjustable`, com as ações de aumentar e diminuir.
+- **A confirmar:** as regras de porte e de comodidades precisam bater com a rota da #476, quando ela existir.
+
+### DT-17: Dados de exemplo no formato da API, separados do que a API não tem
+- **Data:** 2026-11-01 · **Task:** #480 · **Status:** Provisória (até a #476 e a integração da #479)
+- **Decisão:** `services/hosts.ts` tem 6 Hosts de exemplo (Maringá, Londrina e Sarandi), com `searchHosts` e `getHostPage`, que são assíncronas como uma chamada real.
+  - O detalhe usa o tipo `HostDetails`, igual ao `GET /api/v1/hosts/{id}`.
+  - Comodidades, requisitos e rotina ficam em `HostExtras`, porque **a API não tem esses campos**. Precisam ser pedidos ao back-end.
+  - O endereço mostra só bairro e cidade, porque a API não manda rua, número nem CEP (LGPD).
+  - Os cards da Home abrem o primeiro Host de exemplo.
+- **Conflito conhecido:** o critério da #480 pede "sem resultado fictício". Os dados de exemplo valem só até a #476.
+- **Para integrar:** trocar o corpo de `searchHosts` e `getHostPage` pelas chamadas ao back-end, com o token do usuário. Não é preciso mudar as telas.
+
+### DT-18: Falha ao salvar os tokens não é falta de conexão
+- **Data:** 2026-11-01 · **Task:** #480 (correção no login e no cadastro, da #267) · **Status:** Aceita
+- **Decisão:** `isRequestError` (em `services/auth.ts`) separa erro da chamada HTTP de erro de outra etapa, como o SecureStore.
+  - No login: "Não foi possível entrar" em vez de "Sem conexão".
+  - Na tela do código: a conta já foi criada, então limpa o cadastro e vai ao login com `aviso=conta-criada`.
+- **Motivo:** na web, o SecureStore falha, e o app dizia "Sem conexão" mesmo com o servidor respondendo.
+- **Limite:** na web, o login continua mostrando "Sem conexão" de verdade, porque o navegador bloqueia a resposta do Auth (CORS). O time de back-end vai tratar isso.

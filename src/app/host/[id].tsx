@@ -36,11 +36,12 @@ const DESCRIPTION_LINES = 5;
 type LoadState = 'loading' | 'ready' | 'not-found' | 'error';
 
 export default function HostDetailsScreen() {
-  // O id vem na rota. As datas são opcionais e chegam da busca (2026-08-01)
-  const { id, checkIn, checkOut } = useLocalSearchParams<{
+  // O id vem na rota. As datas (2026-08-01) e o pet são opcionais e chegam da busca
+  const { id, checkIn, checkOut, petId } = useLocalSearchParams<{
     id: string;
     checkIn?: string;
     checkOut?: string;
+    petId?: string;
   }>();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -125,6 +126,19 @@ export default function HostDetailsScreen() {
     startDate && endDate ? `${formatDate(startDate)}  -  ${formatDate(endDate)}` : 'Escolha as datas na busca';
 
   const { rating, reviewCount } = host.reputation;
+
+  // O chat recebe o mesmo contexto da busca que chegou aqui (#520)
+  function openChat() {
+    router.push({
+      pathname: '/chat/[id]',
+      params: {
+        id: host.id,
+        ...(checkIn ? { checkIn } : {}),
+        ...(checkOut ? { checkOut } : {}),
+        ...(petId ? { petId } : {}),
+      },
+    });
+  }
 
   return (
     <View style={styles.screen}>
@@ -269,11 +283,11 @@ export default function HostDetailsScreen() {
 
       {backButton}
 
-      {/* Rodapé fixo. Os dois botões ainda não têm ação: o contato é só pelo
-          Assistente de IA, e a solicitação de reserva é de outra task */}
+      {/* Rodapé fixo. "Tire suas dúvidas" abre o chat com o contexto da busca (#520).
+          A solicitação de reserva é de outra task e ainda não tem ação */}
       <View style={[styles.footer, { paddingBottom: insets.bottom + theme.spacing.medium }]}>
         <View style={styles.footerButton}>
-          <OutlineButton icon="chat" onPress={() => {}} title="Tire suas dúvidas" />
+          <OutlineButton icon="chat" onPress={openChat} title="Tire suas dúvidas" />
         </View>
         <View style={styles.footerButton}>
           <Button onPress={() => {}} title="Solicitar reserva" />

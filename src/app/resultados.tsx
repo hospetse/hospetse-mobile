@@ -149,13 +149,15 @@ export default function ResultsScreen() {
   }
 
   function openHost(host: HostSummary) {
-    // As datas da busca seguem para o detalhe, para a seção "Disponibilidade"
+    // As datas da busca seguem para o detalhe, para a seção "Disponibilidade".
+    // O pet segue também, para o chat (#520)
     router.push({
       pathname: '/host/[id]',
       params: {
         id: host.hostId,
         ...(params.checkIn ? { checkIn: params.checkIn } : {}),
         ...(params.checkOut ? { checkOut: params.checkOut } : {}),
+        ...(params.petId ? { petId: params.petId } : {}),
       },
     });
   }

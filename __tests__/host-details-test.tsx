@@ -95,6 +95,17 @@ describe('Tela de detalhe do Host', () => {
     expect(screen.queryByText(/@|telefone|whatsapp/i)).not.toBeOnTheScreen();
   });
 
+  test('"Tire suas dúvidas" abre o chat do Host com o contexto da busca', async () => {
+    const user = await renderScreen({ id: HOST_ID, checkIn: '2026-12-18', checkOut: '2026-12-21', petId: 'pet-1' });
+
+    await user.press(await screen.findByRole('button', { name: 'Tire suas dúvidas' }));
+
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: '/chat/[id]',
+      params: { id: HOST_ID, checkIn: '2026-12-18', checkOut: '2026-12-21', petId: 'pet-1' },
+    });
+  });
+
   test('404 mostra "Hospedagem não encontrada" e volta', async () => {
     mockedGet.mockRejectedValue(httpError(404));
     const user = await renderScreen({ id: HOST_ID });

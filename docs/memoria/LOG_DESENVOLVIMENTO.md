@@ -298,3 +298,15 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Web:** a busca mostra "Algo deu errado", porque não há SecureStore no navegador (limite já conhecido, DT-19). A tela também não leva ao login com "sessão expirada", provavelmente porque o `clearTokens` falha na web (o SecureStore não existe no navegador). Isso não foi testado. Fica para a task de tokens na web (ADR-005).
 - **Commits:** `feat:` e `docs:` da #520.
 - **Ficou pendente:** testar o modal de rotina no Android depois do merge da #519, as rotas de conversa no back-end e tirar o "ligar" da descrição da task #520.
+## 2026-11-01: Merge da #519 e da #520
+- PRs !66 (modal de rotina) e !67 (chat) aprovados pelo Lucas Neo e mergeados pela desenvolvedora na `develop` (`4a806dd`). Antes, a branch da #519 foi trazida para a da #520, com o conflito de `docs/memoria/` e do teste do detalhe resolvido. Branches apagadas.
+## 2026-11-01: Solicitação de hospedagem (#495)
+- **Objetivo:** tela "Confirmar Reserva", aberta pelo "Solicitar reserva" do detalhe, com o sucesso e os modais de erro do protótipo.
+- **Branch:** `feature/495-implementar-a-tela-de-solicitacao-de-hospedagem-no-mobile`, a partir da `develop` (`4a806dd`).
+- **Arquivos novos:** `app/reserva/[id].tsx`; `components/ReservationSuccess.tsx`, `DateRangeModal.tsx` e `AddOnItem.tsx`; `services/reservations.ts` e `services/pets.ts`; `constants/addOns.ts`; `utils/validateReservation.ts` e `utils/money.ts`; `__tests__/reservation-test.tsx` (17 testes).
+- **Código existente:** `app/host/[id].tsx` ("Solicitar reserva" abre a confirmação; o contexto da busca virou `searchContext`, usado também pelo chat); `components/PetOption.tsx` (aceita pet sem foto); `constants/theme.ts` (`successCircle`, `footerHeight` e `icon.huge`, só acréscimos); `test-utils/http.ts` (`apiError`); 1 teste novo em `host-details-test.tsx`.
+- **Contrato lido no `hospetse-backend`:** `create-reservation.controller.js`, `create-reservation.service.js`, `availability.js`, `profile-policy.js` e `pet.controller.js`.
+- **Decisão:** DT-23.
+- **Verificação:** `tsc --noEmit` sem erros e 125 de 125 testes passando. A desenvolvedora testou no Expo Go (iPhone) com um Tutor com pets reais (Rex, Mia e Thor): a confirmação e o sucesso funcionaram.
+- **Commits:** `feat:` e `docs:` da #495.
+- **Ficou pendente:** push e PR; tela de Reservas do Tutor (PBI #199, sem task e sem rota no back-end); cadastro de pet; conclusão do perfil; serviços adicionais e horários na API.

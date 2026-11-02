@@ -135,6 +135,17 @@ describe('Tela de detalhe do Host', () => {
     });
   });
 
+  test('"Solicitar reserva" abre a confirmação com o contexto da busca', async () => {
+    const user = await renderScreen({ id: HOST_ID, checkIn: '2026-12-18', checkOut: '2026-12-21' });
+
+    await user.press(await screen.findByRole('button', { name: 'Solicitar reserva' }));
+
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: '/reserva/[id]',
+      params: { id: HOST_ID, checkIn: '2026-12-18', checkOut: '2026-12-21' },
+    });
+  });
+
   test('404 mostra "Hospedagem não encontrada" e volta', async () => {
     mockedGet.mockRejectedValue(httpError(404));
     const user = await renderScreen({ id: HOST_ID });

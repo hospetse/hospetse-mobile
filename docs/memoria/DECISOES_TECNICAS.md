@@ -240,3 +240,13 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
     - Android: eventos `keyboardDidShow` e `keyboardDidHide`. No Expo Go em tela cheia (edge-to-edge), a tela **não** encolhe sozinha, e o teclado cobria o campo e as mensagens.
     - A lista rola até o fim quando muda de tamanho (`onLayout`) e quando chega mensagem nova. Com o teclado aberto, o campo perde a margem da área segura. Arrastar a conversa para baixo fecha o teclado (`keyboardDismissMode="interactive"`).
 - **Motivo:** as rotas de conversa (#209, #219 e #220) ainda não existem.
+## Solicitação de hospedagem
+### DT-23: Confirmação, sucesso e erros da reserva numa rota só
+- **Data:** 2026-11-01 · **Task:** #495 · **Status:** Aceita (partes Provisórias)
+- **Decisão:** a rota `/reserva/[id]` (id do Host, com `checkIn`, `checkOut` e `petId` da busca) mostra a confirmação e, depois do envio, a tela de sucesso no lugar dela. Assim a resposta da API não precisa ir por parâmetro de rota.
+  - Dados reais: Host pelo `GET /api/v1/hosts/{id}`, pets pelo `GET /api/v1/me/pets` (#369) e envio pelo `POST /api/v1/reservations` (#494) com o serviço mais barato do Host.
+  - **Toque duplo:** um `ref` trava o envio na hora e o botão fica em carregamento. A `Idempotency-Key` fica guardada enquanto o pet e as datas não mudam: nova tentativa repete a mesma chave e o back-end devolve a mesma solicitação. Trocar o pet ou as datas gera chave nova.
+  - **Erros do back-end:** `PERIOD_UNAVAILABLE` e `NO_CAPACITY` abrem "Data indisponível"; `PROFILE_INCOMPLETE` abre "Cadastro Incompleto"; `PET_ALREADY_BOOKED` e `VALIDATION_ERROR` de `petId`, `startDate` ou `endDate` aparecem embaixo do campo; o resto, e a falta de rede, abre "Algo deu errado". A validação local (`validateReservation`) repete as regras do back-end antes do envio.
+  - **Provisório (decisões da desenvolvedora):** os serviços adicionais ficam na tela, mas não somam no total nem vão na solicitação, porque a API não tem esse campo. "Adicionar Pet" e "Ver minhas reservas" estão sem ação (o cadastro de pet e a tela de Reservas não existem). "Completar Cadastro" só fecha o aviso (a conclusão do perfil não existe). Os horários "A partir das 14:00" e "Até às 12:00" são de exemplo.
+  - Os pets da API não têm foto: o `PetOption` passou a aceitar `imageUri: null` e mostra a patinha.
+  - "Voltar para Início" usa `router.dismissTo('/home')`.

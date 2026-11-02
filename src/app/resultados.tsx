@@ -22,6 +22,7 @@ import { UserHeader } from '../components/UserHeader';
 import { SAMPLE_PETS, SAMPLE_USER } from '../constants/sampleData';
 import { SERVICE_PLURAL, SERVICE_SINGULAR, ServiceType } from '../constants/search';
 import { theme } from '../constants/theme';
+import { useSession } from '../context/SessionContext';
 import { getErrorStatus, isRequestError } from '../services/auth';
 import { formatHostLocation, HostSearchResult, HostSummary, searchHosts } from '../services/hosts';
 import { formatDate, fromIsoDate } from '../utils/calendar';
@@ -65,6 +66,7 @@ export function searchErrorMessage(error: unknown): string {
 }
 
 export default function ResultsScreen() {
+  const { currentUser } = useSession();
   const params = useLocalSearchParams<SearchRouteParams>();
   const { width } = useWindowDimensions();
   const initialService = serviceFromParam(params.service);
@@ -127,6 +129,7 @@ export default function ResultsScreen() {
 
   const activeFilters = countFilters(filters);
   const cardWidth = width - theme.spacing.page * 2;
+  const userName = currentUser?.user?.name || SAMPLE_USER.name;
 
   // Nova busca feita daqui: troca os parâmetros desta mesma tela
   function handleSearch(search: SearchFilters) {
@@ -165,7 +168,7 @@ export default function ResultsScreen() {
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <UserHeader avatarUri={SAMPLE_USER.avatar} city={SAMPLE_USER.city} name={SAMPLE_USER.name} />
+        <UserHeader avatarUri={SAMPLE_USER.avatar} city={SAMPLE_USER.city} name={userName} />
 
         <View>
           <TouchableOpacity

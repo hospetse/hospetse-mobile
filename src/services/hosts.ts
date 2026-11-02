@@ -134,6 +134,9 @@ export async function searchHosts(search: HostSearch): Promise<HostSearchResult>
     '/api/v1/hosts/search',
     { params: toSearchQuery(search) },
   );
+  if (!Array.isArray(data.items) || typeof data.total !== 'number') {
+    throw new Error('Resposta de busca inválida');
+  }
   return { items: data.items, total: data.total };
 }
 
@@ -177,6 +180,9 @@ const SAMPLE_EXTRAS: HostExtras = {
 export async function getHostPage(id: string): Promise<HostPage> {
   try {
     const { data } = await backendApi.get<HostDetails>(`/api/v1/hosts/${encodeURIComponent(id)}`);
+    if (!Array.isArray(data.photos) || !Array.isArray(data.services)) {
+      throw new Error('Resposta de detalhe inválida');
+    }
     return { host: data, extras: SAMPLE_EXTRAS };
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {

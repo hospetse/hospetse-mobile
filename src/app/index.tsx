@@ -14,14 +14,18 @@ import { Button } from '../components/Button';
 import { ErrorModal } from '../components/ErrorModal';
 import { FieldError } from '../components/FieldError';
 import { theme } from '../constants/theme';
+import { useSession } from '../context/SessionContext';
 import { getErrorStatus, isRequestError, login } from '../services/auth';
 import { saveTokens } from '../services/token-storage';
+import { getCurrentUser } from '../services/users';
 import { LoginFormErrors, validateLogin } from '../utils/validateLogin';
 
 type ServerError = {
   title: string;
   message: string;
   buttonTitle: string;
+  // Depois do login, a falha do /me pode ser repetida sem pedir senha de novo.
+  retryProfile?: boolean;
   // Quando o cadastro não foi concluído, o botão do aviso leva de volta ao cadastro
   goToSignup: boolean;
 };
@@ -61,6 +65,7 @@ function loginServerError(status: number | null): ServerError {
 }
 
 export default function LoginScreen() {
+  const { saveCurrentUser } = useSession();
   // Vem do cadastro quando o e-mail já tem conta (409)
   const { aviso } = useLocalSearchParams<{ aviso?: string }>();
   const [email, setEmail] = useState('');
@@ -80,6 +85,25 @@ export default function LoginScreen() {
     'sessao-expirada': 'Sua sessão expirou. Entre de novo para continuar.',
   };
   const notice = aviso ? (notices[aviso] ?? '') : '';
+
+  async function loadProfile() {
+    setLoading(true);
+
+    try {
+      saveCurrentUser(await getCurrentUser());
+      router.replace('/home');
+    } catch {
+      setServerError({
+        title: 'Não foi possível carregar seu perfil',
+        message: 'Seu acesso foi salvo. Verifique sua conexão e tente novamente.',
+        buttonTitle: 'Tentar novamente',
+        goToSignup: false,
+        retryProfile: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleLogin() {
     // Segunda proteção contra envio duplicado (o botão também fica desabilitado)
@@ -104,9 +128,9 @@ export default function LoginScreen() {
 
     try {
       const tokens = await login(email, password);
-      // Tokens no Keychain/Keystore; a senha não é guardada em lugar nenhum
+      // Tokens no armazenamento da plataforma; a senha não é guardada em lugar nenhum.
       await saveTokens(tokens);
-      router.replace('/home');
+      await loadProfile();
     } catch (loginError) {
       // O login deu certo, mas o aparelho não guardou os tokens (ex.: na web, sem SecureStore)
       if (!isRequestError(loginError)) {
@@ -136,7 +160,13 @@ export default function LoginScreen() {
 
   function handleCloseServerError() {
     const goToSignup = serverError ? serverError.goToSignup : false;
+    const retryProfile = serverError ? serverError.retryProfile : false;
     setServerError(null);
+
+    if (retryProfile) {
+      void loadProfile();
+      return;
+    }
 
     if (goToSignup) {
       router.push('/cadastro');

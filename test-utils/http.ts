@@ -27,3 +27,15 @@ export function spyOnConsole() {
     restore: () => spies.forEach((spy) => spy.mockRestore()),
   };
 }
+
+// Erro do back-end com o envelope { code, message, details }
+export function apiError(
+  status: number,
+  code: string,
+  details?: { field: string; message: string }[],
+): AxiosError {
+  return new AxiosError('Erro HTTP', 'ERR_BAD_RESPONSE', undefined, undefined, {
+    status,
+    data: { code, message: code, details },
+  } as AxiosResponse);
+}

@@ -128,17 +128,20 @@ export default function HostDetailsScreen() {
 
   const { rating, reviewCount } = host.reputation;
 
-  // O chat recebe o mesmo contexto da busca que chegou aqui (#520)
+  // O chat (#520) e a solicitação de reserva (#495) recebem o mesmo contexto da busca que chegou aqui
+  const searchContext = {
+    id: host.id,
+    ...(checkIn ? { checkIn } : {}),
+    ...(checkOut ? { checkOut } : {}),
+    ...(petId ? { petId } : {}),
+  };
+
   function openChat() {
-    router.push({
-      pathname: '/chat/[id]',
-      params: {
-        id: host.id,
-        ...(checkIn ? { checkIn } : {}),
-        ...(checkOut ? { checkOut } : {}),
-        ...(petId ? { petId } : {}),
-      },
-    });
+    router.push({ pathname: '/chat/[id]', params: searchContext });
+  }
+
+  function openReservation() {
+    router.push({ pathname: '/reserva/[id]', params: searchContext });
   }
 
   return (
@@ -286,14 +289,14 @@ export default function HostDetailsScreen() {
 
       {backButton}
 
-      {/* Rodapé fixo. "Tire suas dúvidas" abre o chat com o contexto da busca (#520).
-          A solicitação de reserva é de outra task e ainda não tem ação */}
+      {/* Rodapé fixo: "Tire suas dúvidas" abre o chat (#520) e "Solicitar reserva" abre a
+          confirmação da reserva (#495), os dois com o contexto da busca */}
       <View style={[styles.footer, { paddingBottom: insets.bottom + theme.spacing.medium }]}>
         <View style={styles.footerButton}>
           <OutlineButton icon="chat" onPress={openChat} title="Tire suas dúvidas" />
         </View>
         <View style={styles.footerButton}>
-          <Button onPress={() => {}} title="Solicitar reserva" />
+          <Button onPress={openReservation} title="Solicitar reserva" />
         </View>
       </View>
 

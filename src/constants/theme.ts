@@ -68,11 +68,15 @@ export const theme = {
     chatImageHeight: 140,
     chatImageWidth: 220,
     chatInput: 44,
+    // Solicitação de reserva
+    successCircle: 96,
+    footerHeight: 136,
   },
   icon: {
     small: 12,
     medium: 20,
     large: 24,
+    huge: 56,
   },
   radius: {
     input: 12,

@@ -2,12 +2,13 @@
 
 Lista viva. Mova os itens entre as seções conforme o estado real, e apague da seção **Concluído** o que tiver mais de duas tasks (o histórico fica no `LOG_DESENVOLVIMENTO.md`).
 
-> Última atualização: 2026-11-01
+> Última atualização: 2026-11-02
 
 ## Próxima atividade recomendada
 1. **#495:** push e PR para a `develop` (aprovada no iPhone e commitada).
 
 ## Em andamento
+- **#269, Sessão após cadastro:** implementada nesta branch. Faltam validações manuais no navegador e no Expo Go contra as APIs publicadas antes de PR.
 - **#495, Solicitação de hospedagem:** commitada na branch `feature/495-implementar-a-tela-de-solicitacao-de-hospedagem-no-mobile` (DT-23) e aprovada no Expo Go (iPhone). Faltam push e PR.
 
 ## Pendente
@@ -22,7 +23,7 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 - **Filtros sem efeito**, até o back-end acrescentar: tipo de serviço, comodidades e vários portes (DT-20).
 - **Campos que a API não tem:** comodidades, requisitos e rotina do detalhe (`HostExtras`).
 - **Paginação** dos resultados: hoje vêm até 50.
-- **Home com dados reais:** os cards de exemplo abrem um id que não existe na API ("Hospedagem não encontrada"). A Home precisa de uma rota de destaques e do nome pelo `GET /api/v1/me`.
+- **Home com dados reais:** o nome e o aviso do perfil vêm do `/me` após login ou cadastro. Os cards de exemplo ainda abrem um id que não existe na API ("Hospedagem não encontrada") e precisam de uma rota de destaques.
 - **Botões sem ação:** "Ver todos" e a galeria completa.
 - **Pets da busca:** o `SearchModal` ainda usa os pets de exemplo (#371); a reserva já usa os pets reais.
 - Itens da #477: o aviso para Tutor sem pet (tela 08I).
@@ -30,7 +31,7 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 - Fora dessas tasks: recuperar senha, textos de erro do design, ícone do `ErrorModal` em SVG e ESLint.
 
 ## Bloqueado ou dependente
-- **Login, busca e detalhe na web:** não há SecureStore no navegador, então não há token. Precisa de uma task da ADR-005 (tokens na web). Na web, a tela provavelmente também não leva ao login com "sessão expirada", porque o `clearTokens` falha (não testado). Teste no Expo Go.
+- **Login, busca e detalhe na web:** tokens ficam somente em memória durante a aba (DT-24). Atualizar a página encerra a sessão. Falta validar o fluxo completo contra as APIs publicadas.
 - **Teste do cadastro com PIN real:** o Auth agora envia o PIN por e-mail (PR !58, #517). Falta testar no Expo Go.
 - **Atalho temporário da Home na `codigo.tsx`:** só sai quando a #261 estiver integrada.
 

@@ -310,3 +310,15 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Verificação:** `tsc --noEmit` sem erros e 125 de 125 testes passando. A desenvolvedora testou no Expo Go (iPhone) com um Tutor com pets reais (Rex, Mia e Thor): a confirmação e o sucesso funcionaram.
 - **Commits:** `feat:` e `docs:` da #495.
 - **Ficou pendente:** push e PR; tela de Reservas do Tutor (PBI #199, sem task e sem rota no back-end); cadastro de pet; conclusão do perfil; serviços adicionais e horários na API.
+
+## 2026-11-02: Sessão e confirmação após cadastro (#269)
+- **Objetivo:** iniciar a sessão depois do `register`, carregar o perfil pelo `/me` e mostrar a confirmação antes da Home.
+- **Arquivos:** criados `src/context/SessionContext.tsx`, `src/services/users.ts` e `src/services/token-storage.web.ts`; alterados `src/app/_layout.tsx`, `src/app/codigo.tsx`, `src/app/home.tsx`, `src/services/token-storage.ts`, `__tests__/codigo-test.tsx`, `package.json` e `package-lock.json`.
+- **O que mudou:** tokens continuam no SecureStore no Android/iOS; na Web ficam apenas em memória. A tela do código consulta `/me` após salvar tokens, mostra sucesso e permite repetir a consulta sem encerrar a sessão. A Home usa o perfil carregado e informa quando a contratação exige completar o perfil.
+- **Decisões:** DT-24.
+- **Verificação:** `expo-doctor` 20/20, `npx tsc --noEmit`, Jest 126 de 126 e `npx expo export --platform web` concluídos.
+- **Ficou pendente:** validação manual contra Auth Server e Back-end no navegador e Expo Go.
+- **Commits / PR:** nenhum.
+
+- **Correção posterior:** resultados passou a ler o nome do `SessionContext`, como a Home; avatar e cidade continuam de exemplo porque `/me` não fornece esses campos. O nome de exemplo só aparece quando não há sessão carregada.
+- **Correção de runtime:** a leitura do nome na Home agora tolera estado ausente, e `getCurrentUser` rejeita resposta de `/me` sem `user.name`, perfil ou permissões antes de gravá-la no contexto. Assim, o fluxo mostra o erro recuperável do perfil em vez de quebrar a Home.

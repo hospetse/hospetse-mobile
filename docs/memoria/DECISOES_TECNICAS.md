@@ -250,3 +250,11 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
   - **Provisório (decisões da desenvolvedora):** os serviços adicionais ficam na tela, mas não somam no total nem vão na solicitação, porque a API não tem esse campo. "Adicionar Pet" e "Ver minhas reservas" estão sem ação (o cadastro de pet e a tela de Reservas não existem). "Completar Cadastro" só fecha o aviso (a conclusão do perfil não existe). Os horários "A partir das 14:00" e "Até às 12:00" são de exemplo.
   - Os pets da API não têm foto: o `PetOption` passou a aceitar `imageUri: null` e mostra a patinha.
   - "Voltar para Início" usa `router.dismissTo('/home')`.
+
+## Sessão e perfil
+
+### DT-24: Tokens em memória no Web e perfil carregado após cadastro
+- **Data:** 2026-11-02 · **Task:** #269 · **Status:** Aceita
+- **Decisão:** Android e iOS continuam usando `expo-secure-store` para os tokens. Na Web, `token-storage.web.ts` mantém access token e refresh token apenas em memória, sem `localStorage`, `sessionStorage` ou IndexedDB; atualizar a página encerra a sessão. Após o `register`, a tela do PIN consulta `GET /api/v1/me`, guarda o retorno em `SessionContext` e só então apresenta a confirmação antes de levar à Home.
+- **Motivo:** permite visualizar e testar o fluxo no navegador sem persistir segredo em armazenamento acessível por JavaScript. O perfil e permissões vêm do back-end, não do JWT.
+- **Limite:** a sessão Web não sobrevive ao reload. Persistência Web exige uma decisão futura para refresh via cookie HttpOnly e proteção CSRF.

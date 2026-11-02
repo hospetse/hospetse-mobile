@@ -30,11 +30,24 @@ export type HostDetails = {
 
 export type AmenityIcon = 'park' | 'photo_camera' | 'air' | 'waves';
 
+export type RoutinePeriod = 'morning' | 'afternoon' | 'night';
+
+// Uma etapa do dia no modal de rotina (#519)
+export type RoutineStep = {
+  period: RoutinePeriod;
+  time: string;
+  title: string;
+  description: string;
+};
+
 // Seções do protótipo que a API ainda NÃO tem. Ficam separadas para mostrar o que é provisório
 export type HostExtras = {
   amenities: { icon: AmenityIcon; label: string }[];
   requirements: string[];
+  // Resumo mostrado no detalhe
   routine: string[];
+  // Etapas completas, mostradas no modal de rotina
+  routineSteps: RoutineStep[];
 };
 
 export type HostPage = {
@@ -138,6 +151,26 @@ const SAMPLE_EXTRAS: HostExtras = {
     'Pets sociáveis para áreas coletivas',
   ],
   routine: ['Atividades diversas', 'Alimentação', 'Descanso', 'Recreação', 'Passeio no fim da tarde'],
+  routineSteps: [
+    {
+      period: 'morning',
+      time: '08:00',
+      title: 'Café da manhã e passeio',
+      description: 'Ração no mesmo horário de casa, água fresca e uma caminhada leve.',
+    },
+    {
+      period: 'afternoon',
+      time: '14:00',
+      title: 'Recreação e descanso',
+      description: 'Brincadeiras supervisionadas na área verde e soneca num lugar fresco.',
+    },
+    {
+      period: 'night',
+      time: '20:00',
+      title: 'Jantar e hora de dormir',
+      description: 'Última refeição, carinho e cama no espaço climatizado.',
+    },
+  ],
 };
 
 // Detalhe do Host no back-end (#479). O 404 vira HostNotFoundError

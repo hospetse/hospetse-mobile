@@ -15,6 +15,7 @@ import { AmenityItem } from '../../components/AmenityItem';
 import { Button } from '../../components/Button';
 import { Icon } from '../../components/Icon';
 import { OutlineButton } from '../../components/OutlineButton';
+import { RoutineModal } from '../../components/RoutineModal';
 import { Skeleton } from '../../components/Skeleton';
 import { theme } from '../../constants/theme';
 import {
@@ -28,7 +29,7 @@ import { formatDate, fromIsoDate } from '../../utils/calendar';
 
 // Quantas fotos da galeria aparecem; a última mostra "+N" quando há mais
 const GALLERY_VISIBLE = 4;
-// Quantos itens da rotina aparecem antes do "Ler mais"
+// Quantos itens da rotina aparecem no detalhe; o resto fica no modal
 const ROUTINE_VISIBLE = 4;
 // Linhas da descrição antes do "Ler mais"
 const DESCRIPTION_LINES = 5;
@@ -48,7 +49,7 @@ export default function HostDetailsScreen() {
   const [page, setPage] = useState<HostPage | null>(null);
   const [state, setState] = useState<LoadState>('loading');
   const [showFullDescription, setShowFullDescription] = useState(false);
-  const [showFullRoutine, setShowFullRoutine] = useState(false);
+  const [showRoutine, setShowRoutine] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -117,7 +118,7 @@ export default function HostDetailsScreen() {
   const cover = host.photos[0] ?? host.pictureUrl;
   const gallery = host.photos.slice(1);
   const hiddenPhotos = gallery.length - GALLERY_VISIBLE;
-  const routine = showFullRoutine ? extras.routine : extras.routine.slice(0, ROUTINE_VISIBLE);
+  const routine = extras.routine.slice(0, ROUTINE_VISIBLE);
 
   const startDate = fromIsoDate(checkIn);
   const endDate = fromIsoDate(checkOut);
@@ -255,13 +256,15 @@ export default function HostDetailsScreen() {
               {item}
             </Text>
           ))}
-          {extras.routine.length > ROUTINE_VISIBLE ? (
+          {/* O "Ler mais" abre o modal com os horários e a garantia (#519) */}
+          {extras.routineSteps.length > 0 ? (
             <TouchableOpacity
+              accessibilityLabel="Ler mais sobre a rotina"
               accessibilityRole="button"
-              onPress={() => setShowFullRoutine(!showFullRoutine)}
+              onPress={() => setShowRoutine(true)}
               style={styles.readMore}
             >
-              <Text style={styles.linkSmall}>{showFullRoutine ? 'Ler menos' : 'Ler mais'}</Text>
+              <Text style={styles.linkSmall}>Ler mais</Text>
             </TouchableOpacity>
           ) : null}
         </View>
@@ -279,6 +282,12 @@ export default function HostDetailsScreen() {
           <Button onPress={() => {}} title="Solicitar reserva" />
         </View>
       </View>
+
+      <RoutineModal
+        onClose={() => setShowRoutine(false)}
+        steps={extras.routineSteps}
+        visible={showRoutine}
+      />
     </View>
   );
 }

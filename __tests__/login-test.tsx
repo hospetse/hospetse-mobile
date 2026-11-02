@@ -2,8 +2,10 @@ import { render, screen, userEvent } from '@testing-library/react-native';
 import { router } from 'expo-router';
 
 import LoginScreen from '../src/app/index';
+import { SessionProvider } from '../src/context/SessionContext';
 import { login } from '../src/services/auth';
 import { saveTokens } from '../src/services/token-storage';
+import { getCurrentUser } from '../src/services/users';
 import { httpError, networkError, spyOnConsole } from '../test-utils/http';
 
 const mockParams: { aviso?: string } = {};
@@ -22,8 +24,13 @@ jest.mock('../src/services/token-storage', () => ({
   saveTokens: jest.fn(),
 }));
 
+jest.mock('../src/services/users', () => ({
+  getCurrentUser: jest.fn(),
+}));
+
 const mockedLogin = login as jest.Mock;
 const mockedSaveTokens = saveTokens as jest.Mock;
+const mockedGetCurrentUser = getCurrentUser as jest.Mock;
 
 const PASSWORD = 'Senha@123';
 const TOKENS = {
@@ -32,9 +39,18 @@ const TOKENS = {
   expiresIn: 900,
   refreshToken: 'refresh-token',
 };
+const CURRENT_USER = {
+  user: { id: 'user-1', authUserId: 'auth-user-1', email: 'ana@exemplo.com', name: 'Ana Souza' },
+  profile: { status: 'incomplete' as const, missingFields: ['cpf'] },
+  permissions: { canSearch: true, canContract: false },
+};
 
 async function renderScreen() {
-  await render(<LoginScreen />);
+  await render(
+    <SessionProvider>
+      <LoginScreen />
+    </SessionProvider>,
+  );
   return userEvent.setup();
 }
 
@@ -60,7 +76,7 @@ describe('Tela de login', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockParams.aviso = undefined;
+    mockedGetCurrentUser.mockResolvedValue(CURRENT_USER);
     consoleSpy = spyOnConsole();
   });
 
@@ -92,7 +108,7 @@ describe('Tela de login', () => {
     expect(mockedLogin).not.toHaveBeenCalled();
   });
 
-  test('login certo salva os tokens no secure store e vai para a Home', async () => {
+  test('login certo salva os tokens, busca o perfil e vai para a Home', async () => {
     mockedLogin.mockResolvedValue(TOKENS);
     const user = await renderScreen();
 
@@ -101,6 +117,24 @@ describe('Tela de login', () => {
 
     expect(mockedLogin).toHaveBeenCalledWith('ana@exemplo.com', PASSWORD);
     expect(mockedSaveTokens).toHaveBeenCalledWith(TOKENS);
+    expect(mockedGetCurrentUser).toHaveBeenCalledTimes(1);
+    expect(router.replace).toHaveBeenCalledWith('/home');
+  });
+
+  test('falha ao carregar o perfil mantém a sessão e permite tentar novamente', async () => {
+    mockedLogin.mockResolvedValue(TOKENS);
+    mockedGetCurrentUser.mockRejectedValueOnce(networkError());
+    const user = await renderScreen();
+
+    await fillForm(user);
+    await pressEnter(user);
+
+    expect(await screen.findByText('Não foi possível carregar seu perfil')).toBeOnTheScreen();
+    expect(router.replace).not.toHaveBeenCalled();
+
+    await user.press(screen.getByRole('button', { name: 'Tentar novamente' }));
+
+    expect(mockedGetCurrentUser).toHaveBeenCalledTimes(2);
     expect(router.replace).toHaveBeenCalledWith('/home');
   });
 

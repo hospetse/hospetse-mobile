@@ -2,6 +2,7 @@ import { render, screen, userEvent } from '@testing-library/react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
 import ResultsScreen, { resultsTitle } from '../src/app/resultados';
+import { useSession } from '../src/context/SessionContext';
 import { backendApi } from '../src/services/api';
 import { cityName, HostSearch, HostSummary, toSearchQuery } from '../src/services/hosts';
 import { toSearchParams } from '../src/utils/searchParams';
@@ -20,11 +21,16 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
+jest.mock('../src/context/SessionContext', () => ({
+  useSession: jest.fn(),
+}));
+
 jest.mock('../src/services/api', () => ({
   backendApi: { get: jest.fn() },
 }));
 
 const mockedParams = useLocalSearchParams as jest.Mock;
+const mockedSession = useSession as jest.Mock;
 const mockedGet = backendApi.get as jest.Mock;
 
 // Mesmo formato de um item do GET /api/v1/hosts/search
@@ -72,7 +78,23 @@ function lastQuery() {
 describe('Tela de resultados', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedSession.mockReturnValue({ currentUser: null });
     respond([offer({}), offer({ serviceId: 'service-2', hostId: 'host-2', name: 'Recanto Pata Mansa', dailyPrice: 250 })]);
+  });
+
+  test('mostra o nome da sessão no cabeçalho', async () => {
+    mockedSession.mockReturnValue({
+      currentUser: {
+        user: { name: 'Raul Jorge' },
+        profile: { status: 'incomplete', missingFields: [] },
+        permissions: { canSearch: true, canContract: false },
+      },
+    });
+
+    await renderScreen({ city: 'Maringá' });
+
+    expect(await screen.findByText('Raul Jorge')).toBeOnTheScreen();
+    expect(screen.queryByText('Murilo Barbosa')).not.toBeOnTheScreen();
   });
 
   test('chama a busca com a cidade sem o estado e as datas', async () => {
@@ -144,6 +166,13 @@ describe('Tela de resultados', () => {
 
     await user.press(screen.getByRole('button', { name: 'Tentar de novo' }));
     expect(await screen.findByText('Hotelzinho da Ana')).toBeOnTheScreen();
+  });
+
+  test('resposta sem lista de resultados mostra erro recuperável em vez de quebrar a tela', async () => {
+    mockedGet.mockResolvedValueOnce({ data: { total: 0 } });
+    await renderScreen({ city: 'Maringá' });
+
+    expect(await screen.findByText('Algo deu errado')).toBeOnTheScreen();
   });
 
   test('400 da API avisa que algum filtro não é válido', async () => {

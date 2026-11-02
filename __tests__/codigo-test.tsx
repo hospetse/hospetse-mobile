@@ -3,9 +3,11 @@ import { router } from 'expo-router';
 
 import CodeScreen from '../src/app/codigo';
 import { TERMS_VERSION } from '../src/constants/terms';
+import { SessionProvider } from '../src/context/SessionContext';
 import { SignupData, SignupProvider } from '../src/context/SignupContext';
 import { register, requestPin } from '../src/services/auth';
 import { saveTokens } from '../src/services/token-storage';
+import { getCurrentUser } from '../src/services/users';
 import { httpError, networkError, spyOnConsole } from '../test-utils/http';
 
 const mockRedirect = jest.fn();
@@ -28,9 +30,14 @@ jest.mock('../src/services/token-storage', () => ({
   saveTokens: jest.fn(),
 }));
 
+jest.mock('../src/services/users', () => ({
+  getCurrentUser: jest.fn(),
+}));
+
 const mockedRegister = register as jest.Mock;
 const mockedRequestPin = requestPin as jest.Mock;
 const mockedSaveTokens = saveTokens as jest.Mock;
+const mockedGetCurrentUser = getCurrentUser as jest.Mock;
 
 const PASSWORD = 'Senha@123';
 const PIN = '482915';
@@ -39,6 +46,22 @@ const TOKENS = {
   tokenType: 'Bearer',
   expiresIn: 900,
   refreshToken: 'refresh-token',
+};
+const CURRENT_USER = {
+  user: {
+    id: 'user-1',
+    authUserId: 'auth-user-1',
+    email: 'ana@exemplo.com',
+    name: 'Ana Souza',
+  },
+  profile: {
+    status: 'incomplete' as const,
+    missingFields: ['cpf', 'birthDate', 'phone', 'address', 'emergencyContact'],
+  },
+  permissions: {
+    canSearch: true,
+    canContract: false,
+  },
 };
 
 function buildSignup(): SignupData {
@@ -54,9 +77,11 @@ function buildSignup(): SignupData {
 
 async function renderScreen(signup: SignupData | null = buildSignup()) {
   await render(
-    <SignupProvider initialSignup={signup}>
-      <CodeScreen />
-    </SignupProvider>,
+    <SessionProvider>
+      <SignupProvider initialSignup={signup}>
+        <CodeScreen />
+      </SignupProvider>
+    </SessionProvider>,
   );
   return userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 }
@@ -78,13 +103,16 @@ describe('Tela do código', () => {
     jest.useFakeTimers();
     jest.clearAllMocks();
     mockedSaveTokens.mockResolvedValue(undefined);
+    mockedGetCurrentUser.mockResolvedValue(CURRENT_USER);
     consoleSpy = spyOnConsole();
   });
 
   afterEach(() => {
-    // Senha e PIN nunca podem aparecer em log
-    expect(consoleSpy.output()).not.toContain(PASSWORD);
-    expect(consoleSpy.output()).not.toContain(PIN);
+    // Senha, PIN e tokens nunca podem aparecer em log
+    const output = consoleSpy.output();
+    for (const value of [PASSWORD, PIN, TOKENS.accessToken, TOKENS.refreshToken]) {
+      expect(output).not.toContain(value);
+    }
     consoleSpy.restore();
     jest.useRealTimers();
   });
@@ -95,7 +123,7 @@ describe('Tela do código', () => {
     expect(mockRedirect).toHaveBeenCalledWith('/cadastro');
   });
 
-  test('envia o PIN ao register, salva os tokens e vai para a Home', async () => {
+  test('salva os tokens, carrega o perfil e mostra a confirmação antes de abrir a Home', async () => {
     mockedRegister.mockResolvedValue(TOKENS);
     const user = await renderScreen();
     await typeCode(user);
@@ -111,7 +139,32 @@ describe('Tela do código', () => {
       termsVersion: TERMS_VERSION,
     });
     expect(mockedSaveTokens).toHaveBeenCalledWith(TOKENS);
-    expect(router.replace).toHaveBeenCalledWith({ pathname: '/home', params: { nome: 'Ana' } });
+    expect(mockedGetCurrentUser).toHaveBeenCalledTimes(1);
+    expect(await screen.findByRole('header', { name: 'Cadastro concluído!' })).toBeOnTheScreen();
+    expect(screen.getByText('Você já pode buscar hospedagens. Complete seu perfil para contratar um serviço.')).toBeOnTheScreen();
+    expect(router.replace).not.toHaveBeenCalled();
+
+    await user.press(screen.getByRole('button', { name: 'Ir para o início' }));
+
+    expect(router.replace).toHaveBeenCalledWith('/home');
+  });
+
+  test('falha ao carregar /me mantém a conta criada e permite tentar novamente', async () => {
+    mockedRegister.mockResolvedValue(TOKENS);
+    mockedGetCurrentUser.mockRejectedValueOnce(networkError()).mockResolvedValueOnce(CURRENT_USER);
+    const user = await renderScreen();
+    await typeCode(user);
+
+    await confirm(user);
+
+    expect(await screen.findByText('Não foi possível carregar seu perfil')).toBeOnTheScreen();
+    expect(screen.getByText('Sua conta foi criada. Não foi possível carregar seu perfil agora. Verifique sua conexão e tente novamente.')).toBeOnTheScreen();
+    expect(router.replace).not.toHaveBeenCalled();
+
+    await user.press(screen.getByRole('button', { name: 'Tentar novamente' }));
+
+    expect(mockedGetCurrentUser).toHaveBeenCalledTimes(2);
+    expect(await screen.findByRole('button', { name: 'Ir para o início' })).toBeOnTheScreen();
   });
 
   test.each([

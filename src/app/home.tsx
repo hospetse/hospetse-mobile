@@ -18,6 +18,7 @@ import { SearchFilters, SearchModal } from '../components/SearchModal';
 import { UserHeader } from '../components/UserHeader';
 import { SAMPLE_PETS, SAMPLE_USER } from '../constants/sampleData';
 import { theme } from '../constants/theme';
+import { useSession } from '../context/SessionContext';
 import { toSearchParams } from '../utils/searchParams';
 
 type Hotel = {
@@ -86,9 +87,10 @@ const POPULAR_HOTELS: Hotel[] = [
 ];
 
 export default function HomeScreen() {
-  // Primeiro nome enviado pela tela de codigo depois do cadastro
+  const { currentUser } = useSession();
+  // O perfil vem do /me após o cadastro. O parâmetro continua como fallback dos fluxos antigos.
   const { nome } = useLocalSearchParams<{ nome?: string }>();
-  const userName = nome || SAMPLE_USER.name;
+  const userName = currentUser?.user?.name?.split(' ')[0] || nome || SAMPLE_USER.name;
   const { width } = useWindowDimensions();
   const [activeFilter, setActiveFilter] = useState('Pet-Hotel');
   const [activeTab, setActiveTab] = useState<TabKey>('home');
@@ -118,6 +120,15 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <UserHeader avatarUri={SAMPLE_USER.avatar} city={SAMPLE_USER.city} name={userName} />
+
+        {currentUser && !currentUser.permissions.canContract ? (
+          <View accessibilityLiveRegion="polite" style={styles.profileNotice}>
+            <Text style={styles.profileNoticeTitle}>Perfil incompleto</Text>
+            <Text style={styles.profileNoticeText}>
+              Complete seu perfil para contratar um serviço.
+            </Text>
+          </View>
+        ) : null}
 
         {/* Na Home a busca só abre o modal; a digitação acontece dentro dele */}
         <TouchableOpacity
@@ -218,6 +229,23 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.tabBar + theme.spacing.page * 2,
     paddingHorizontal: theme.spacing.page,
     paddingTop: theme.spacing.large,
+  },
+  profileNotice: {
+    backgroundColor: theme.colors.selectedTint,
+    borderRadius: theme.radius.card,
+    marginTop: theme.spacing.section,
+    padding: theme.spacing.medium,
+  },
+  profileNoticeTitle: {
+    color: theme.colors.title,
+    fontFamily: theme.fonts.bold,
+    fontSize: theme.typography.body,
+  },
+  profileNoticeText: {
+    color: theme.colors.subtitle,
+    fontFamily: theme.fonts.regular,
+    fontSize: theme.typography.caption,
+    marginTop: theme.spacing.tiny,
   },
   // O campo é só uma prévia: o toque vai para o botão em volta
   searchPreview: {

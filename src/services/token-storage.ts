@@ -7,8 +7,13 @@ const REFRESH_TOKEN_KEY = 'hospetse.refreshToken';
 
 // Tokens no Keychain (iOS) / Keystore (Android), nunca em AsyncStorage (ADR-005)
 export async function saveTokens(tokens: AuthTokens): Promise<void> {
-  await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, tokens.accessToken);
-  await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken);
+  try {
+    await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, tokens.accessToken);
+    await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken);
+  } catch (error) {
+    await clearTokens();
+    throw error;
+  }
 }
 
 export async function clearTokens(): Promise<void> {
@@ -16,7 +21,7 @@ export async function clearTokens(): Promise<void> {
   await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
 }
 
-// Lê um token guardado. Sem token, ou onde o SecureStore não existe (web), devolve null
+// Lê um token guardado. Sem token, devolve null.
 async function readToken(key: string): Promise<string | null> {
   try {
     return await SecureStore.getItemAsync(key);

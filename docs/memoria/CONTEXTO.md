@@ -1,7 +1,7 @@
 # Contexto do projeto: Hospetse Mobile
 
 > Resumo principal para retomar o trabalho. Mantenha curto e fiel ao código.
-> Última atualização: 2026-11-01. Descreve a `develop` (`69facdd`, com os PRs até o !63), o modal de rotina da #519 (branch `feature/519-...`) e o chat da #520 (branch `feature/520-...`).
+> Última atualização: 2026-11-01. Descreve a `develop` (`4a806dd`, com os PRs até o !67) mais a solicitação de hospedagem da #495 na branch `feature/495-implementar-a-tela-de-solicitacao-de-hospedagem-no-mobile`.
 >
 > Os repositórios `hospetse-backend` e `hospetse-auth-service` estão clonados em `HOSPETSE/`, ao lado deste. Use-os para ler as rotas reais (rodar `git pull` antes). Não edite sem pedido.
 
@@ -38,9 +38,10 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `src/constants/terms.ts` | Versão dos Termos de Uso enviada no cadastro. |
 | `src/constants/search.ts` | Serviços (com nomes no singular e no plural), portes, comodidades filtráveis e faixa de preço. |
 | `src/constants/sampleData.ts` | Tutor e pets de exemplo, compartilhados pela Home e pelos resultados (provisório). |
+| `src/constants/sampleChat.ts`, `addOns.ts` | Conversa de exemplo do chat e serviços adicionais da reserva (provisórios). |
 | `src/context/SignupContext.tsx` | Dados do cadastro em memória, entre `/cadastro` e `/codigo`. |
-| `src/services/` | `api.ts` (instância do axios do Auth), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`, `isRequestError`), `token-storage.ts` (SecureStore) e `hosts.ts` (`searchHosts` e `getHostPage`, ainda com dados de exemplo, no formato da API). |
-| `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`, `validateSignup`, `validateLogin`, `calendar` e `searchParams`, que converte a busca em parâmetros da rota). |
+| `src/services/` | `api.ts` (`authApi`, `backendApi` com token e renovação, `SessionExpiredError`), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`, `isRequestError`), `token-storage.ts` (SecureStore), `hosts.ts` (`searchHosts`, `getHostPage`), `pets.ts` (`listMyPets`) e `reservations.ts` (`createReservation`, `newIdempotencyKey`, `toReservationError`). |
+| `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`, `validateSignup`, `validateLogin`, `validateReservation`, `calendar`, `chat`, `money` e `searchParams`, que converte a busca em parâmetros da rota). |
 | `__tests__/`, `test-utils/` | Testes Jest e utilitários de teste (erros HTTP falsos, espião do console). |
 | `.kiro/steering/` | Regras do Kiro: arquitetura e código (`hospetse-architecture.md`), git (`git-workflow.md`), memória (`memoria-projeto.md`) e retomada (`retomar-contexto.md`, manual). |
 | `AGENTS.md` | Regras do Expo e a seção "Project memory", que inclui o `memoria-projeto.md`. É o único arquivo de regras que o Kiro carrega quando o workspace é aberto na pasta `HOSPETSE`. |
@@ -56,12 +57,13 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/recuperar-senha` | `recuperar-senha.tsx` | Só valida o formato do e-mail no aparelho; não chama nenhuma API. |
 | `/home` | `home.tsx` | Visual completo da task #472, com dados fixos no código. Os chips mudam o título da seção. O cabeçalho mostra o `nome` vindo do cadastro ou o nome de exemplo. O campo de busca e a aba Buscar abrem o `SearchModal`, que sempre abre vazio. "Buscar" leva a `/resultados`. Os cards abrem `/host/[id]`. Reservas, Perfil e "ver mais" ainda não navegam. |
 | `/resultados` | `resultados.tsx` | **#480.** Recebe `city`, `checkIn`, `checkOut`, `service` e `petId` pela rota. O título mostra a contagem e o serviço ("1 Pet-Sitter encontrado"). Lista vertical de `PetCard`, com o botão `tune` que abre o `FiltersModal` (com o número de filtros ativos) e o estado vazio com "Ajustar filtros". O campo e a aba Buscar refazem a busca. **#518:** dados reais do `GET /api/v1/hosts/search`, com erro e "Tentar de novo". |
-| `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas", que abre o chat (#520), e "Solicitar reserva", sem ação. Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
+| `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas", que abre o chat (#520), e "Solicitar reserva", que abre a confirmação (#495). Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
 | `/chat/[id]` | `chat/[id].tsx` | **#520.** Chat com o Host, aberto pelo detalhe com `checkIn`, `checkOut` e `petId`. Cabeçalho com voltar, foto, nome, status e mais opções (sem ligar). Faixa "Interesse em reservar" com datas, total e pet. Mensagens do Assistente ("Ativa"), do Tutor e do Host ("Atendimento Humano"), separadas por dia, com imagem e sugestões rápidas. Conversa de exemplo; o envio só mostra a mensagem na tela (DT-22). |
+| `/reserva/[id]` | `reserva/[id].tsx` | **#495.** "Confirmar Reserva", aberta pelo detalhe com `checkIn`, `checkOut` e `petId`. Host real, período (o calendário abre por cima), pets reais do `GET /api/v1/me/pets`, serviços adicionais de exemplo (não somam) e total das diárias. Envia pelo `POST /api/v1/reservations` com `Idempotency-Key` e mostra o sucesso na mesma rota. Modais "Data indisponível", "Cadastro Incompleto" e "Algo deu errado"; erros de pet e datas embaixo do campo (DT-23). |
 
 A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
-Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas da Home); conclusão do perfil do Tutor (ADR-011; a rota `PUT /api/v1/me/tutor-profile` existe no back-end). Para a lista completa, consulte o Figma e a Wiki (Desenvolvimento > Front-end > Fluxo de Telas).
+Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas da Home e "Ver minhas reservas"); cadastro de pet ("Adicionar Pet"); conclusão do perfil do Tutor (ADR-011; a rota `PUT /api/v1/me/tutor-profile` existe no back-end). Para a lista completa, consulte o Figma e a Wiki (Desenvolvimento > Front-end > Fluxo de Telas).
 
 ## Componentes reutilizáveis
 
@@ -84,7 +86,10 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 | `SearchModal` | Busca com 4 seções (Onde?, Para quando?, Qual serviço?, Para quem?). Exporta `SearchFilters`, `EMPTY_FILTERS`, `ServiceType` e `PetSummary`. |
 | `FilterSection` | Seção que abre e fecha (título, seta opcional e conteúdo). |
 | `Calendar` | Um mês com setas, dias passados desabilitados e seleção de check-in e check-out. |
-| `PetOption` | Foto redonda e nome do pet, com estado escolhido. |
+| `PetOption` | Foto redonda e nome do pet, com estado escolhido. Sem foto, mostra a patinha. |
+| `DateRangeModal` | Calendário por cima da tela para trocar o período, com "Confirmar datas". |
+| `AddOnItem` | Serviço adicional da reserva: caixa de marcar, nome, descrição e preço por dia. |
+| `ReservationSuccess` | Sucesso da solicitação: resumo do Host, datas, pet, diárias e total, "Ver minhas reservas" e "Voltar para Início". |
 | `SearchBar` | Campo de busca com lupa. |
 | `FilterChip` | Chip de categoria, ativo ou inativo. |
 | `PetCard` | Card de hospedagem (foto, avaliação, nome, cidade e preço), nos tamanhos `large` e `small`. |
@@ -110,7 +115,9 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 - Tokens: SecureStore (Keychain ou Keystore), nunca AsyncStorage (ADR-005).
 - Back-end principal (`EXPO_PUBLIC_API_URL`), pelo `backendApi` com token e renovação em fila (DT-19):
   - `GET /api/v1/hosts/search` (#476), usado nos resultados;
-  - `GET /api/v1/hosts/{id}` (#479), usado no detalhe. Manda só bairro e cidade.
+  - `GET /api/v1/hosts/{id}` (#479), usado no detalhe, no chat e na reserva. Manda só bairro e cidade.
+  - `GET /api/v1/me/pets` (#369), usado na reserva. Os pets não têm foto.
+  - `POST /api/v1/reservations` (#494), com o header `Idempotency-Key` (DT-23).
   - Os filtros de serviço, comodidades e vários portes ainda não existem na API e ficam sem efeito (DT-20).
 - O CORS para `localhost:8081` está liberado no Auth e no back-end. Na web, o que falta é guardar o token, porque não há SecureStore no navegador (ADR-005). Para testar, use o Expo Go.
 
@@ -123,14 +130,6 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 
 ## Último estado conhecido (2026-11-01)
 
-- PRs !32 (Home, #472), !35 (memória, #503), !47 (busca, #477) e !52 (cadastro e login, #267) mergeados na `develop`. A branch `feature/267-...` ainda existe no servidor, e só o Murilo pode apagá-la.
-- Branch atual: `feature/480-...`, a partir da `develop` (`79b7a95`), com os commits:
-  - `177c961`: `fix:` da mensagem "Sem conexão";
-  - `3365963`: `feat:` com as três telas;
-  - `6dd91c6`: `fix:` do bug #516, com `.env.example` e README;
-  - mais o `docs:` da memória.
-- A desenvolvedora aprovou o visual dos resultados, dos filtros e do detalhe.
-- Verificações em 2026-11-01: `tsc --noEmit` sem erros e 86 de 86 testes Jest passando.
-- Back-end em 2026-11-01:
-  - A rota de busca (#476, PR !53 do `hospetse-backend`) foi mergeada.
-  - O CORS do Auth para `localhost:8081` (PR !55 do `hospetse-auth-service`, bug #516) estava aberto e ainda não estava publicado.
+- Na `develop` (`4a806dd`): PRs até o !67, incluindo a integração com o back-end (!63, #518), o modal de rotina (!66, #519) e o chat (!67, #520). A branch `feature/267-...` ainda existe no servidor, e só o Murilo pode apagá-la.
+- Branch atual: `feature/495-implementar-a-tela-de-solicitacao-de-hospedagem-no-mobile`, commitada, sem push.
+- Verificações em 2026-11-01: `tsc --noEmit` sem erros e 125 de 125 testes Jest passando. A #495 foi testada no Expo Go (iPhone) pela desenvolvedora.

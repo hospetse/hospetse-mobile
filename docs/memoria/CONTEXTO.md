@@ -1,7 +1,7 @@
 # Contexto do projeto: Hospetse Mobile
 
 > Resumo principal para retomar o trabalho. Mantenha curto e fiel ao código.
-> Última atualização: 2026-11-01. Descreve a `develop` (`69facdd`, com os PRs até o !63) mais o modal de rotina da #519 na branch `feature/519-implementar-o-modal-de-rotina-do-host-no-mobile`.
+> Última atualização: 2026-11-01. Descreve a `develop` (`69facdd`, com os PRs até o !63), o modal de rotina da #519 (branch `feature/519-...`) e o chat da #520 (branch `feature/520-...`).
 >
 > Os repositórios `hospetse-backend` e `hospetse-auth-service` estão clonados em `HOSPETSE/`, ao lado deste. Use-os para ler as rotas reais (rodar `git pull` antes). Não edite sem pedido.
 
@@ -56,7 +56,8 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/recuperar-senha` | `recuperar-senha.tsx` | Só valida o formato do e-mail no aparelho; não chama nenhuma API. |
 | `/home` | `home.tsx` | Visual completo da task #472, com dados fixos no código. Os chips mudam o título da seção. O cabeçalho mostra o `nome` vindo do cadastro ou o nome de exemplo. O campo de busca e a aba Buscar abrem o `SearchModal`, que sempre abre vazio. "Buscar" leva a `/resultados`. Os cards abrem `/host/[id]`. Reservas, Perfil e "ver mais" ainda não navegam. |
 | `/resultados` | `resultados.tsx` | **#480.** Recebe `city`, `checkIn`, `checkOut`, `service` e `petId` pela rota. O título mostra a contagem e o serviço ("1 Pet-Sitter encontrado"). Lista vertical de `PetCard`, com o botão `tune` que abre o `FiltersModal` (com o número de filtros ativos) e o estado vazio com "Ajustar filtros". O campo e a aba Buscar refazem a busca. **#518:** dados reais do `GET /api/v1/hosts/search`, com erro e "Tentar de novo". |
-| `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas" e "Solicitar reserva", os dois sem ação. Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
+| `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas", que abre o chat (#520), e "Solicitar reserva", sem ação. Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
+| `/chat/[id]` | `chat/[id].tsx` | **#520.** Chat com o Host, aberto pelo detalhe com `checkIn`, `checkOut` e `petId`. Cabeçalho com voltar, foto, nome, status e mais opções (sem ligar). Faixa "Interesse em reservar" com datas, total e pet. Mensagens do Assistente ("Ativa"), do Tutor e do Host ("Atendimento Humano"), separadas por dia, com imagem e sugestões rápidas. Conversa de exemplo; o envio só mostra a mensagem na tela (DT-22). |
 
 A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
@@ -76,6 +77,9 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 | `PriceSlider` | Barra de preço máximo feita só com Views (sem biblioteca), com ações de aumentar e diminuir para o leitor de tela. |
 | `AmenityItem` | Comodidade do Host: ícone num círculo e nome. |
 | `RoutineModal` | Rotina do Host, que sobe por baixo: etapas por período (manhã, tarde, noite) com horário e descrição, garantia veterinária e "Fechar" (DT-21). |
+| `ChatBubble` | Balão de mensagem do chat: Tutor à direita em laranja; Assistente e Host à esquerda, com selo e sugestões rápidas. |
+| `BookingInterest` | Faixa "Interesse em reservar" do chat: datas, valor, pet e "Ver detalhes". |
+| `ChatInput` | Campo de mensagem com anexo e microfone (sem ação) e envio, desligado com o campo vazio. |
 | `OutlineButton` | Botão secundário com borda laranja e ícone opcional. |
 | `SearchModal` | Busca com 4 seções (Onde?, Para quando?, Qual serviço?, Para quem?). Exporta `SearchFilters`, `EMPTY_FILTERS`, `ServiceType` e `PetSummary`. |
 | `FilterSection` | Seção que abre e fecha (título, seta opcional e conteúdo). |

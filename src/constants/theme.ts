@@ -64,6 +64,10 @@ export const theme = {
     sliderTrack: 4,
     sliderThumb: 20,
     sliderArea: 32,
+    // Chat
+    chatImageHeight: 140,
+    chatImageWidth: 220,
+    chatInput: 44,
   },
   icon: {
     small: 12,

@@ -5,19 +5,22 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 > Última atualização: 2026-11-01
 
 ## Próxima atividade recomendada
-1. **#519:** push e PR (aprovado no Expo Go e commitado).
-2. **#520, Tela de chat com o Host** (PBI #209): branch nova a partir da `develop`. Abre pelo "Tire suas dúvidas", com dados de exemplo. **Sem o botão de ligar** (decisão da desenvolvedora, 2026-11-01, seguindo a regra de 25/10/2026).
+1. **Merge da #519 primeiro.** Depois, trazer a `develop` para a branch da #520 e resolver o conflito em `docs/memoria/`. Então fazer o merge da #520.
+2. Testar o modal de rotina no Android depois do merge.
 
 ## Em andamento
-- **#519, Modal de rotina:** commitado na branch `feature/519-implementar-o-modal-de-rotina-do-host-no-mobile` (DT-21) e aprovado no Expo Go pela desenvolvedora. Faltam push e PR.
+- **#519, Modal de rotina:** PR aberto para a `develop` (DT-21). Aprovado pela desenvolvedora no iPhone.
+- **#520, Chat com o Host:** PR aberto para a `develop` (DT-22), sem o botão de ligar. Aprovado pela desenvolvedora no aparelho.
 
 ## Pendente
 - **Texto da "Garantia Veterinária Hospetse"** no modal de rotina: é de exemplo, confirmar com a PO.
+- **Rotas de conversa** (#209, #219 e #220): o chat usa a conversa de exemplo, e o envio só mostra a mensagem na tela. Anexo, microfone e "Mais opções" estão sem ação.
+- **Descrição da task #520:** ainda cita o botão de ligar, que saiu.
 - **Filtros sem efeito**, até o back-end acrescentar: tipo de serviço, comodidades e vários portes (DT-20).
 - **Campos que a API não tem:** comodidades, requisitos e rotina do detalhe (`HostExtras`).
 - **Paginação** dos resultados: hoje vêm até 50.
 - **Home com dados reais:** os cards de exemplo abrem um id que não existe na API ("Hospedagem não encontrada"). A Home precisa de uma rota de destaques e do nome pelo `GET /api/v1/me`.
-- **Botões sem ação:** "Tire suas dúvidas" (vai para a #520), "Solicitar reserva", "Ver todos" e a galeria completa.
+- **Botões sem ação:** "Solicitar reserva", "Ver todos" e a galeria completa.
 - Itens da #477: pets reais (#371) e o aviso para Tutor sem pet (tela 08I).
 - Itens da #472: estados de carregamento, vazio e erro e testes da Home; navegação de Reservas, Perfil, "ver mais" e sino.
 - Fora dessas tasks: recuperar senha, conclusão do perfil do Tutor, textos de erro do design, ícone do `ErrorModal` em SVG e ESLint.

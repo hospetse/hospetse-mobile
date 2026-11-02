@@ -8,8 +8,8 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 1. **#495:** push e PR para a `develop` (aprovada no iPhone e commitada).
 
 ## Em andamento
-- **#270, Testes do fluxo de cadastro:** cenários adicionais de 404 do PIN, 503 no pedido do PIN e falha no reenvio estão na branch `test/270-criar-testes-automatizados-do-fluxo-de-cadastro`. A branch parte da #269 e precisa ser rebaseada na `develop` depois do merge do PR !70.
-- **#269, Sessão após cadastro:** PR !70 aberto para a `develop`; aguardando revisão e merge.
+- **#270, Testes do fluxo de cadastro:** testes complementares na branch `test/270-criar-testes-automatizados-do-fluxo-de-cadastro`, rebaseada na `develop` após o merge do PR !70. Falta push, PR e revisão.
+- **#269, Sessão após cadastro:** PR !70 mergeado na `develop` (`a575eb8`).
 - **#495, Solicitação de hospedagem:** commitada na branch `feature/495-implementar-a-tela-de-solicitacao-de-hospedagem-no-mobile` (DT-23) e aprovada no Expo Go (iPhone). Faltam push e PR.
 
 ## Pendente

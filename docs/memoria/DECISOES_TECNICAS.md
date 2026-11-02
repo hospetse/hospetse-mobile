@@ -216,3 +216,11 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
   - Comodidades, requisitos e rotina do detalhe continuam de exemplo (`HostExtras`), porque a API não tem esses campos.
   - Card sem foto (`pictureUrl: null`) mostra um fundo neutro.
 - **Erros da busca:** sem rede, 400 (filtro recusado, como data no passado) e outros, todos com "Tentar de novo".
+## Detalhe do Host
+### DT-21: Rotina em modal que sobe por baixo, com etapas de exemplo
+- **Data:** 2026-11-01 · **Task:** #519 · **Status:** Aceita (dados Provisórios)
+- **Decisão:** o "Ler mais" da Rotina abre o `RoutineModal` (`Modal` do React Native, `transparent` e `animationType="slide"`). Ele fecha pelo botão "Fechar", pelo toque no fundo escuro e pelo voltar do Android (`onRequestClose`). Antes, o "Ler mais" só mostrava o resto da lista.
+  - O detalhe continua mostrando o resumo (`routine`, até 4 itens). O modal usa `routineSteps`, com período (manhã, tarde ou noite), horário, título e descrição.
+  - Cada etapa é lida inteira pelo leitor de tela, num só `accessibilityLabel`.
+  - `routineSteps` e o texto da garantia são de exemplo, porque a API não tem esses campos. O texto da garantia precisa ser confirmado com a PO.
+- **Motivo:** seguir o protótipo e a task, sem biblioteca de bottom sheet (o `Modal` já vem no React Native e funciona no Expo Go).

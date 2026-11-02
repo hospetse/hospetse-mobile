@@ -5,17 +5,22 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 > Última atualização: 2026-11-01
 
 ## Próxima atividade recomendada
-1. **#518:** push e PR para a `develop`. Depois, revisão e merge (*no fast-forward*, com a branch apagada).
+1. **Merge da #519 primeiro.** Depois, trazer a `develop` para a branch da #520 e resolver o conflito em `docs/memoria/`. Então fazer o merge da #520.
+2. Testar o modal de rotina no Android depois do merge.
 
 ## Em andamento
-- **#518, Integração da busca e do detalhe:** testado no Expo Go pela desenvolvedora e commitado na branch `feature/518-integrar-a-lista-de-resultados-e-o-detalhe-do-host-com-a-api-no-mobile`. Push e PR pendentes (DT-19 e DT-20).
+- **#519, Modal de rotina:** PR aberto para a `develop` (DT-21). Aprovado pela desenvolvedora no iPhone.
+- **#520, Chat com o Host:** PR aberto para a `develop` (DT-22), sem o botão de ligar. Aprovado pela desenvolvedora no aparelho.
 
 ## Pendente
+- **Texto da "Garantia Veterinária Hospetse"** no modal de rotina: é de exemplo, confirmar com a PO.
+- **Rotas de conversa** (#209, #219 e #220): o chat usa a conversa de exemplo, e o envio só mostra a mensagem na tela. Anexo, microfone e "Mais opções" estão sem ação.
+- **Descrição da task #520:** ainda cita o botão de ligar, que saiu.
 - **Filtros sem efeito**, até o back-end acrescentar: tipo de serviço, comodidades e vários portes (DT-20).
 - **Campos que a API não tem:** comodidades, requisitos e rotina do detalhe (`HostExtras`).
 - **Paginação** dos resultados: hoje vêm até 50.
 - **Home com dados reais:** os cards de exemplo abrem um id que não existe na API ("Hospedagem não encontrada"). A Home precisa de uma rota de destaques e do nome pelo `GET /api/v1/me`.
-- **Botões sem ação:** "Tire suas dúvidas", "Solicitar reserva", "Ver todos" e a galeria completa.
+- **Botões sem ação:** "Solicitar reserva", "Ver todos" e a galeria completa.
 - Itens da #477: pets reais (#371) e o aviso para Tutor sem pet (tela 08I).
 - Itens da #472: estados de carregamento, vazio e erro e testes da Home; navegação de Reservas, Perfil, "ver mais" e sino.
 - Fora dessas tasks: recuperar senha, conclusão do perfil do Tutor, textos de erro do design, ícone do `ErrorModal` em SVG e ESLint.
@@ -41,5 +46,5 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 - No Azure Boards: tempo trabalhado e status das tasks. Isso cabe à desenvolvedora.
 
 ## Concluído recentemente
+- 2026-11-01: PR !63 (integração com o back-end, #518) mergeado na `develop` (`69facdd`).
 - 2026-11-01: PR !57 (#480 e bug #516 no mobile) mergeado na `develop`.
-- 2026-11-01: PR !52 (validação do cadastro e login, #267) mergeado na `develop`.

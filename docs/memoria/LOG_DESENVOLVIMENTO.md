@@ -265,3 +265,22 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Ficou pendente:**
   - Push e PR.
   - Os cards de exemplo da Home abrem um id que não existe na API ("Hospedagem não encontrada").
+## 2026-11-01: Tela de chat com o Host (#520)
+- **Objetivo:** o Tutor abre, pelo detalhe do Host, uma conversa com o Assistente de IA e com o Host antes da reserva.
+- **Branch:** `feature/520-implementar-a-tela-de-chat-com-o-host-no-mobile`, a partir da `develop` (`69facdd`). A #519 está em outra branch.
+- **Arquivos:**
+  - `app/chat/[id].tsx` (novo): cabeçalho com voltar, foto, nome, status e mais opções; faixa "Interesse em reservar"; mensagens separadas por dia; campo de mensagem.
+  - `components/ChatBubble.tsx`, `BookingInterest.tsx` e `ChatInput.tsx` (novos).
+  - `constants/sampleChat.ts` e `utils/chat.ts` (novos): conversa de exemplo, `formatTime`, `countNights` e `formatPrice`.
+  - `components/Icon.tsx`: ícones `attach_file`, `mic`, `send`, `more_vert` e `smart_toy`.
+  - `constants/theme.ts`: `chatImageHeight`, `chatImageWidth` e `chatInput` (só acréscimos).
+  - Código existente: `app/host/[id].tsx` (o "Tire suas dúvidas" abre o chat e a tela lê o `petId`) e `app/resultados.tsx` (manda o `petId` ao detalhe).
+  - Testes: `__tests__/chat-test.tsx` (novo, 9 testes) e 1 teste novo em `host-details-test.tsx`.
+- **Decisão:** DT-22. O botão de ligar saiu, por decisão da desenvolvedora.
+- **Verificação:** `tsc --noEmit` sem erros e 105 de 105 testes passando.
+- **Problemas e soluções:** no iPhone, o teclado cobria as mensagens. Rolar a lista até o fim não bastou. Solução: tirei o `KeyboardAvoidingView` e passei a usar a altura do teclado como margem embaixo da tela (DT-22).
+  - No Android, o teclado cobria o campo e as mensagens, porque a tela não encolhe no modo edge-to-edge. Solução: a mesma margem, agora calculada pela parte da tela que o teclado cobre, nos dois sistemas. A desenvolvedora testou de novo no aparelho e confirmou que o chat funcionou.
+  - "O modal de rotina não abre no Android": o teste foi feito na branch da #520, que saiu da `develop` e não tem o modal (a #519 está em outra branch). Não é defeito do Android. Ainda não testado no Android.
+- **Web:** a busca mostra "Algo deu errado", porque não há SecureStore no navegador (limite já conhecido, DT-19). A tela também não leva ao login com "sessão expirada", provavelmente porque o `clearTokens` falha na web (o SecureStore não existe no navegador). Isso não foi testado. Fica para a task de tokens na web (ADR-005).
+- **Commits:** `feat:` e `docs:` da #520.
+- **Ficou pendente:** testar o modal de rotina no Android depois do merge da #519, as rotas de conversa no back-end e tirar o "ligar" da descrição da task #520.

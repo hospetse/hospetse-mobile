@@ -216,3 +216,19 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
   - Comodidades, requisitos e rotina do detalhe continuam de exemplo (`HostExtras`), porque a API não tem esses campos.
   - Card sem foto (`pictureUrl: null`) mostra um fundo neutro.
 - **Erros da busca:** sem rede, 400 (filtro recusado, como data no passado) e outros, todos com "Tentar de novo".
+## Chat
+### DT-22: Chat com o Host como rota, com conversa de exemplo e sem contato direto
+- **Data:** 2026-11-01 · **Task:** #520 · **Status:** Aceita (dados Provisórios)
+- **Decisão:** o chat é a rota `/chat/[id]`, com o id do Host, aberta pelo "Tire suas dúvidas" do detalhe.
+  - Recebe o mesmo contexto da busca que o detalhe: `checkIn`, `checkOut` e `petId`. Para isso, os resultados passaram a mandar o `petId` ao detalhe.
+  - Busca o Host pelo `getHostPage` (nome, foto e preço), seguindo a regra de passar só o id pela rota.
+  - A faixa "Interesse em reservar" mostra as datas, o total (diária mais barata vezes as noites) e o pet. Sem datas, mostra o preço da diária. "Ver detalhes" volta ao detalhe.
+  - A conversa começa com `SAMPLE_CHAT` (`constants/sampleChat.ts`). Enviar uma mensagem ou tocar numa sugestão só acrescenta a mensagem do Tutor no fim da tela, sem resposta.
+  - O status "Online" do Host é de exemplo. "Mais opções", anexo e microfone ainda não têm ação.
+  - **Sem botão de ligar** e sem telefone ou e-mail do Host (decisão de 25/10/2026, confirmada pela desenvolvedora em 2026-11-01).
+  - Teclado: a primeira versão usava o `KeyboardAvoidingView`, mas no iPhone da desenvolvedora o teclado continuou cobrindo as mensagens. **Substituída** por um cálculo na própria tela:
+    - A parte coberta pelo teclado (altura da tela, medida no `onLayout`, menos o `screenY` do topo do teclado) vira `paddingBottom` da tela. Se a tela já encolher sozinha, a conta dá 0 e a margem não dobra.
+    - iOS: eventos `keyboardWillShow` e `keyboardWillHide`, com a animação do teclado (`Keyboard.scheduleLayoutAnimation`).
+    - Android: eventos `keyboardDidShow` e `keyboardDidHide`. No Expo Go em tela cheia (edge-to-edge), a tela **não** encolhe sozinha, e o teclado cobria o campo e as mensagens.
+    - A lista rola até o fim quando muda de tamanho (`onLayout`) e quando chega mensagem nova. Com o teclado aberto, o campo perde a margem da área segura. Arrastar a conversa para baixo fecha o teclado (`keyboardDismissMode="interactive"`).
+- **Motivo:** as rotas de conversa (#209, #219 e #220) ainda não existem.

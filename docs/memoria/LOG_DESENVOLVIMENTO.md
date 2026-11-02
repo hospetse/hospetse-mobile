@@ -322,3 +322,11 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 
 - **Correção posterior:** resultados passou a ler o nome do `SessionContext`, como a Home; avatar e cidade continuam de exemplo porque `/me` não fornece esses campos. O nome de exemplo só aparece quando não há sessão carregada.
 - **Correção de runtime:** a leitura do nome na Home agora tolera estado ausente, e `getCurrentUser` rejeita resposta de `/me` sem `user.name`, perfil ou permissões antes de gravá-la no contexto. Assim, o fluxo mostra o erro recuperável do perfil em vez de quebrar a Home.
+
+## 2026-11-02: Testes automatizados do fluxo de cadastro (#270)
+- **Objetivo:** completar os cenários simulados de cadastro que ainda não estavam explícitos nos testes.
+- **Arquivos:** `__tests__/cadastro-test.tsx` e `__tests__/codigo-test.tsx`.
+- **O que mudou:** cobre `503` no pedido do PIN, `404` de PIN expirado no cadastro e `503` ao reenviar o PIN, preservando o código digitado.
+- **Verificação:** `npx tsc --noEmit` sem erros e Jest com 133 testes passando.
+- **Dependência:** PR !70 da #269 mergeado antes do rebase da branch de testes sobre a `develop`.
+- **Commits / PR:** commits `test:` e `docs:`; PR pendente.

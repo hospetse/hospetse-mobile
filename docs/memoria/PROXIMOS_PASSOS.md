@@ -8,7 +8,8 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 1. **#495:** push e PR para a `develop` (aprovada no iPhone e commitada).
 
 ## Em andamento
-- **#269, Sessão após cadastro:** implementada nesta branch. Faltam validações manuais no navegador e no Expo Go contra as APIs publicadas antes de PR.
+- **#270, Testes do fluxo de cadastro:** testes complementares na branch `test/270-criar-testes-automatizados-do-fluxo-de-cadastro`, rebaseada na `develop` após o merge do PR !70. Falta push, PR e revisão.
+- **#269, Sessão após cadastro:** PR !70 mergeado na `develop` (`a575eb8`).
 - **#495, Solicitação de hospedagem:** commitada na branch `feature/495-implementar-a-tela-de-solicitacao-de-hospedagem-no-mobile` (DT-23) e aprovada no Expo Go (iPhone). Faltam push e PR.
 
 ## Pendente

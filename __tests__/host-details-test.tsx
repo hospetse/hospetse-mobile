@@ -155,6 +155,13 @@ describe('Tela de detalhe do Host', () => {
     expect(router.back).toHaveBeenCalled();
   });
 
+  test('resposta de detalhe sem listas obrigatórias mostra o erro recuperável', async () => {
+    mockedGet.mockResolvedValueOnce({ data: { ...HOST, services: undefined } });
+    await renderScreen({ id: HOST_ID });
+
+    expect(await screen.findByText('Algo deu errado')).toBeOnTheScreen();
+  });
+
   test('sem rede mostra o aviso de erro', async () => {
     mockedGet.mockRejectedValue(networkError());
     await renderScreen({ id: HOST_ID });

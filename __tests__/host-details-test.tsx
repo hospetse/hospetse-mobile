@@ -95,6 +95,35 @@ describe('Tela de detalhe do Host', () => {
     expect(screen.queryByText(/@|telefone|whatsapp/i)).not.toBeOnTheScreen();
   });
 
+  test('"Ler mais" da rotina abre o modal com as etapas e a garantia', async () => {
+    const user = await renderScreen({ id: HOST_ID });
+
+    await user.press(await screen.findByRole('button', { name: 'Ler mais sobre a rotina' }));
+
+    expect(screen.getByRole('header', { name: 'Rotina' })).toBeOnTheScreen();
+    expect(screen.getByText('3 etapas diárias')).toBeOnTheScreen();
+    expect(
+      screen.getByLabelText(
+        'Manhã, 08:00. Café da manhã e passeio. Ração no mesmo horário de casa, água fresca e uma caminhada leve.',
+      ),
+    ).toBeOnTheScreen();
+    expect(screen.getByText('Garantia Veterinária Hospetse')).toBeOnTheScreen();
+    expect(screen.getByText('Protegido')).toBeOnTheScreen();
+  });
+
+  test('o modal de rotina fecha pelo botão e pelo toque fora', async () => {
+    const user = await renderScreen({ id: HOST_ID });
+    const readMore = await screen.findByRole('button', { name: 'Ler mais sobre a rotina' });
+
+    await user.press(readMore);
+    await user.press(screen.getByRole('button', { name: 'Fechar' }));
+    expect(screen.queryByRole('header', { name: 'Rotina' })).not.toBeOnTheScreen();
+
+    await user.press(readMore);
+    await user.press(screen.getByLabelText('Fechar rotina'));
+    expect(screen.queryByRole('header', { name: 'Rotina' })).not.toBeOnTheScreen();
+  });
+
   test('404 mostra "Hospedagem não encontrada" e volta', async () => {
     mockedGet.mockRejectedValue(httpError(404));
     const user = await renderScreen({ id: HOST_ID });

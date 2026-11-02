@@ -265,3 +265,16 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Ficou pendente:**
   - Push e PR.
   - Os cards de exemplo da Home abrem um id que não existe na API ("Hospedagem não encontrada").
+## 2026-11-01: Modal de rotina do Host (#519)
+- **Objetivo:** mostrar a rotina diária e a garantia veterinária a partir do "Ler mais" da Rotina no detalhe do Host.
+- **Branch:** `feature/519-implementar-o-modal-de-rotina-do-host-no-mobile`, a partir da `develop` (`69facdd`).
+- **Arquivos:**
+  - `components/RoutineModal.tsx` (novo): sobe por baixo, com "Rotina Personalizada", a quantidade de etapas, cada etapa com período, horário e descrição, o bloco "Garantia Veterinária Hospetse" com o selo "Protegido" e o botão "Fechar".
+  - `components/Icon.tsx`: ícones `wb_sunny`, `wb_twilight`, `bedtime` e `verified_user`.
+  - `services/hosts.ts`: tipo `RoutineStep` e o campo `routineSteps` em `HostExtras`, com 3 etapas de exemplo.
+  - `app/host/[id].tsx` (código existente): o "Ler mais" da Rotina abre o modal, em vez de mostrar o resto da lista. Saiu o estado `showFullRoutine`.
+  - `__tests__/host-details-test.tsx`: 2 testes (abrir e fechar o modal).
+- **Decisão:** DT-21.
+- **Verificação:** `tsc --noEmit` sem erros e 97 de 97 testes passando. A desenvolvedora testou no Expo Go e aprovou.
+- **Commits:** `feat:` e `docs:` da #519.
+- **Ficou pendente:** push e PR, confirmar com a PO o texto da garantia e pedir os campos de rotina ao back-end.

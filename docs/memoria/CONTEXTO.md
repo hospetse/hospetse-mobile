@@ -1,7 +1,7 @@
 # Contexto do projeto: Hospetse Mobile
 
 > Resumo principal para retomar o trabalho. Mantenha curto e fiel ao código.
-> Última atualização: 2026-11-01. Descreve a `develop` (`2c48eca`, com os PRs até o !57) mais a integração da #518 na branch `feature/518-integrar-a-lista-de-resultados-e-o-detalhe-do-host-com-a-api-no-mobile`.
+> Última atualização: 2026-11-01. Descreve a `develop` (`69facdd`, com os PRs até o !63) mais o modal de rotina da #519 na branch `feature/519-implementar-o-modal-de-rotina-do-host-no-mobile`.
 >
 > Os repositórios `hospetse-backend` e `hospetse-auth-service` estão clonados em `HOSPETSE/`, ao lado deste. Use-os para ler as rotas reais (rodar `git pull` antes). Não edite sem pedido.
 
@@ -56,7 +56,7 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/recuperar-senha` | `recuperar-senha.tsx` | Só valida o formato do e-mail no aparelho; não chama nenhuma API. |
 | `/home` | `home.tsx` | Visual completo da task #472, com dados fixos no código. Os chips mudam o título da seção. O cabeçalho mostra o `nome` vindo do cadastro ou o nome de exemplo. O campo de busca e a aba Buscar abrem o `SearchModal`, que sempre abre vazio. "Buscar" leva a `/resultados`. Os cards abrem `/host/[id]`. Reservas, Perfil e "ver mais" ainda não navegam. |
 | `/resultados` | `resultados.tsx` | **#480.** Recebe `city`, `checkIn`, `checkOut`, `service` e `petId` pela rota. O título mostra a contagem e o serviço ("1 Pet-Sitter encontrado"). Lista vertical de `PetCard`, com o botão `tune` que abre o `FiltersModal` (com o número de filtros ativos) e o estado vazio com "Ajustar filtros". O campo e a aba Buscar refazem a busca. **#518:** dados reais do `GET /api/v1/hosts/search`, com erro e "Tentar de novo". |
-| `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição e rotina com "Ler mais", galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas" e "Solicitar reserva", os dois sem ação. Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
+| `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas" e "Solicitar reserva", os dois sem ação. Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
 
 A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
@@ -75,6 +75,7 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 | `FiltersModal` | Filtros em tela cheia: tipo de serviço, porte, faixa de preço e comodidades, com "Limpar filtros" e "Aplicar Filtros". Exporta `ResultFilters` e `EMPTY_RESULT_FILTERS`. |
 | `PriceSlider` | Barra de preço máximo feita só com Views (sem biblioteca), com ações de aumentar e diminuir para o leitor de tela. |
 | `AmenityItem` | Comodidade do Host: ícone num círculo e nome. |
+| `RoutineModal` | Rotina do Host, que sobe por baixo: etapas por período (manhã, tarde, noite) com horário e descrição, garantia veterinária e "Fechar" (DT-21). |
 | `OutlineButton` | Botão secundário com borda laranja e ícone opcional. |
 | `SearchModal` | Busca com 4 seções (Onde?, Para quando?, Qual serviço?, Para quem?). Exporta `SearchFilters`, `EMPTY_FILTERS`, `ServiceType` e `PetSummary`. |
 | `FilterSection` | Seção que abre e fecha (título, seta opcional e conteúdo). |

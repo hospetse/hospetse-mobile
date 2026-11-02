@@ -272,6 +272,18 @@ describe('Tela de cadastro', () => {
       expect(screen.queryByText('Aguarde um pouco')).not.toBeOnTheScreen();
     });
 
+    test('503 abre o aviso de serviço indisponível e mantém o formulário na tela', async () => {
+      mockedRequestPin.mockRejectedValue(httpError(503));
+      const user = await renderScreen();
+
+      await fillForm(user);
+      await pressCreateAccount(user);
+
+      expect(await screen.findByText('Algo deu errado')).toBeOnTheScreen();
+      expect(screen.getByText('Não foi possível enviar o código. Tente de novo.')).toBeOnTheScreen();
+      expect(router.push).not.toHaveBeenCalled();
+    });
+
     test('sem rede abre o aviso de conexão', async () => {
       mockedRequestPin.mockRejectedValue(networkError());
       const user = await renderScreen();

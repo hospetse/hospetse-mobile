@@ -169,6 +169,7 @@ describe('Tela do código', () => {
 
   test.each([
     [401, 'Código inválido. Confira e digite de novo.'],
+    [404, 'Este código expirou. Toque em Reenviar código.'],
     [410, 'Este código expirou. Toque em Reenviar código.'],
     [429, 'Muitas tentativas. Toque em Reenviar código.'],
     [503, 'Não foi possível concluir o cadastro. Tente de novo.'],
@@ -221,6 +222,18 @@ describe('Tela do código', () => {
       pathname: '/',
       params: { aviso: 'email-cadastrado' },
     });
+  });
+
+  test('falha ao reenviar mantém o PIN digitado para uma nova tentativa', async () => {
+    mockedRequestPin.mockRejectedValue(httpError(503));
+    const user = await renderScreen();
+    await typeCode(user);
+
+    await act(() => jest.advanceTimersByTime(60 * 1000));
+    await user.press(screen.getByRole('button', { name: 'Reenviar código' }));
+
+    expect(await screen.findByText('Não foi possível enviar o código. Tente de novo.')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Dígito 1 do código')).toHaveDisplayValue(PIN[0]);
   });
 
   test('reenviar só libera após 60 s e passa a usar o novo challengeId', async () => {

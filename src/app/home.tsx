@@ -87,7 +87,7 @@ const POPULAR_HOTELS: Hotel[] = [
 ];
 
 export default function HomeScreen() {
-  const { currentUser } = useSession();
+  const { currentUser, logout } = useSession();
   // O perfil vem do /me após o cadastro. O parâmetro continua como fallback dos fluxos antigos.
   const { nome } = useLocalSearchParams<{ nome?: string }>();
   const userName = currentUser?.user?.name?.split(' ')[0] || nome || SAMPLE_USER.name;
@@ -111,6 +111,11 @@ export default function HomeScreen() {
   }
 
   // Largura dos cards proporcional a tela, como na referencia
+  async function handleLogout() {
+    await logout();
+    router.replace('/');
+  }
+
   const nearbyCardWidth = width * 0.68;
   const popularCardWidth = width * 0.36;
 
@@ -119,7 +124,12 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <UserHeader avatarUri={SAMPLE_USER.avatar} city={SAMPLE_USER.city} name={userName} />
+        <UserHeader
+          avatarUri={SAMPLE_USER.avatar}
+          city={SAMPLE_USER.city}
+          name={userName}
+          onLogout={handleLogout}
+        />
 
         {currentUser && !currentUser.permissions.canContract ? (
           <View accessibilityLiveRegion="polite" style={styles.profileNotice}>

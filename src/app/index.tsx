@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -65,9 +65,14 @@ function loginServerError(status: number | null): ServerError {
 }
 
 export default function LoginScreen() {
-  const { saveCurrentUser } = useSession();
+  const { saveCurrentUser, clearCurrentUser } = useSession();
   // Vem do cadastro quando o e-mail já tem conta (409)
   const { aviso } = useLocalSearchParams<{ aviso?: string }>();
+  useEffect(() => {
+    if (aviso === 'sessao-expirada') {
+      clearCurrentUser();
+    }
+  }, [aviso, clearCurrentUser]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);

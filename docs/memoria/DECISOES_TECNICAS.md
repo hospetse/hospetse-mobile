@@ -258,3 +258,10 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
 - **Decisão:** Android e iOS continuam usando `expo-secure-store` para os tokens. Na Web, `token-storage.web.ts` mantém access token e refresh token apenas em memória, sem `localStorage`, `sessionStorage` ou IndexedDB; atualizar a página encerra a sessão. Após o `register`, a tela do PIN consulta `GET /api/v1/me`, guarda o retorno em `SessionContext` e só então apresenta a confirmação antes de levar à Home.
 - **Motivo:** permite visualizar e testar o fluxo no navegador sem persistir segredo em armazenamento acessível por JavaScript. O perfil e permissões vêm do back-end, não do JWT.
 - **Limite:** a sessão Web não sobrevive ao reload. Persistência Web exige uma decisão futura para refresh via cookie HttpOnly e proteção CSRF.
+
+### DT-25: Logout só local, sem rota no Auth
+- **Data:** 2026-11-04 · **Task:** #300 · **Status:** Aceita
+- **Decisão:** `logout()` no `SessionContext` apaga os tokens (SecureStore no Android e iOS, memória na Web) e limpa o usuário em memória. A Home e os resultados mostram "Sair" no `UserHeader`, que leva ao login com `router.replace('/')`. O `logout()` nunca lança erro: se o armazenamento falhar, o usuário em memória é limpo mesmo assim.
+- **Sessão expirada:** continua no `api.ts` (DT-19). Quando o login recebe `aviso=sessao-expirada`, limpa o usuário em memória.
+- **Motivo:** a #297 (logout com revogação do refresh token no Auth) foi removida em 2026-10-29, e o Auth não tem rota de logout. Registrado em comentário na #300.
+- **Risco aceito:** depois do logout, o refresh token continua válido no servidor até expirar (30 dias).

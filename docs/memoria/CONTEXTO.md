@@ -1,7 +1,7 @@
 # Contexto do projeto: Hospetse Mobile
 
 > Resumo principal para retomar o trabalho. Mantenha curto e fiel ao código.
-> Última atualização: 2026-11-02. Descreve a `develop` (`fdcf8e8`, com os PRs até o !69), mais a task #269 na branch `feature/269-iniciar-a-sessao-apos-o-cadastro-e-exibir-a-confirmacao`.
+> Última atualização: 2026-11-04. Descreve a `develop` (`ea2f77a`, com os PRs até o !71), mais a #299 (PR !72, aberto) e a #300 na branch `feature/300-implementar-a-renovacao-de-sessao-e-o-logout-no-mobile`, sem commit.
 >
 > Os repositórios `hospetse-backend` e `hospetse-auth-service` estão clonados em `HOSPETSE/`, ao lado deste. Use-os para ler as rotas reais (rodar `git pull` antes). Não edite sem pedido.
 
@@ -39,7 +39,7 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `src/constants/search.ts` | Serviços (com nomes no singular e no plural), portes, comodidades filtráveis e faixa de preço. |
 | `src/constants/sampleData.ts` | Tutor e pets de exemplo, compartilhados pela Home e pelos resultados (provisório). |
 | `src/constants/sampleChat.ts`, `addOns.ts` | Conversa de exemplo do chat e serviços adicionais da reserva (provisórios). |
-| `src/context/SignupContext.tsx`, `SessionContext.tsx` | Dados do cadastro e perfil atual, somente em memória. |
+| `src/context/SignupContext.tsx`, `SessionContext.tsx` | Dados do cadastro e perfil atual, somente em memória. O `SessionContext` tem o `logout()` local (DT-25). |
 | `src/services/` | `api.ts` (`authApi`, `backendApi` com token e renovação, `SessionExpiredError`), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`, `isRequestError`), `token-storage.ts` (SecureStore nativo), `token-storage.web.ts` (tokens em memória) e `users.ts` (`GET /api/v1/me`), além de Hosts, pets e reservas. |
 | `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`, `validateSignup`, `validateLogin`, `validateReservation`, `calendar`, `chat`, `money` e `searchParams`, que converte a busca em parâmetros da rota). |
 | `__tests__/`, `test-utils/` | Testes Jest e utilitários de teste (erros HTTP falsos, espião do console). |
@@ -74,7 +74,7 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 | `InfoIcon` | Ícone "i" laranja das dicas de formulário. |
 | `Skeleton` | Bloco que pulsa durante o carregamento. Usado nos resultados e no detalhe do Host. |
 | `Icon` | Ícones Material Symbols Outlined. A lista está em `ICON_PATHS`, no `Icon.tsx`. |
-| `UserHeader` | Foto, nome e cidade do Tutor e o sino. Usado na Home e nos resultados. |
+| `UserHeader` | Foto, nome e cidade do Tutor, o sino e, com `onLogout`, o botão "Sair". Usado na Home e nos resultados. |
 | `FiltersModal` | Filtros em tela cheia: tipo de serviço, porte, faixa de preço e comodidades, com "Limpar filtros" e "Aplicar Filtros". Exporta `ResultFilters` e `EMPTY_RESULT_FILTERS`. |
 | `PriceSlider` | Barra de preço máximo feita só com Views (sem biblioteca), com ações de aumentar e diminuir para o leitor de tela. |
 | `AmenityItem` | Comodidade do Host: ícone num círculo e nome. |
@@ -110,7 +110,8 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 
 ## Integrações
 
-- Auth Server (`EXPO_PUBLIC_AUTH_URL`): `POST /api/v1/auth/request-pin`, `POST /api/v1/auth/register` e `POST /api/v1/auth/login`.
+- Auth Server (`EXPO_PUBLIC_AUTH_URL`): `POST /api/v1/auth/request-pin`, `POST /api/v1/auth/register`, `POST /api/v1/auth/login` e `POST /api/v1/auth/refresh`. Não há rota de logout (#297 removida): o logout é local (DT-25).
+- Validade dos tokens: access token de 15 minutos; refresh token de 30 dias, de uso único e rotativo.
 - Contratos atuais: `https://auth-service-production-36e0.up.railway.app/docs` e `https://backend-production-7298.up.railway.app/docs` (o arquivo é o `/docs/openapi.yaml`).
 - Tokens: SecureStore (Keychain ou Keystore), nunca AsyncStorage (ADR-005).
 - Back-end principal (`EXPO_PUBLIC_API_URL`), pelo `backendApi` com token e renovação em fila (DT-19):

@@ -1,8 +1,10 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { router } from 'expo-router';
+import { useEffect } from 'react';
+import { Text } from 'react-native';
 
 import LoginScreen from '../src/app/index';
-import { SessionProvider } from '../src/context/SessionContext';
+import { SessionProvider, useSession } from '../src/context/SessionContext';
 import { login } from '../src/services/auth';
 import { saveTokens } from '../src/services/token-storage';
 import { getCurrentUser } from '../src/services/users';
@@ -212,5 +214,30 @@ describe('Tela de login', () => {
     await renderScreen();
 
     expect(screen.getByText('Este e-mail já tem conta. Entre com sua senha.')).toBeOnTheScreen();
+  });
+
+  test('sessão expirada mostra o aviso e limpa o usuário em memória', async () => {
+    mockParams.aviso = 'sessao-expirada';
+
+    // Começa com um usuário na sessão, como quem estava na Home quando o refresh falhou
+    function LoggedUser() {
+      const { currentUser, saveCurrentUser } = useSession();
+      useEffect(() => saveCurrentUser(CURRENT_USER), [saveCurrentUser]);
+      return <Text testID="user-name">{currentUser?.user.name ?? ''}</Text>;
+    }
+
+    try {
+      await render(
+        <SessionProvider>
+          <LoggedUser />
+          <LoginScreen />
+        </SessionProvider>,
+      );
+
+      expect(screen.getByText('Sua sessão expirou. Entre de novo para continuar.')).toBeOnTheScreen();
+      expect(screen.getByTestId('user-name')).toHaveTextContent('');
+    } finally {
+      delete mockParams.aviso;
+    }
   });
 });

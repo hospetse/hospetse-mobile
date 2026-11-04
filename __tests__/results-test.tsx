@@ -97,6 +97,18 @@ describe('Tela de resultados', () => {
     expect(screen.queryByText('Murilo Barbosa')).not.toBeOnTheScreen();
   });
 
+  test('Sair encerra a sessão local e volta ao login', async () => {
+    const logout = jest.fn().mockResolvedValue(undefined);
+    mockedSession.mockReturnValue({ currentUser: null, logout });
+    const user = await renderScreen({ city: 'Maringá' });
+    await screen.findByText('Hotelzinho da Ana');
+
+    await user.press(screen.getByRole('button', { name: 'Sair' }));
+
+    expect(logout).toHaveBeenCalledTimes(1);
+    expect(router.replace).toHaveBeenCalledWith('/');
+  });
+
   test('chama a busca com a cidade sem o estado e as datas', async () => {
     await renderScreen({ city: 'Maringá, PR', checkIn: '2026-12-18', checkOut: '2026-12-21' });
 

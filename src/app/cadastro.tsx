@@ -18,6 +18,7 @@ import { theme } from '../constants/theme';
 import { useSignup } from '../context/SignupContext';
 import { getErrorStatus, requestPin } from '../services/auth';
 import { requestPinErrorMessage, requestPinErrorTitle } from '../utils/requestPinErrorMessage';
+import { getPasswordRules } from '../utils/isStrongPassword';
 import { hasErrors, SignupFormErrors, validateSignup } from '../utils/validateSignup';
 
 type ServerError = {
@@ -31,6 +32,8 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [passwordConfirmationVisible, setPasswordConfirmationVisible] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [errors, setErrors] = useState<SignupFormErrors>({});
   const [serverError, setServerError] = useState<ServerError | null>(null);
@@ -41,6 +44,7 @@ export default function RegisterScreen() {
   const emailRef = useRef<TextInputInstance>(null);
   const passwordRef = useRef<TextInputInstance>(null);
   const passwordConfirmationRef = useRef<TextInputInstance>(null);
+  const passwordRules = getPasswordRules(password);
 
   function focusFirstError(formErrors: SignupFormErrors) {
     if (formErrors.name) {
@@ -182,49 +186,80 @@ export default function RegisterScreen() {
           <FieldError message={errors.email} />
 
           <Text style={styles.labelSpaced}>Crie uma senha</Text>
-          <TextInput
-            accessibilityHint={errors.password}
-            accessibilityLabel="Senha"
-            autoCapitalize="none"
-            autoComplete="new-password"
-            onChangeText={(text) => {
-              setPassword(text);
-              clearError('password');
-            }}
-            onSubmitEditing={() => passwordConfirmationRef.current?.focus()}
-            ref={passwordRef}
-            returnKeyType="next"
-            secureTextEntry
-            style={[styles.input, errors.password ? styles.inputError : null]}
-            value={password}
-          />
+          <View style={styles.passwordInputRow}>
+            <TextInput
+              accessibilityHint={errors.password}
+              accessibilityLabel="Senha"
+              autoCapitalize="none"
+              autoComplete="new-password"
+              onChangeText={(text) => {
+                setPassword(text);
+                clearError('password');
+              }}
+              onSubmitEditing={() => passwordConfirmationRef.current?.focus()}
+              ref={passwordRef}
+              returnKeyType="next"
+              secureTextEntry={!passwordVisible}
+              style={[styles.input, styles.passwordInput, errors.password ? styles.inputError : null]}
+              value={password}
+            />
+            <TouchableOpacity
+              accessibilityLabel={passwordVisible ? 'Ocultar senha' : 'Mostrar senha'}
+              accessibilityRole="button"
+              onPress={() => setPasswordVisible(!passwordVisible)}
+              style={styles.passwordToggle}
+            >
+              <Text style={styles.passwordToggleText}>{passwordVisible ? 'Ocultar' : 'Mostrar'}</Text>
+            </TouchableOpacity>
+          </View>
           <FieldError message={errors.password} />
 
           <View style={styles.rulesTitleRow}>
             <InfoIcon />
             <Text style={styles.rulesTitle}>Sua senha deve conter:</Text>
           </View>
-          <Text style={styles.rule}>1. No mínimo 8 caracteres</Text>
-          <Text style={styles.rule}>2. Letras maiúsculas e minúsculas</Text>
-          <Text style={styles.rule}>3. Pelo menos um número ou símbolo</Text>
+          <Text style={[styles.rule, passwordRules.minLength ? styles.ruleValid : null]}>
+            {passwordRules.minLength ? '✓' : '○'} Pelo menos 8 caracteres
+          </Text>
+          <Text style={[styles.rule, passwordRules.lowercase ? styles.ruleValid : null]}>
+            {passwordRules.lowercase ? '✓' : '○'} Uma letra minúscula
+          </Text>
+          <Text style={[styles.rule, passwordRules.uppercase ? styles.ruleValid : null]}>
+            {passwordRules.uppercase ? '✓' : '○'} Uma letra maiúscula
+          </Text>
+          <Text style={[styles.rule, passwordRules.numberOrSymbol ? styles.ruleValid : null]}>
+            {passwordRules.numberOrSymbol ? '✓' : '○'} Um número ou símbolo
+          </Text>
 
           <Text style={styles.labelSpaced}>Confirme sua senha</Text>
-          <TextInput
-            accessibilityHint={errors.passwordConfirmation}
-            accessibilityLabel="Confirmar senha"
-            autoCapitalize="none"
-            autoComplete="new-password"
-            onChangeText={(text) => {
-              setPasswordConfirmation(text);
-              clearError('passwordConfirmation');
-            }}
-            onSubmitEditing={handleRegister}
-            ref={passwordConfirmationRef}
-            returnKeyType="done"
-            secureTextEntry
-            style={[styles.input, errors.passwordConfirmation ? styles.inputError : null]}
-            value={passwordConfirmation}
-          />
+          <View style={styles.passwordInputRow}>
+            <TextInput
+              accessibilityHint={errors.passwordConfirmation}
+              accessibilityLabel="Confirmar senha"
+              autoCapitalize="none"
+              autoComplete="new-password"
+              onChangeText={(text) => {
+                setPasswordConfirmation(text);
+                clearError('passwordConfirmation');
+              }}
+              onSubmitEditing={handleRegister}
+              ref={passwordConfirmationRef}
+              returnKeyType="done"
+              secureTextEntry={!passwordConfirmationVisible}
+              style={[styles.input, styles.passwordInput, errors.passwordConfirmation ? styles.inputError : null]}
+              value={passwordConfirmation}
+            />
+            <TouchableOpacity
+              accessibilityLabel={passwordConfirmationVisible ? 'Ocultar confirmação de senha' : 'Mostrar confirmação de senha'}
+              accessibilityRole="button"
+              onPress={() => setPasswordConfirmationVisible(!passwordConfirmationVisible)}
+              style={styles.passwordToggle}
+            >
+              <Text style={styles.passwordToggleText}>
+                {passwordConfirmationVisible ? 'Ocultar' : 'Mostrar'}
+              </Text>
+            </TouchableOpacity>
+          </View>
           <FieldError message={errors.passwordConfirmation} />
 
           <View style={styles.termsRow}>
@@ -340,6 +375,26 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: theme.colors.error,
   },
+  passwordInputRow: {
+    position: 'relative',
+  },
+  passwordInput: {
+    paddingRight: theme.spacing.page,
+  },
+  passwordToggle: {
+    alignItems: 'center',
+    bottom: 0,
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.small,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  passwordToggleText: {
+    color: theme.colors.button,
+    fontFamily: theme.fonts.bold,
+    fontSize: theme.typography.label,
+  },
   rulesTitleRow: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -356,6 +411,9 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.label,
     marginLeft: theme.spacing.page,
     marginTop: theme.spacing.small,
+  },
+  ruleValid: {
+    color: theme.colors.button,
   },
   termsRow: {
     alignItems: 'center',

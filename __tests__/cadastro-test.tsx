@@ -1,4 +1,4 @@
-import { render, screen, userEvent } from '@testing-library/react-native';
+import { fireEvent, render, screen, userEvent, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { Text } from 'react-native';
@@ -216,18 +216,25 @@ describe('Tela de cadastro', () => {
     });
 
     test('toque duplo durante o envio chama o Auth uma vez só', async () => {
-      mockedRequestPin.mockReturnValue(new Promise(() => {}));
+      let resolveRequestPin: (challengeId: string) => void = () => undefined;
+      mockedRequestPin.mockReturnValue(
+        new Promise<string>((resolve) => {
+          resolveRequestPin = resolve;
+        }),
+      );
       const user = await renderScreen();
 
       await fillForm(user);
-      await pressCreateAccount(user);
+      fireEvent.press(screen.getByRole('button', { name: 'Criar conta' }));
 
-      // Durante o carregamento o botão mostra só o indicador, sem o texto
-      const loadingButton = screen.getByRole('button', { busy: true });
+      const loadingButton = await screen.findByRole('button', { busy: true });
       await user.press(loadingButton);
 
       expect(mockedRequestPin).toHaveBeenCalledTimes(1);
       expect(loadingButton).toBeDisabled();
+
+      resolveRequestPin('challenge-1');
+      await waitFor(() => expect(router.push).toHaveBeenCalledWith('/codigo'));
     });
   });
 

@@ -1,3 +1,4 @@
+import { getPasswordRules } from '../src/utils/isStrongPassword';
 import {
   hasErrors,
   isValidEmail,
@@ -22,6 +23,21 @@ describe('validateSignup', () => {
 
     expect(errors).toEqual({});
     expect(hasErrors(errors)).toBe(false);
+  });
+
+  test('retorna o estado de cada regra da senha', () => {
+    expect(getPasswordRules('Senha@123')).toEqual({
+      minLength: true,
+      lowercase: true,
+      uppercase: true,
+      numberOrSymbol: true,
+    });
+    expect(getPasswordRules('Senha')).toEqual({
+      minLength: false,
+      lowercase: true,
+      uppercase: true,
+      numberOrSymbol: false,
+    });
   });
 
   test('formulário vazio devolve todos os erros de uma vez', () => {

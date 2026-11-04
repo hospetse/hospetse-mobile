@@ -330,3 +330,16 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Verificação:** `npx tsc --noEmit` sem erros e Jest com 133 testes passando.
 - **Dependência:** PR !70 da #269 mergeado antes do rebase da branch de testes sobre a `develop`.
 - **Commits / PR:** commits `test:` e `docs:`; PR pendente.
+
+## 2026-11-04: Correção do teste de envio pendente do cadastro
+- **Problema:** `cadastro-test.tsx` simulava uma request que nunca resolvia e aguardava `userEvent.press()`, mantendo o Jest preso no teste de toque duplo.
+- **Correção:** o teste usa `fireEvent.press()` para iniciar o envio, uma Promise controlável e resolve a request depois das asserções de loading e toque duplicado.
+- **Verificação:** teste isolado passou; suíte completa passou com 12 suítes e 133 testes.
+- **Arquivos:** `__tests__/cadastro-test.tsx`.
+
+## 2026-11-04: Feedback visual das regras de senha no cadastro
+- **Objetivo:** mostrar em tempo real quais requisitos da senha foram cumpridos e permitir visualizar a senha durante o cadastro.
+- **O que mudou:** `getPasswordRules` passou a devolver um objeto com quatro booleanos; `isStrongPassword` reutiliza esse objeto; `cadastro.tsx` mostra cada regra com estado visual e adiciona alternância mostrar/ocultar nos campos de senha e confirmação.
+- **Testes:** adicionada cobertura do objeto de regras em `validateSignup-test.ts`.
+- **Verificação:** `npx tsc --noEmit` sem erros e Jest com 134 testes passando.
+- **Arquivos:** `src/utils/isStrongPassword.ts`, `src/app/cadastro.tsx` e `__tests__/validateSignup-test.ts`.

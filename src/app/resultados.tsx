@@ -66,7 +66,7 @@ export function searchErrorMessage(error: unknown): string {
 }
 
 export default function ResultsScreen() {
-  const { currentUser } = useSession();
+  const { currentUser, logout } = useSession();
   const params = useLocalSearchParams<SearchRouteParams>();
   const { width } = useWindowDimensions();
   const initialService = serviceFromParam(params.service);
@@ -165,10 +165,20 @@ export default function ResultsScreen() {
     });
   }
 
+  async function handleLogout() {
+    await logout();
+    router.replace('/');
+  }
+
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <UserHeader avatarUri={SAMPLE_USER.avatar} city={SAMPLE_USER.city} name={userName} />
+        <UserHeader
+          avatarUri={SAMPLE_USER.avatar}
+          city={SAMPLE_USER.city}
+          name={userName}
+          onLogout={handleLogout}
+        />
 
         <View>
           <TouchableOpacity

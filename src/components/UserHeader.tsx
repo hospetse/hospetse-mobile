@@ -7,10 +7,11 @@ type UserHeaderProps = {
   avatarUri: string;
   city: string;
   name: string;
+  onLogout?: () => void;
 };
 
 // Cabeçalho com a foto, o nome e a cidade do Tutor, e o sino de notificações
-export function UserHeader({ avatarUri, city, name }: UserHeaderProps) {
+export function UserHeader({ avatarUri, city, name, onLogout }: UserHeaderProps) {
   return (
     <View style={styles.header}>
       <View style={styles.userRow}>
@@ -20,9 +21,16 @@ export function UserHeader({ avatarUri, city, name }: UserHeaderProps) {
           <Text style={styles.userCity}>{city}</Text>
         </View>
       </View>
-      <TouchableOpacity accessibilityLabel="Notificações" style={styles.bell}>
-        <Icon color={theme.colors.title} name="notifications" size={theme.icon.medium} />
-      </TouchableOpacity>
+      <View style={styles.actions}>
+        {onLogout ? (
+          <TouchableOpacity accessibilityLabel="Sair" accessibilityRole="button" onPress={onLogout} style={styles.logout}>
+            <Text style={styles.logoutText}>Sair</Text>
+          </TouchableOpacity>
+        ) : null}
+        <TouchableOpacity accessibilityLabel="Notificações" style={styles.bell}>
+          <Icon color={theme.colors.title} name="notifications" size={theme.icon.medium} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -53,6 +61,20 @@ const styles = StyleSheet.create({
     color: theme.colors.placeholder,
     fontFamily: theme.fonts.regular,
     fontSize: theme.typography.caption,
+  },
+  actions: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: theme.spacing.small,
+  },
+  logout: {
+    paddingHorizontal: theme.spacing.small,
+    paddingVertical: theme.spacing.tiny,
+  },
+  logoutText: {
+    color: theme.colors.button,
+    fontFamily: theme.fonts.bold,
+    fontSize: theme.typography.label,
   },
   bell: {
     alignItems: 'center',

@@ -343,3 +343,13 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Testes:** adicionada cobertura do objeto de regras em `validateSignup-test.ts`.
 - **Verificação:** `npx tsc --noEmit` sem erros e Jest com 134 testes passando.
 - **Arquivos:** `src/utils/isStrongPassword.ts`, `src/app/cadastro.tsx` e `__tests__/validateSignup-test.ts`.
+
+## 2026-11-04: Logout local e sessão do Mobile (#300)
+- **Branch:** `feature/300-implementar-a-renovacao-de-sessao-e-o-logout-no-mobile`, criada sobre a branch da #299.
+- **O que mudou:** `SessionContext` ganhou `logout`, que limpa o armazenamento da plataforma e o usuário em memória e nunca lança erro; Home e resultados exibem a ação `Sair`; sessão expirada limpa o contexto ao voltar para o login.
+- **Refresh:** manteve o interceptor existente, com access token de 15 minutos, refresh rotativo de 30 dias, fila única e logout local quando o Auth recusa o refresh.
+- **Decisão:** DT-25. A #297 (logout no Auth) está como Removed; comentário registrado na #300.
+- **Testes:** `session-context-test.tsx` (logout limpa tokens e usuário, inclusive com falha no armazenamento); `login-test.tsx` (sessão expirada limpa o usuário); `results-test.tsx` e `home-test.tsx` (novo; "Sair" volta ao login só depois que o logout termina). API cobre refresh, falha, concorrência e redirecionamento.
+- **Expo Go:** a desenvolvedora fez login e "Sair". Renovação conferida nos logs do Railway: login às 02:41 UTC; às 03:12 a busca recebeu 401, o app chamou `POST /api/v1/auth/refresh` (200) uma vez e repetiu a busca (200), sem pedir senha.
+- **Visto fora do escopo:** `GET /api/v1/me/pets` respondeu 403 no detalhe do Host (token aceito, acesso negado). Não investigado.
+- **Commit:** ainda não criado.

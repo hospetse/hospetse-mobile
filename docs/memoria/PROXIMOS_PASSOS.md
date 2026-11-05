@@ -2,12 +2,16 @@
 
 Lista viva. Mova os itens entre as seções conforme o estado real, e apague da seção **Concluído** o que tiver mais de duas tasks (o histórico fica no `LOG_DESENVOLVIMENTO.md`).
 
-> Última atualização: 2026-11-02
+> Última atualização: 2026-11-04
 
 ## Próxima atividade recomendada
-1. **#495:** push e PR para a `develop` (aprovada no iPhone e commitada).
+1. **#300:** commit e PR (validada no Expo Go: "Sair" e renovação após 15 minutos).
+2. **#299:** revisão e merge do PR !72.
+3. **#495:** push e PR para a `develop` (aprovada no iPhone e commitada).
 
 ## Em andamento
+- **#299, Login e feedback da senha:** PR !72 aberto para a `develop`, aguardando revisão. Branch `feature/299-implementar-a-tela-de-login-e-a-integracao`.
+- **#300, Renovação de sessão e logout:** logout local (DT-25) na branch `feature/300-implementar-a-renovacao-de-sessao-e-o-logout-no-mobile`, criada sobre a da #299. Sem commit. Validada no Expo Go.
 - **#270, Testes do fluxo de cadastro:** testes complementares na branch `test/270-criar-testes-automatizados-do-fluxo-de-cadastro`, rebaseada na `develop` após o merge do PR !70. Falta push, PR e revisão.
 - **#269, Sessão após cadastro:** PR !70 mergeado na `develop` (`a575eb8`).
 - **#495, Solicitação de hospedagem:** commitada na branch `feature/495-implementar-a-tela-de-solicitacao-de-hospedagem-no-mobile` (DT-23) e aprovada no Expo Go (iPhone). Faltam push e PR.

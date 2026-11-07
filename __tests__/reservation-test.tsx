@@ -253,7 +253,7 @@ describe('Tela de solicitação de hospedagem', () => {
     expect(await screen.findByText('Esse pet já tem hospedagem nesse período.')).toBeOnTheScreen();
   });
 
-  test('erro de validação do back-end aparece no campo certo', async () => {
+  test('pet não permitido abre o aviso visual', async () => {
     mockedPost.mockRejectedValue(
       apiError(400, 'VALIDATION_ERROR', [{ field: 'petId', message: 'porte não aceito pelo Host' }]),
     );
@@ -261,7 +261,8 @@ describe('Tela de solicitação de hospedagem', () => {
 
     await user.press(submitButton());
 
-    expect(await screen.findByText('Esse pet não pode ser hospedado aqui. Escolha outro.')).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Pet não permitido' })).toBeOnTheScreen();
+    expect(screen.getByText('Infelizmente o Host não aceita esse tipo de pet.')).toBeOnTheScreen();
   });
 
   test('Host inexistente mostra "Hospedagem não encontrada"', async () => {

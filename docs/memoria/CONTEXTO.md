@@ -59,7 +59,7 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/resultados` | `resultados.tsx` | **#480.** Recebe `city`, `checkIn`, `checkOut`, `service` e `petId` pela rota. O título mostra a contagem e o serviço ("1 Pet-Sitter encontrado"). Lista vertical de `PetCard`, com o botão `tune` que abre o `FiltersModal` (com o número de filtros ativos) e o estado vazio com "Ajustar filtros". O campo e a aba Buscar refazem a busca. **#518:** dados reais do `GET /api/v1/hosts/search`, com erro e "Tentar de novo". |
 | `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas", que abre o chat (#520), e "Solicitar reserva", que abre a confirmação (#495). Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
 | `/chat/[id]` | `chat/[id].tsx` | **#520.** Chat com o Host, aberto pelo detalhe com `checkIn`, `checkOut` e `petId`. Cabeçalho com voltar, foto, nome, status e mais opções (sem ligar). Faixa "Interesse em reservar" com datas, total e pet. Mensagens do Assistente ("Ativa"), do Tutor e do Host ("Atendimento Humano"), separadas por dia, com imagem e sugestões rápidas. Conversa de exemplo; o envio só mostra a mensagem na tela (DT-22). |
-| `/reserva/[id]` | `reserva/[id].tsx` | **#495.** "Confirmar Reserva", aberta pelo detalhe com `checkIn`, `checkOut` e `petId`. Host real, período (o calendário abre por cima), pets reais do `GET /api/v1/me/pets`, serviços adicionais de exemplo (não somam) e total das diárias. Envia pelo `POST /api/v1/reservations` com `Idempotency-Key` e mostra o sucesso na mesma rota. Modais "Data indisponível", "Cadastro Incompleto" e "Algo deu errado"; erros de pet e datas embaixo do campo (DT-23). |
+| `/reserva/[id]` | `reserva/[id].tsx` | **#495.** "Confirmar Reserva", aberta pelo detalhe com `checkIn`, `checkOut` e `petId`. Host real, período (o calendário abre por cima), pets reais do `GET /api/v1/me/pets`, serviços adicionais de exemplo (não somam) e total das diárias. Envia pelo `POST /api/v1/reservations` com `Idempotency-Key` e mostra o sucesso na mesma rota. Modais "Pet não permitido", "Data indisponível", "Cadastro Incompleto" e "Algo deu errado"; avisos seguem o protótipo da #489 com card central, fundo escurecido e `pet_supplies` (DT-24). |
 
 A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
@@ -95,7 +95,7 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 | `PetCard` | Card de hospedagem (foto, avaliação, nome, cidade e preço), nos tamanhos `large` e `small`. |
 | `BottomTabBar` | Barra inferior com as abas Home, Buscar, Reservas e Perfil (exporta o tipo `TabKey`). |
 | `FieldError` | Texto de erro embaixo de um campo. Sem mensagem, não mostra nada. |
-| `ErrorModal` | Aviso de erro do servidor ou da conexão, no estilo do design: ícone `pets` (`assets/pets.png`), título, texto e botão. |
+| `ErrorModal` | Aviso de erro com fundo escurecido e blur, card central, ícone Material Symbols `pet_supplies`, título, texto e botão. |
 
 ## Padrões obrigatórios
 

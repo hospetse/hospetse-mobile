@@ -353,3 +353,16 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Expo Go:** a desenvolvedora fez login e "Sair". Renovação conferida nos logs do Railway: login às 02:41 UTC; às 03:12 a busca recebeu 401, o app chamou `POST /api/v1/auth/refresh` (200) uma vez e repetiu a busca (200), sem pedir senha.
 - **Visto fora do escopo:** `GET /api/v1/me/pets` respondeu 403 no detalhe do Host (token aceito, acesso negado). Não investigado.
 - **Commit:** ainda não criado.
+## 2026-11-01: Ajuste visual dos avisos de reserva (#489)
+- **Objetivo:** aproximar os avisos de "Pet não permitido" e "Data indisponível" dos anexos da task #489.
+- **Branch:** `feature/489-exibir-avisos-de-pet-nao-permitido-e-data-indisponivel-no-mobile`, a partir da `develop` (`4acac08`).
+- **Arquivos:**
+  - `components/ErrorModal.tsx`: fundo com BlurView e camada escura, card central com largura limitada e sombra, e ícone vetorial `pet_supplies`.
+  - `components/Icon.tsx`: path oficial de `pet_supplies`.
+  - `services/reservations.ts`: `VALIDATION_ERROR` de `petId` vira o aviso modal "Pet não permitido".
+  - `app/reserva/[id].tsx`: texto e estado do novo aviso.
+  - `package.json` e `package-lock.json`: `expo-blur` compatível com o SDK 58.
+  - `__tests__/reservation-test.tsx`: atualiza o cenário de pet não permitido para verificar o modal.
+- **Decisão:** DT-24.
+- **Verificação:** `tsc --noEmit` sem erros, 17 de 17 testes da reserva passando e a suíte completa será conferida antes do commit.
+- **Ficou pendente:** testar visualmente no Expo Go (iPhone e Android), conferir a web e commit/PR autorizados separadamente.

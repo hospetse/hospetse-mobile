@@ -1,7 +1,9 @@
-import { Image, Modal, StyleSheet, Text, View } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { Modal, StyleSheet, Text, View } from 'react-native';
 
 import { theme } from '../constants/theme';
 import { Button } from './Button';
+import { Icon } from './Icon';
 
 type ErrorModalProps = {
   visible: boolean;
@@ -23,14 +25,11 @@ export function ErrorModal({
   return (
     <Modal animationType="fade" onRequestClose={onClose} transparent visible={visible}>
       <View style={styles.overlay}>
+        <BlurView intensity={35} tint="dark" style={StyleSheet.absoluteFill} />
+        <View style={styles.scrim} />
         <View accessibilityViewIsModal style={styles.card}>
           <View style={styles.iconCircle}>
-            {/* Ícone "pets" do Material Icons (Google Fonts) */}
-            <Image
-              accessibilityIgnoresInvertColors
-              source={require('../../assets/pets.png')}
-              style={styles.icon}
-            />
+            <Icon color={theme.colors.icon} name="pet_supplies" size={theme.spacing.modalIcon} />
           </View>
 
           <Text accessibilityRole="header" style={styles.title}>
@@ -50,17 +49,22 @@ export function ErrorModal({
 const styles = StyleSheet.create({
   overlay: {
     alignItems: 'center',
-    backgroundColor: theme.colors.overlay,
     flex: 1,
     justifyContent: 'center',
     padding: theme.spacing.page,
   },
+  scrim: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: theme.colors.overlay,
+  },
   card: {
     alignItems: 'center',
-    alignSelf: 'stretch',
     backgroundColor: theme.colors.white,
     borderRadius: theme.radius.card,
-    padding: theme.spacing.page,
+    boxShadow: theme.shadow.card,
+    maxWidth: 320,
+    padding: theme.spacing.large,
+    width: '100%',
   },
   iconCircle: {
     alignItems: 'center',
@@ -69,11 +73,6 @@ const styles = StyleSheet.create({
     height: theme.spacing.modalIconCircle,
     justifyContent: 'center',
     width: theme.spacing.modalIconCircle,
-  },
-  icon: {
-    height: theme.spacing.modalIcon,
-    tintColor: theme.colors.icon,
-    width: theme.spacing.modalIcon,
   },
   title: {
     color: theme.colors.title,

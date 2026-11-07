@@ -47,6 +47,7 @@ export type ReservationField = 'pet' | 'dates';
 // O que a tela faz com cada erro: um modal do design ou mensagens embaixo dos campos
 export type ReservationError =
   | { kind: 'unavailable' }
+  | { kind: 'pet-not-allowed' }
   | { kind: 'profile-incomplete' }
   | { kind: 'session-expired' }
   | { kind: 'fields'; fields: Partial<Record<ReservationField, string>> }
@@ -89,6 +90,10 @@ export function toReservationError(error: unknown): ReservationError {
     case 'PET_ALREADY_BOOKED':
       return { kind: 'fields', fields: { pet: 'Esse pet já tem hospedagem nesse período.' } };
     case 'VALIDATION_ERROR': {
+      const petNotAllowed = (body.details ?? []).some((detail) => detail.field === 'petId');
+      if (petNotAllowed) {
+        return { kind: 'pet-not-allowed' };
+      }
       const fields: Partial<Record<ReservationField, string>> = {};
       for (const detail of body.details ?? []) {
         const field = FIELD_OF[detail.field];

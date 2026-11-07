@@ -273,3 +273,14 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
   - `VALIDATION_ERROR` com `petId` abre "Pet não permitido" em modal, com "Infelizmente o Host não aceita esse tipo de pet.". `PERIOD_UNAVAILABLE` e `NO_CAPACITY` continuam abrindo "Data indisponível".
   - `PET_ALREADY_BOOKED` continua como erro abaixo dos pets, porque significa conflito do pet no período, não incompatibilidade com o Host.
 - **Dependência:** `expo-blur` instalado na versão compatível com o Expo SDK 58. Documentação consultada: [Expo BlurView](https://docs.expo.dev/versions/v58.0.0/sdk/blur-view/).
+## Perfil
+### DT-26: Perfil como rota própria, com dados parciais e entrada do cadastro de Host
+- **Data:** 2026-11-07 · **Task:** #326 · **Status:** Aceita (esqueleto)
+- **Decisão:** `/perfil` é uma rota do Stack, aberta por `router.push` na aba Perfil da Home. No Perfil, a aba Home usa `router.dismissTo('/home')`, a aba Buscar abre o `SearchModal` por cima e a aba Reservas segue sem tela. O Perfil mostra "Sair da conta" com o logout local da DT-25.
+  - **Dados:** o Perfil mostra só o que o cadastro coleta (nome e e-mail, do `/me`) e nunca dados inventados: sem sessão, aparece "Usuário" e nenhum e-mail. O cadastro não tem foto, então o avatar é um ícone. Telefone, cidade, selo de verificação, pets de exemplo e a troca de foto não entram; a troca de foto fica na futura tela de editar perfil. Os textos do menu são de exemplo.
+  - **Perfil do usuário comum:** a tela não é específica de Tutor nem de Host, e o título é "Meu Perfil". "Minhas Reservas" saiu do menu (já existe a aba Reservas). O último item do menu depende do `profile.status` do `/me`: `incomplete` mostra "Completar perfil" com o selo "Pendente"; `complete` mostra "Editar perfil". Ainda sem ação, até existir a tela de edição.
+  - **Entrada do cadastro de Host:** o `HostInviteCard` fica entre "Meus Pets" e "Minha conta". O botão "Quero ser Host" ainda não tem ação: a primeira etapa do cadastro (#326) vai ser ligada ali. O card aparece para todo usuário, porque o `/me` ainda não informa se ele já é Host.
+  - **Tema:** cores e tamanhos novos entraram no `theme.ts`, sem hexadecimal nos componentes. O cinza `textMuted` (`#6B6B6B`) tem contraste AA no branco; o `placeholder` não tem.
+  - **Barra de abas:** o protótipo tem 5 abas (com "Mensagens"). O app mantém as 4 abas atuais, porque não há tela de mensagens.
+  - **Versão do app:** o rodapé lê a versão do `app.json` por `expo-constants`, em vez do texto fixo do protótipo.
+- **Limite:** "Meus Pets" e "Quero ser Host" aparecem para todo usuário, porque o `/me` ainda não informa papéis. "Meus Pets" não mostra os pets reais.

@@ -366,3 +366,14 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Decisão:** DT-24.
 - **Verificação:** `tsc --noEmit` sem erros, 17 de 17 testes da reserva passando e a suíte completa será conferida antes do commit.
 - **Ficou pendente:** testar visualmente no Expo Go (iPhone e Android), conferir a web e commit/PR autorizados separadamente.
+## 2026-11-07: Tela de Perfil e entrada do cadastro de Host (#326)
+- **Branch:** `feature/326-implementar-o-cadastro-do-host-no-app`, a partir da `develop` (`26ebfa3`).
+- **O que mudou:** nova rota `/perfil`, baseada no protótipo, para o usuário comum (não é específica de Tutor nem de Host): cabeçalho "Meu Perfil", card com nome e e-mail do cadastro, "Meus Pets", convite "Quero ser Host", menu "Minha conta" (com "Completar perfil" ou "Editar perfil" no fim), "Sair da conta" e rodapé com a versão do app. A aba Perfil da Home passou a abrir a rota. Componentes novos: `StatusPill`, `ProfileMenuItem` e `HostInviteCard`. O `Button` ganhou o parâmetro opcional `icon`. Oito ícones oficiais novos no `Icon.tsx` e tokens novos no `theme.ts` (`textMuted`, pares cor/fundo azul, verde, roxo e amarelo, e os tamanhos do avatar e do ícone do menu).
+- **Dados:** o Perfil mostra só o que o cadastro coleta: nome e e-mail, do `GET /api/v1/me`. Sem sessão, mostra "Usuário" e nenhum e-mail. O cadastro não tem foto, então o avatar é um ícone. Telefone, cidade, selo de verificação, pets de exemplo e a troca de foto foram removidos. Os textos do menu ainda são de exemplo.
+- **Ajustes pedidos após a primeira versão:** saíram "Minhas Reservas" (já há a aba) e "Garantia"; no lugar entrou "Completar perfil" (perfil `incomplete`, com selo "Pendente") ou "Editar perfil" (perfil `complete`).
+- **Sem ação ainda:** "Quero ser Host", "Acessar Meus Pets", linhas do menu (inclusive "Completar/Editar perfil"), sino e engrenagem.
+- **Decisão:** DT-26.
+- **Verificação:** `tsc --noEmit` sem erros; Jest 140 de 140; `expo export --platform web` gerou o bundle `perfil`. Um teste temporário confirmou os cenários do Perfil (completo, incompleto, sem sessão, logout e aba Home) e foi removido. A desenvolvedora aprovou a tela visualmente; não foi testada no Expo Go.
+- **Testes:** não foram criados testes Jest do Perfil.
+- **Arquivos:** `app/perfil.tsx`, `app/home.tsx`, `components/StatusPill.tsx`, `components/ProfileMenuItem.tsx`, `components/HostInviteCard.tsx`, `components/Button.tsx`, `components/Icon.tsx` e `constants/theme.ts`.
+- **Commit:** um `feat:` e um `docs:` na branch, autorizados pela desenvolvedora. Push ainda não feito.

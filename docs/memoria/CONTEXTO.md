@@ -37,7 +37,7 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `src/constants/theme.ts` | Cores, fontes, espaçamentos, raios, tipografia e sombras. É a única fonte de valores visuais. |
 | `src/constants/terms.ts` | Versão dos Termos de Uso enviada no cadastro. |
 | `src/constants/search.ts` | Serviços (com nomes no singular e no plural), portes, comodidades filtráveis e faixa de preço. |
-| `src/constants/sampleData.ts` | Tutor e pets de exemplo, compartilhados pela Home e pelos resultados (provisório). |
+| `src/constants/sampleData.ts` | Tutor e pets de exemplo, compartilhados pela Home, pelos resultados e pelo Perfil (provisório). |
 | `src/constants/sampleChat.ts`, `addOns.ts` | Conversa de exemplo do chat e serviços adicionais da reserva (provisórios). |
 | `src/context/SignupContext.tsx`, `SessionContext.tsx` | Dados do cadastro e perfil atual, somente em memória. O `SessionContext` tem o `logout()` local (DT-25). |
 | `src/services/` | `api.ts` (`authApi`, `backendApi` com token e renovação, `SessionExpiredError`), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`, `isRequestError`), `token-storage.ts` (SecureStore nativo), `token-storage.web.ts` (tokens em memória) e `users.ts` (`GET /api/v1/me`), além de Hosts, pets e reservas. |
@@ -60,16 +60,17 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas", que abre o chat (#520), e "Solicitar reserva", que abre a confirmação (#495). Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
 | `/chat/[id]` | `chat/[id].tsx` | **#520.** Chat com o Host, aberto pelo detalhe com `checkIn`, `checkOut` e `petId`. Cabeçalho com voltar, foto, nome, status e mais opções (sem ligar). Faixa "Interesse em reservar" com datas, total e pet. Mensagens do Assistente ("Ativa"), do Tutor e do Host ("Atendimento Humano"), separadas por dia, com imagem e sugestões rápidas. Conversa de exemplo; o envio só mostra a mensagem na tela (DT-22). |
 | `/reserva/[id]` | `reserva/[id].tsx` | **#495.** "Confirmar Reserva", aberta pelo detalhe com `checkIn`, `checkOut` e `petId`. Host real, período (o calendário abre por cima), pets reais do `GET /api/v1/me/pets`, serviços adicionais de exemplo (não somam) e total das diárias. Envia pelo `POST /api/v1/reservations` com `Idempotency-Key` e mostra o sucesso na mesma rota. Modais "Pet não permitido", "Data indisponível", "Cadastro Incompleto" e "Algo deu errado"; avisos seguem o protótipo da #489 com card central, fundo escurecido e `pet_supplies` (DT-24). |
+| `/perfil` | `perfil.tsx` | **#326 (DT-26).** "Meu Perfil" do usuário comum, aberto pela aba Perfil da Home. Cabeçalho com sino e engrenagem, card com nome e e-mail do cadastro (do `/me`) e um ícone no lugar da foto, "Meus Pets", convite "Quero ser Host" (entrada do cadastro de Host, ainda sem ação), menu "Minha conta" (pagamento, endereços, vacinação, notificações e "Completar/Editar perfil"), "Sair da conta" (logout local, DT-25) e a versão do app no rodapé. A aba Home volta à Home e a Buscar abre o `SearchModal`. |
 
 A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
-Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas da Home e "Ver minhas reservas"); cadastro de pet ("Adicionar Pet"); conclusão do perfil do Tutor (ADR-011; a rota `PUT /api/v1/me/tutor-profile` existe no back-end). Para a lista completa, consulte o Figma e a Wiki (Desenvolvimento > Front-end > Fluxo de Telas).
+Telas que o código já indica e que ainda não existem: Reservas (aba da Home e "Ver minhas reservas"); as telas de destino do menu do Perfil; as etapas do cadastro de Host (#326); cadastro de pet ("Adicionar Pet"); conclusão do perfil do Tutor (ADR-011; a rota `PUT /api/v1/me/tutor-profile` existe no back-end). Para a lista completa, consulte o Figma e a Wiki (Desenvolvimento > Front-end > Fluxo de Telas).
 
 ## Componentes reutilizáveis
 
 | Componente | Uso |
 | --- | --- |
-| `Button` | Botão laranja padrão, com `loading` (desabilita e mostra um indicador). |
+| `Button` | Botão laranja padrão, com `loading` (desabilita e mostra um indicador) e `icon` opcional depois do texto. |
 | `CodeInput` | Caixas de dígitos do código (PIN). |
 | `InfoIcon` | Ícone "i" laranja das dicas de formulário. |
 | `Skeleton` | Bloco que pulsa durante o carregamento. Usado nos resultados e no detalhe do Host. |
@@ -96,6 +97,9 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 | `BottomTabBar` | Barra inferior com as abas Home, Buscar, Reservas e Perfil (exporta o tipo `TabKey`). |
 | `FieldError` | Texto de erro embaixo de um campo. Sem mensagem, não mostra nada. |
 | `ErrorModal` | Aviso de erro com fundo escurecido e blur, card central, ícone Material Symbols `pet_supplies`, título, texto e botão. |
+| `StatusPill` | Selo arredondado com texto curto, cores por parâmetro e ícone opcional ("Pendente"). |
+| `ProfileMenuItem` | Linha do menu "Minha conta": ícone colorido, título, subtítulo, selo opcional e seta. |
+| `HostInviteCard` | Card "Seja um Host" do Perfil, com o botão "Quero ser Host" (#326). |
 
 ## Padrões obrigatórios
 

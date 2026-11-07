@@ -61,6 +61,9 @@ const MENU_ITEMS: MenuItem[] = [
   },
 ];
 
+// ESQUELETO (#326): esta tela não é a versão final do Perfil. Ela existe para dar ao usuário comum
+// a entrada "Quero ser Host". Os textos do menu são de exemplo e quase nenhum botão tem ação ainda.
+// Só nome e e-mail (do cadastro, via /me) são dados reais.
 export default function PerfilScreen() {
   const { currentUser, logout } = useSession();
   const [searchOpen, setSearchOpen] = useState(false);

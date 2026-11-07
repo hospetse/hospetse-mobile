@@ -11,7 +11,7 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 3. **#495:** push e PR para a `develop` (aprovada no iPhone e commitada).
 
 ## Em andamento
-- **#326, Cadastro do Host no app:** branch `feature/326-implementar-o-cadastro-do-host-no-app`, a partir da `develop`. Tela de Perfil com o convite "Quero ser Host" aprovada visualmente e commitada (DT-26), sem push e sem teste no Expo Go. Faltam as etapas do cadastro, o rascunho, o upload com progresso e a tela "em análise". Depende do back-end #325 (rascunho e submissão) e do protótipo; a #322 está como Removed.
+- **#326, Cadastro do Host no app:** branch `feature/326-implementar-o-cadastro-do-host-no-app`, a partir da `develop`. Tela de Perfil com o convite "Quero ser Host", aprovada visualmente e enviada à branch do Azure DevOps (DT-26). É só um esqueleto, não a tela final. Sem teste no Expo Go. Faltam as etapas do cadastro, o rascunho, o upload com progresso e a tela "em análise". Depende do back-end #325 (rascunho e submissão) e do protótipo; a #322 está como Removed.
 - **#299, Login e feedback da senha:** PR !72 aberto para a `develop`, aguardando revisão. Branch `feature/299-implementar-a-tela-de-login-e-a-integracao`.
 - **#300, Renovação de sessão e logout:** logout local (DT-25) na branch `feature/300-implementar-a-renovacao-de-sessao-e-o-logout-no-mobile`, criada sobre a da #299. Sem commit. Validada no Expo Go.
 - **#270, Testes do fluxo de cadastro:** testes complementares na branch `test/270-criar-testes-automatizados-do-fluxo-de-cadastro`, rebaseada na `develop` após o merge do PR !70. Falta push, PR e revisão.
@@ -32,7 +32,7 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 - **Paginação** dos resultados: hoje vêm até 50.
 - **Home com dados reais:** o nome e o aviso do perfil vêm do `/me` após login ou cadastro. Os cards de exemplo ainda abrem um id que não existe na API ("Hospedagem não encontrada") e precisam de uma rota de destaques.
 - **Botões sem ação:** "Ver todos" e a galeria completa.
-- **Perfil (#326):** sem ação "Quero ser Host", "Acessar Meus Pets", as cinco linhas do menu (inclusive "Completar/Editar perfil", que precisa de uma tela de edição com troca de foto), sino e engrenagem. Os textos do menu são de exemplo e "Meus Pets" não mostra os pets reais. A aba Perfil só abre a partir da Home (os resultados ainda não a ligam). Esconder o convite de Host e "Meus Pets" por papel depende de o `/me` informar isso.
+- **Perfil (#326), só um esqueleto:** sem ação "Quero ser Host", "Acessar Meus Pets", as cinco linhas do menu (inclusive "Completar/Editar perfil", que precisa de uma tela de edição com troca de foto), sino e engrenagem. Os textos do menu são de exemplo e "Meus Pets" não mostra os pets reais. A aba Perfil só abre a partir da Home (os resultados ainda não a ligam). Esconder o convite de Host e "Meus Pets" por papel depende de o `/me` informar isso.
 - **Testes Jest do Perfil:** não foram criados.
 - **Pets da busca:** o `SearchModal` ainda usa os pets de exemplo (#371); a reserva já usa os pets reais.
 - Itens da #477: o aviso para Tutor sem pet (tela 08I).

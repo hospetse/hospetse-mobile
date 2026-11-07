@@ -265,3 +265,11 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
 - **Sessão expirada:** continua no `api.ts` (DT-19). Quando o login recebe `aviso=sessao-expirada`, limpa o usuário em memória.
 - **Motivo:** a #297 (logout com revogação do refresh token no Auth) foi removida em 2026-10-29, e o Auth não tem rota de logout. Registrado em comentário na #300.
 - **Risco aceito:** depois do logout, o refresh token continua válido no servidor até expirar (30 dias).
+## Avisos da solicitação
+### DT-24: Avisos de pet não permitido e data indisponível seguindo o protótipo
+- **Data:** 2026-11-01 · **Task:** #489 · **Status:** Em validação visual
+- **Decisão:** o `ErrorModal` usa o mesmo padrão visual dos avisos do protótipo: fundo escurecido com blur, card branco centralizado com largura limitada, sombra, ícone Material Symbols `pet_supplies`, título, mensagem e botão laranja.
+  - O ícone substitui a imagem `assets/pets.png` nesse componente. O path oficial veio do Material Symbols Outlined.
+  - `VALIDATION_ERROR` com `petId` abre "Pet não permitido" em modal, com "Infelizmente o Host não aceita esse tipo de pet.". `PERIOD_UNAVAILABLE` e `NO_CAPACITY` continuam abrindo "Data indisponível".
+  - `PET_ALREADY_BOOKED` continua como erro abaixo dos pets, porque significa conflito do pet no período, não incompatibilidade com o Host.
+- **Dependência:** `expo-blur` instalado na versão compatível com o Expo SDK 58. Documentação consultada: [Expo BlurView](https://docs.expo.dev/versions/v58.0.0/sdk/blur-view/).

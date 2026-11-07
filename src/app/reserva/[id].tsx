@@ -29,13 +29,18 @@ import { formatCurrency } from '../../utils/money';
 import { validateReservation } from '../../utils/validateReservation';
 
 type LoadState = 'loading' | 'ready' | 'not-found' | 'error';
-type ModalKind = 'unavailable' | 'profile-incomplete' | 'generic';
+type ModalKind = 'unavailable' | 'pet-not-allowed' | 'profile-incomplete' | 'generic';
 
 // Textos dos modais de erro do protótipo
 const MODALS: Record<ModalKind, { title: string; message: string; button: string }> = {
   unavailable: {
     title: 'Data indisponível',
-    message: 'Infelizmente o hotel não está disponível nos dias selecionados.',
+    message: 'Infelizmente o Host não está disponível nos dias selecionados.',
+    button: 'Voltar',
+  },
+  'pet-not-allowed': {
+    title: 'Pet não permitido',
+    message: 'Infelizmente o Host não aceita esse tipo de pet.',
     button: 'Voltar',
   },
   'profile-incomplete': {

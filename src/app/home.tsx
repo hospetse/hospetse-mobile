@@ -107,6 +107,11 @@ export default function HomeScreen() {
       setSearchOpen(true);
       return;
     }
+    // O Perfil é outra rota: a Home continua com a aba Home ativa para quando o usuário voltar
+    if (key === 'perfil') {
+      router.push('/perfil');
+      return;
+    }
     setActiveTab(key);
   }
 

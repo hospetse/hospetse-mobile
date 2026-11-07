@@ -23,6 +23,16 @@ export const theme = {
     rangeFill: '#FFDDC2',
     // Filtros
     selectedTint: '#FFF4EB',
+    // Perfil: cinza com contraste AA no branco e pares cor/fundo dos ícones e selos
+    textMuted: '#6B6B6B',
+    blue: '#3B6FE0',
+    blueTint: '#E8F0FE',
+    green: '#17703C',
+    greenTint: '#E4F5EB',
+    purple: '#8A4FE0',
+    purpleTint: '#F1E8FD',
+    yellow: '#A86F00',
+    yellowTint: '#FFF4D1',
   },
   fonts: {
     regular: 'Poppins_400Regular',
@@ -71,6 +81,9 @@ export const theme = {
     // Solicitação de reserva
     successCircle: 96,
     footerHeight: 136,
+    // Perfil
+    profileAvatar: 80,
+    menuIcon: 40,
   },
   icon: {
     small: 12,

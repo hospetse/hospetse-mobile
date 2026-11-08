@@ -286,3 +286,12 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
 ### DT-27: Área segura e data da solicitação no fuso local
 - **Data:** 2026-11-02 · **Task:** #486 · **Status:** Em validação
 - **Decisão:** a tela `/reservas` usa `SafeAreaView` do `react-native-safe-area-context`, compatível com iOS e Android. O timestamp `createdAt`, enviado em UTC, passa por `new Date()` antes de virar texto, para o dia seguir o fuso local do aparelho. Não se deve cortar os primeiros 10 caracteres do timestamp.
+## Decisão do Host
+### DT-28: Aceite e recusa de solicitação em detalhe próprio
+- **Data:** 2026-11-02 · **Task:** #492 · **Status:** Em validação
+- **Decisão:** tocar um card da fila `/reservas` abre `/reserva-host/[id]`. A nova tela busca a solicitação na página pendente do Host, usando apenas o id leve na rota; não foi inventado um GET individual que o back-end ainda não possui.
+  - O Host confirma o aceite ou a recusa em modal próprio. A recusa exige motivo aparado, entre 1 e 500 caracteres.
+  - Aceite: `POST /api/v1/me/host/reservations/:id/accept`. Recusa: `POST /api/v1/me/host/reservations/:id/reject` com `{ reason }`.
+  - Em sucesso, a tela volta para `/reservas`, que consulta a fila novamente. Conflitos e indisponibilidade são exibidos com mensagem compreensível.
+  - Os dados médicos e comportamentais do pet aparecem no detalhe quando a API os retornar.
+- **Motivo:** completar o fluxo iniciado pela #486, sem misturar as ações transacionais com a lista nem criar uma rota de detalhe inexistente no back-end.

@@ -366,3 +366,16 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Decisão:** DT-24.
 - **Verificação:** `tsc --noEmit` sem erros, 17 de 17 testes da reserva passando e a suíte completa será conferida antes do commit.
 - **Ficou pendente:** testar visualmente no Expo Go (iPhone e Android), conferir a web e commit/PR autorizados separadamente.
+## 2026-11-02: Lista de solicitações pendentes do Host (#486)
+- **Objetivo:** iniciar o fluxo do prestador com a fila de solicitações recebidas.
+- **Branch:** `feature/486-implementar-a-lista-de-solicitacoes-pendentes-no-mobile`, a partir da `develop` (`26ebfa3`).
+- **Arquivos:**
+  - `app/reservas.tsx` (novo): consulta a API, total, cards, carregamento, vazio, erro com retry, pull-to-refresh e aba Reservas ativa.
+  - `components/HostRequestCard.tsx` (novo): card adaptado da referência do Tutor para mostrar status, Tutor, pet, período, total e observações.
+  - `services/hostReservations.ts` (novo): tipo separado `HostPendingReservation` e `listPendingHostReservations`.
+  - `app/home.tsx` e `app/resultados.tsx`: a aba Reservas agora abre `/reservas`.
+  - `__tests__/host-reservations-test.tsx` (novo, 5 testes).
+- **Contrato usado:** `GET /api/v1/me/host/reservations?status=requested&page=1&pageSize=20`, dependência #485.
+- **Decisão:** DT-26. Aceitar/recusar não entrou nesta task.
+- **Verificação:** `tsc --noEmit` sem erros e 145 de 145 testes passando. Ainda não testado no Expo Go com uma conta Host.
+- **Ficou pendente:** teste manual, commit e PR; detalhe e decisões do PBI #042 em task posterior.

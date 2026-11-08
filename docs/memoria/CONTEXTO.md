@@ -1,7 +1,7 @@
 # Contexto do projeto: Hospetse Mobile
 
 > Resumo principal para retomar o trabalho. Mantenha curto e fiel ao código.
-> Última atualização: 2026-11-04. Descreve a `develop` (`ea2f77a`, com os PRs até o !71), mais a #299 (PR !72, aberto) e a #300 na branch `feature/300-implementar-a-renovacao-de-sessao-e-o-logout-no-mobile`, sem commit.
+> Última atualização: 2026-11-04. Descreve a `develop` (`26ebfa3`, com o PR !76) mais a #486 na branch `feature/486-implementar-a-lista-de-solicitacoes-pendentes-no-mobile`.
 >
 > Os repositórios `hospetse-backend` e `hospetse-auth-service` estão clonados em `HOSPETSE/`, ao lado deste. Use-os para ler as rotas reais (rodar `git pull` antes). Não edite sem pedido.
 
@@ -40,7 +40,7 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `src/constants/sampleData.ts` | Tutor e pets de exemplo, compartilhados pela Home e pelos resultados (provisório). |
 | `src/constants/sampleChat.ts`, `addOns.ts` | Conversa de exemplo do chat e serviços adicionais da reserva (provisórios). |
 | `src/context/SignupContext.tsx`, `SessionContext.tsx` | Dados do cadastro e perfil atual, somente em memória. O `SessionContext` tem o `logout()` local (DT-25). |
-| `src/services/` | `api.ts` (`authApi`, `backendApi` com token e renovação, `SessionExpiredError`), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`, `isRequestError`), `token-storage.ts` (SecureStore nativo), `token-storage.web.ts` (tokens em memória) e `users.ts` (`GET /api/v1/me`), além de Hosts, pets e reservas. |
+| `src/services/` | `api.ts` (`authApi`, `backendApi` com token e renovação, `SessionExpiredError`), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`, `isRequestError`), `token-storage.ts` (SecureStore nativo), `token-storage.web.ts` (tokens em memória), `users.ts` (`GET /api/v1/me`), `hostReservations.ts` (fila de solicitações do Host) e os serviços de Hosts, pets e reservas do Tutor. |
 | `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`, `validateSignup`, `validateLogin`, `validateReservation`, `calendar`, `chat`, `money` e `searchParams`, que converte a busca em parâmetros da rota). |
 | `__tests__/`, `test-utils/` | Testes Jest e utilitários de teste (erros HTTP falsos, espião do console). |
 | `.kiro/steering/` | Regras do Kiro: arquitetura e código (`hospetse-architecture.md`), git (`git-workflow.md`), memória (`memoria-projeto.md`) e retomada (`retomar-contexto.md`, manual). |
@@ -59,7 +59,7 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/resultados` | `resultados.tsx` | **#480.** Recebe `city`, `checkIn`, `checkOut`, `service` e `petId` pela rota. O título mostra a contagem e o serviço ("1 Pet-Sitter encontrado"). Lista vertical de `PetCard`, com o botão `tune` que abre o `FiltersModal` (com o número de filtros ativos) e o estado vazio com "Ajustar filtros". O campo e a aba Buscar refazem a busca. **#518:** dados reais do `GET /api/v1/hosts/search`, com erro e "Tentar de novo". |
 | `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas", que abre o chat (#520), e "Solicitar reserva", que abre a confirmação (#495). Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
 | `/chat/[id]` | `chat/[id].tsx` | **#520.** Chat com o Host, aberto pelo detalhe com `checkIn`, `checkOut` e `petId`. Cabeçalho com voltar, foto, nome, status e mais opções (sem ligar). Faixa "Interesse em reservar" com datas, total e pet. Mensagens do Assistente ("Ativa"), do Tutor e do Host ("Atendimento Humano"), separadas por dia, com imagem e sugestões rápidas. Conversa de exemplo; o envio só mostra a mensagem na tela (DT-22). |
-| `/reserva/[id]` | `reserva/[id].tsx` | **#495.** "Confirmar Reserva", aberta pelo detalhe com `checkIn`, `checkOut` e `petId`. Host real, período (o calendário abre por cima), pets reais do `GET /api/v1/me/pets`, serviços adicionais de exemplo (não somam) e total das diárias. Envia pelo `POST /api/v1/reservations` com `Idempotency-Key` e mostra o sucesso na mesma rota. Modais "Pet não permitido", "Data indisponível", "Cadastro Incompleto" e "Algo deu errado"; avisos seguem o protótipo da #489 com card central, fundo escurecido e `pet_supplies` (DT-24). |
+| `/reservas` | `reservas.tsx` | **#486.** Lista de solicitações pendentes recebidas pelo Host, pelo `GET /api/v1/me/host/reservations`. Mostra total, Tutor, pet, período, valor e observações, com carregamento, vazio, erro, retry e pull-to-refresh. Aceitar/recusar ficam para o detalhe e as tasks do PBI #042 (DT-26). |
 
 A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
@@ -90,6 +90,7 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 | `DateRangeModal` | Calendário por cima da tela para trocar o período, com "Confirmar datas". |
 | `AddOnItem` | Serviço adicional da reserva: caixa de marcar, nome, descrição e preço por dia. |
 | `ReservationSuccess` | Sucesso da solicitação: resumo do Host, datas, pet, diárias e total, "Ver minhas reservas" e "Voltar para Início". |
+| `HostRequestCard` | Card da fila do Host: status, Tutor, pet, período, valor e observações. |
 | `SearchBar` | Campo de busca com lupa. |
 | `FilterChip` | Chip de categoria, ativo ou inativo. |
 | `PetCard` | Card de hospedagem (foto, avaliação, nome, cidade e preço), nos tamanhos `large` e `small`. |
@@ -119,6 +120,7 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
   - `GET /api/v1/hosts/{id}` (#479), usado no detalhe, no chat e na reserva. Manda só bairro e cidade.
   - `GET /api/v1/me/pets` (#369), usado na reserva. Os pets não têm foto.
   - `POST /api/v1/reservations` (#494), com o header `Idempotency-Key` (DT-23).
+  - `GET /api/v1/me/host/reservations` (#485), usado pela lista de solicitações do Host (#486).
   - Os filtros de serviço, comodidades e vários portes ainda não existem na API e ficam sem efeito (DT-20).
 - O CORS para `localhost:8081` está liberado no Auth e no back-end. Na Web, os tokens ficam só na memória e somem no reload (DT-24).
 

@@ -394,3 +394,16 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Decisão:** DT-28.
 - **Verificação:** `tsc --noEmit` sem erros e 150 de 150 testes passando. Ainda não testado no Expo Go com uma conta Host.
 - **Ficou pendente:** teste manual, commit e PR.
+## 2026-11-02: Agenda do Host (#483)
+- **Objetivo:** permitir que o Host veja dias livres, bloqueados e ocupados e bloqueie/libere períodos.
+- **Branch:** `feature/483-implementar-a-tela-de-agenda-do-host-no-mobile`, a partir da `develop` após o PR !78 (`b6eb43b`).
+- **Arquivos:**
+  - `app/agenda-host.tsx` (novo): agenda mensal, capacidade, legenda, bloqueio por período, desbloqueio de dia, carregamento e erros.
+  - `components/HostAgendaCalendar.tsx` (novo): calendário com os três estados.
+  - `services/hostAgenda.ts` (novo): GET, POST e DELETE da agenda.
+  - `app/reservas.tsx`: entrada "Gerenciar disponibilidade".
+  - `__tests__/host-agenda-test.tsx` (novo, 4 testes).
+- **Contrato:** `GET /api/v1/me/host/agenda`, `POST /api/v1/me/host/agenda/blocks` e `DELETE /api/v1/me/host/agenda/blocks/{id}` (#482).
+- **Decisão:** DT-29.
+- **Verificação:** `tsc --noEmit` sem erros e 154 de 154 testes passando. Ainda não testado no Expo Go.
+- **Ficou pendente:** teste manual, commit e PR.

@@ -6,13 +6,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BottomTabBar, TabKey } from '../components/BottomTabBar';
 import { Button } from '../components/Button';
+import { ErrorModal } from '../components/ErrorModal';
 import { HostInviteCard } from '../components/HostInviteCard';
 import { Icon, IconName } from '../components/Icon';
 import { ProfileMenuItem } from '../components/ProfileMenuItem';
 import { SearchFilters, SearchModal } from '../components/SearchModal';
 import { SAMPLE_PETS } from '../constants/sampleData';
 import { theme } from '../constants/theme';
+import { useHostRegistration } from '../context/HostRegistrationContext';
 import { useSession } from '../context/SessionContext';
+import { SessionExpiredError } from '../services/api';
+import { getHostProfile } from '../services/host-registration';
+import { profileToRegistration, resumeRoutes } from '../utils/hostRegistrationMapping';
 import { toSearchParams } from '../utils/searchParams';
 
 type MenuItem = {
@@ -62,11 +67,14 @@ const MENU_ITEMS: MenuItem[] = [
 ];
 
 // ESQUELETO (#326): esta tela não é a versão final do Perfil. Ela existe para dar ao usuário comum
-// a entrada "Quero ser Host". Os textos do menu são de exemplo e quase nenhum botão tem ação ainda.
-// Só nome e e-mail (do cadastro, via /me) são dados reais.
+// a entrada "Quero ser Host", que abre o cadastro de Host. Os textos do menu são de exemplo e os outros
+// botões ainda não têm ação. Só nome e e-mail (do cadastro, via /me) são dados reais.
 export default function PerfilScreen() {
   const { currentUser, logout } = useSession();
+  const { update: updateHostRegistration } = useHostRegistration();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [startingHost, setStartingHost] = useState(false);
+  const [hostProblem, setHostProblem] = useState(false);
 
   // Nome e e-mail são os do cadastro, vindos do /me. Sem /me, a tela não inventa dados
   const userName = currentUser?.user?.name || 'Usuário';
@@ -88,12 +96,15 @@ export default function PerfilScreen() {
   };
   const menuItems = [...MENU_ITEMS, profileItem];
 
-  // Home volta para a Home da pilha; Buscar abre a busca por cima do Perfil. Reservas ainda não tem tela
+  // Home volta para a Home da pilha; Buscar abre a busca por cima do Perfil; Reservas abre as
+  // solicitações recebidas (#486), como nas outras telas
   function handleChangeTab(key: TabKey) {
     if (key === 'home') {
       router.dismissTo('/home');
     } else if (key === 'buscar') {
       setSearchOpen(true);
+    } else if (key === 'reservas') {
+      router.push('/reservas');
     }
   }
 
@@ -109,8 +120,29 @@ export default function PerfilScreen() {
   // shortcut: a lista de pets (#371) ainda não existe
   function handleOpenPets() {}
 
-  // shortcut: o cadastro de Host ainda não existe; ligar aqui a primeira etapa da #326
-  function handleBecomeHost() {}
+  // "Quero ser Host" abre o cadastro de Host (#326). Se o usuário já começou, retoma de onde parou:
+  // o rascunho é buscado no back-end e preenche as etapas
+  async function handleBecomeHost() {
+    if (startingHost) {
+      return;
+    }
+    setStartingHost(true);
+    try {
+      const profile = await getHostProfile();
+      if (profile) {
+        updateHostRegistration(profileToRegistration(profile));
+      }
+      for (const route of profile ? resumeRoutes(profile) : ['/cadastro-host']) {
+        router.push(route as '/cadastro-host');
+      }
+    } catch (error) {
+      if (!(error instanceof SessionExpiredError)) {
+        setHostProblem(true);
+      }
+    } finally {
+      setStartingHost(false);
+    }
+  }
 
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
@@ -168,7 +200,7 @@ export default function PerfilScreen() {
           <Button icon="arrow_forward" onPress={handleOpenPets} title="Acessar Meus Pets" />
         </View>
 
-        <HostInviteCard onPress={handleBecomeHost} />
+        <HostInviteCard loading={startingHost} onPress={handleBecomeHost} />
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -211,6 +243,13 @@ export default function PerfilScreen() {
       <View style={styles.tabBarWrapper}>
         <BottomTabBar activeTab="perfil" onChangeTab={handleChangeTab} />
       </View>
+
+      <ErrorModal
+        message="Não foi possível abrir o cadastro agora. Verifique a conexão e tente de novo."
+        onClose={() => setHostProblem(false)}
+        title="Algo deu errado"
+        visible={hostProblem}
+      />
 
       <SearchModal
         onClose={() => setSearchOpen(false)}

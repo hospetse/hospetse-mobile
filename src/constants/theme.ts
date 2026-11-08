@@ -84,6 +84,10 @@ export const theme = {
     // Perfil
     profileAvatar: 80,
     menuIcon: 40,
+    // Cadastro de Host
+    textAreaHeight: 140,
+    coverHeight: 180,
+    mapHeight: 120,
   },
   icon: {
     small: 12,

@@ -6,10 +6,12 @@ import { Icon } from './Icon';
 
 type HostInviteCardProps = {
   onPress: () => void;
+  // Enquanto o cadastro em andamento é buscado no servidor
+  loading?: boolean;
 };
 
 // Convite do Perfil para quem quer receber pets: é a entrada do cadastro de Host (#326)
-export function HostInviteCard({ onPress }: HostInviteCardProps) {
+export function HostInviteCard({ onPress, loading = false }: HostInviteCardProps) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -25,7 +27,7 @@ export function HostInviteCard({ onPress }: HostInviteCardProps) {
           </Text>
         </View>
       </View>
-      <Button icon="arrow_forward" onPress={onPress} title="Quero ser Host" />
+      <Button icon="arrow_forward" loading={loading} onPress={onPress} title="Quero ser Host" />
     </View>
   );
 }

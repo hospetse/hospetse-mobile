@@ -107,6 +107,14 @@ export default function HomeScreen() {
       setSearchOpen(true);
       return;
     }
+    if (key === 'reservas') {
+      router.push('/reservas');
+      return;
+    }
+    if (key === 'perfil') {
+      setActiveTab(key);
+      return;
+    }
     setActiveTab(key);
   }
 

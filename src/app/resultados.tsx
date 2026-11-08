@@ -146,6 +146,8 @@ export default function ResultsScreen() {
   function handleChangeTab(key: TabKey) {
     if (key === 'buscar') {
       setSearchOpen(true);
+    } else if (key === 'reservas') {
+      router.push('/reservas');
     } else if (key === 'home') {
       router.back();
     }

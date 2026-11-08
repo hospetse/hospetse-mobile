@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomTabBar } from '../components/BottomTabBar';
 import { HostRequestCard } from '../components/HostRequestCard';
 import { Button } from '../components/Button';
+import { OutlineButton } from '../components/OutlineButton';
 import { Skeleton } from '../components/Skeleton';
 import { theme } from '../constants/theme';
 import { listPendingHostReservations, HostPendingReservation } from '../services/hostReservations';
@@ -73,6 +74,8 @@ export default function HostReservationsScreen() {
         <Text style={styles.subtitle}>
           {total === 1 ? '1 solicitação aguardando sua resposta' : `${total} solicitações aguardando sua resposta`}
         </Text>
+
+        <OutlineButton icon="calendar_month" onPress={() => router.push('/agenda-host')} title="Gerenciar disponibilidade" />
 
         {error ? (
           <View style={styles.message}>

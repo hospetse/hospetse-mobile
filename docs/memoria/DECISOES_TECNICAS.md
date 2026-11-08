@@ -295,3 +295,12 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
   - Em sucesso, a tela volta para `/reservas`, que consulta a fila novamente. Conflitos e indisponibilidade são exibidos com mensagem compreensível.
   - Os dados médicos e comportamentais do pet aparecem no detalhe quando a API os retornar.
 - **Motivo:** completar o fluxo iniciado pela #486, sem misturar as ações transacionais com a lista nem criar uma rota de detalhe inexistente no back-end.
+## Agenda do Host
+### DT-29: Agenda mensal do Host com bloqueio e desbloqueio
+- **Data:** 2026-11-02 · **Task:** #483 · **Status:** Em validação
+- **Decisão:** a aba Reservas mantém a fila de solicitações e ganha a entrada "Gerenciar disponibilidade", que abre `/agenda-host`.
+  - A tela consulta `GET /api/v1/me/host/agenda` para o mês visível e mostra os estados `free`, `blocked` e `occupied`, além da capacidade do Host e uma legenda.
+  - Dia livre inicia a seleção de intervalo; ao completar o período, a tela pede um motivo opcional e chama `POST /api/v1/me/host/agenda/blocks`.
+  - Dia bloqueado abre confirmação e chama `DELETE /api/v1/me/host/agenda/blocks/{id}`. Dia ocupado não pode ser bloqueado e mostra aviso.
+  - O calendário foi criado especificamente para a agenda porque o `Calendar` existente seleciona datas da busca e não possui estados de agenda.
+- **Motivo:** seguir o contrato da #482 sem biblioteca externa, mantendo a estética da fila do Host e deixando as ações de aceitar/recusar separadas.

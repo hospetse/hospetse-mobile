@@ -60,7 +60,7 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas", que abre o chat (#520), e "Solicitar reserva", que abre a confirmação (#495). Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
 | `/chat/[id]` | `chat/[id].tsx` | **#520.** Chat com o Host, aberto pelo detalhe com `checkIn`, `checkOut` e `petId`. Cabeçalho com voltar, foto, nome, status e mais opções (sem ligar). Faixa "Interesse em reservar" com datas, total e pet. Mensagens do Assistente ("Ativa"), do Tutor e do Host ("Atendimento Humano"), separadas por dia, com imagem e sugestões rápidas. Conversa de exemplo; o envio só mostra a mensagem na tela (DT-22). |
 | `/reservas` | `reservas.tsx` | **#486.** Lista as solicitações pendentes recebidas pelo Host via `GET /api/v1/me/host/reservations`, com total, cards de Tutor/pet/período/valor, estado vazio, erro, retry e atualização por gesto. Tocar no card abre `/reserva-host/[id]` para a decisão (#492). |
-| `/reserva-host/[id]` | `reserva-host/[id].tsx` | **#492.** Detalhe da solicitação para o Host, com confirmação de aceite, recusa com motivo obrigatório, dados médicos/comportamentais do pet e mensagens de conflito. |
+| `/agenda-host` | `agenda-host.tsx` | **#483.** Agenda mensal do Host com dias livres, bloqueados e ocupados, capacidade, legenda, bloqueio por período e desbloqueio de dia, usando as rotas da #482 (DT-29). |
 
 A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
@@ -123,6 +123,7 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
   - `POST /api/v1/reservations` (#494), com o header `Idempotency-Key` (DT-23).
   - `GET /api/v1/me/host/reservations` (#485), usado pela lista de solicitações do Host (#486).
   - `POST /api/v1/me/host/reservations/:id/accept` e `/reject` (#491), usados na decisão do Host (#492).
+  - `GET /api/v1/me/host/agenda`, `POST /api/v1/me/host/agenda/blocks` e `DELETE /api/v1/me/host/agenda/blocks/{id}` (#482), usados na agenda (#483).
   - Os filtros de serviço, comodidades e vários portes ainda não existem na API e ficam sem efeito (DT-20).
 - O CORS para `localhost:8081` está liberado no Auth e no back-end. Na Web, os tokens ficam só na memória e somem no reload (DT-24).
 

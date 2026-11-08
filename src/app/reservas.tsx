@@ -91,9 +91,13 @@ export default function HostReservationsScreen() {
             <Text style={styles.messageText}>Quando um Tutor solicitar um serviço, ele aparecerá aqui.</Text>
           </View>
         ) : (
-          <View style={styles.list}>
+      <View style={styles.list}>
             {requests.map((request) => (
-              <HostRequestCard key={request.id} request={request} />
+              <HostRequestCard
+                key={request.id}
+                onPress={() => router.push({ pathname: '/reserva-host/[id]', params: { id: request.id } })}
+                request={request}
+              />
             ))}
           </View>
         )}

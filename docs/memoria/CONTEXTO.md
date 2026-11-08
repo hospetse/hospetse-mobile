@@ -59,7 +59,8 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/resultados` | `resultados.tsx` | **#480.** Recebe `city`, `checkIn`, `checkOut`, `service` e `petId` pela rota. O título mostra a contagem e o serviço ("1 Pet-Sitter encontrado"). Lista vertical de `PetCard`, com o botão `tune` que abre o `FiltersModal` (com o número de filtros ativos) e o estado vazio com "Ajustar filtros". O campo e a aba Buscar refazem a busca. **#518:** dados reais do `GET /api/v1/hosts/search`, com erro e "Tentar de novo". |
 | `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas", que abre o chat (#520), e "Solicitar reserva", que abre a confirmação (#495). Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
 | `/chat/[id]` | `chat/[id].tsx` | **#520.** Chat com o Host, aberto pelo detalhe com `checkIn`, `checkOut` e `petId`. Cabeçalho com voltar, foto, nome, status e mais opções (sem ligar). Faixa "Interesse em reservar" com datas, total e pet. Mensagens do Assistente ("Ativa"), do Tutor e do Host ("Atendimento Humano"), separadas por dia, com imagem e sugestões rápidas. Conversa de exemplo; o envio só mostra a mensagem na tela (DT-22). |
-| `/reservas` | `reservas.tsx` | **#486.** Lista de solicitações pendentes recebidas pelo Host, pelo `GET /api/v1/me/host/reservations`. Mostra total, Tutor, pet, período, valor e observações, com carregamento, vazio, erro, retry e pull-to-refresh. Aceitar/recusar ficam para o detalhe e as tasks do PBI #042 (DT-26). |
+| `/reservas` | `reservas.tsx` | **#486.** Lista as solicitações pendentes recebidas pelo Host via `GET /api/v1/me/host/reservations`, com total, cards de Tutor/pet/período/valor, estado vazio, erro, retry e atualização por gesto. Tocar no card abre `/reserva-host/[id]` para a decisão (#492). |
+| `/reserva-host/[id]` | `reserva-host/[id].tsx` | **#492.** Detalhe da solicitação para o Host, com confirmação de aceite, recusa com motivo obrigatório, dados médicos/comportamentais do pet e mensagens de conflito. |
 
 A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
@@ -121,6 +122,7 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
   - `GET /api/v1/me/pets` (#369), usado na reserva. Os pets não têm foto.
   - `POST /api/v1/reservations` (#494), com o header `Idempotency-Key` (DT-23).
   - `GET /api/v1/me/host/reservations` (#485), usado pela lista de solicitações do Host (#486).
+  - `POST /api/v1/me/host/reservations/:id/accept` e `/reject` (#491), usados na decisão do Host (#492).
   - Os filtros de serviço, comodidades e vários portes ainda não existem na API e ficam sem efeito (DT-20).
 - O CORS para `localhost:8081` está liberado no Auth e no back-end. Na Web, os tokens ficam só na memória e somem no reload (DT-24).
 

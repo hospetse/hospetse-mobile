@@ -382,3 +382,15 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 ## 2026-11-02: Correções apontadas no PR !77 da #486
 - **Correções:** `reservas.tsx` passou a usar `SafeAreaView` do `react-native-safe-area-context`; `HostRequestCard` passou a converter `createdAt` com `new Date()` antes de formatar o dia no fuso local do aparelho.
 - **Testes:** acrescentado teste de timestamp local. `tsc --noEmit` sem erros e 146 de 146 testes passando.
+## 2026-11-02: Aceitar e recusar solicitações do Host (#492)
+- **Objetivo:** permitir que o Host aceite ou recuse uma solicitação pendente pela tela adaptada da referência do histórico do Tutor.
+- **Branch:** `feature/492-implementar-as-acoes-de-aceitar-e-recusar-no-mobile`, a partir da `develop` após o merge do PR !77 (`986ed52`).
+- **Arquivos:**
+  - `app/reserva-host/[id].tsx` (novo): detalhe da solicitação, confirmação de aceite, recusa com motivo obrigatório, cuidados médicos e comportamento do pet.
+  - `services/hostReservations.ts`: tipos de decisão, POST de aceite/recusa e mensagens dos conflitos.
+  - `app/reservas.tsx`: cards agora abrem o detalhe.
+  - `__tests__/host-reservation-decision-test.tsx` (novo, 4 testes).
+- **Contrato:** `POST /api/v1/me/host/reservations/:id/accept` e `POST /api/v1/me/host/reservations/:id/reject` (#491).
+- **Decisão:** DT-28.
+- **Verificação:** `tsc --noEmit` sem erros e 150 de 150 testes passando. Ainda não testado no Expo Go com uma conta Host.
+- **Ficou pendente:** teste manual, commit e PR.

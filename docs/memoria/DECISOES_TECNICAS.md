@@ -273,6 +273,28 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
   - `VALIDATION_ERROR` com `petId` abre "Pet não permitido" em modal, com "Infelizmente o Host não aceita esse tipo de pet.". `PERIOD_UNAVAILABLE` e `NO_CAPACITY` continuam abrindo "Data indisponível".
   - `PET_ALREADY_BOOKED` continua como erro abaixo dos pets, porque significa conflito do pet no período, não incompatibilidade com o Host.
 - **Dependência:** `expo-blur` instalado na versão compatível com o Expo SDK 58. Documentação consultada: [Expo BlurView](https://docs.expo.dev/versions/v58.0.0/sdk/blur-view/).
+## Fluxo do prestador
+### DT-26: Lista de solicitações pendentes do Host adaptada da lista do Tutor
+- **Data:** 2026-11-02 · **Task:** #486 · **Status:** Em validação
+- **Decisão:** a aba "Reservas" abre a rota `/reservas`, que consulta `GET /api/v1/me/host/reservations` com `status=requested`, `page=1` e `pageSize=20`.
+  - A tela usa o visual da lista de reservas do Tutor, adaptado ao Host: título "Solicitações pendentes", total aguardando resposta e cards com status, Tutor, pet, período, valor e observações.
+  - O card mostra porte/raça quando existirem, sem exibir telefone, e-mail ou outros dados do Tutor que a API não fornece.
+  - Há carregamento, estado vazio, erro com retry e atualização por gesto de puxar a lista.
+  - Aceitar e recusar ficam fora da #486. A task apenas permite tocar no card para a futura tela de detalhe/decisão do PBI #042.
+  - Usuários que não são Host recebem uma mensagem de acesso não habilitado quando a API responde 403.
+- **Motivo:** iniciar o fluxo do prestador pela fila de solicitações, cuja rota e dependência #485 já estão prontas, sem presumir as ações transacionais da #491.
+### DT-27: Área segura e data da solicitação no fuso local
+- **Data:** 2026-11-02 · **Task:** #486 · **Status:** Em validação
+- **Decisão:** a tela `/reservas` usa `SafeAreaView` do `react-native-safe-area-context`, compatível com iOS e Android. O timestamp `createdAt`, enviado em UTC, passa por `new Date()` antes de virar texto, para o dia seguir o fuso local do aparelho. Não se deve cortar os primeiros 10 caracteres do timestamp.
+## Decisão do Host
+### DT-28: Aceite e recusa de solicitação em detalhe próprio
+- **Data:** 2026-11-02 · **Task:** #492 · **Status:** Em validação
+- **Decisão:** tocar um card da fila `/reservas` abre `/reserva-host/[id]`. A nova tela busca a solicitação na página pendente do Host, usando apenas o id leve na rota; não foi inventado um GET individual que o back-end ainda não possui.
+  - O Host confirma o aceite ou a recusa em modal próprio. A recusa exige motivo aparado, entre 1 e 500 caracteres.
+  - Aceite: `POST /api/v1/me/host/reservations/:id/accept`. Recusa: `POST /api/v1/me/host/reservations/:id/reject` com `{ reason }`.
+  - Em sucesso, a tela volta para `/reservas`, que consulta a fila novamente. Conflitos e indisponibilidade são exibidos com mensagem compreensível.
+  - Os dados médicos e comportamentais do pet aparecem no detalhe quando a API os retornar.
+- **Motivo:** completar o fluxo iniciado pela #486, sem misturar as ações transacionais com a lista nem criar uma rota de detalhe inexistente no back-end.
 ## Perfil
 ### DT-29: Perfil como rota própria, com dados parciais e entrada do cadastro de Host
 - **Data:** 2026-11-07 · **Task:** #326 · **Status:** Aceita (esqueleto)

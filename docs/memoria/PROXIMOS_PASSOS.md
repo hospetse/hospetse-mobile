@@ -2,16 +2,18 @@
 
 Lista viva. Mova os itens entre as seções conforme o estado real, e apague da seção **Concluído** o que tiver mais de duas tasks (o histórico fica no `LOG_DESENVOLVIMENTO.md`).
 
-> Última atualização: 2026-11-07
+> Última atualização: 2026-11-08
 
 ## Próxima atividade recomendada
-0. **#326:** testar o cadastro de Host de ponta a ponta no Expo Go, com o back-end real e uma conta de teste (galeria, seletor de arquivos, envio, progresso, nova tentativa e retomada do rascunho); commit, push e PR (DT-31).
-1. **#300:** commit e PR (validada no Expo Go: "Sair" e renovação após 15 minutos).
-2. **#299:** revisão e merge do PR !72.
-3. **#495:** push e PR para a `develop` (aprovada no iPhone e commitada).
+0. **#326:** testar o cadastro de Host no Expo Go (Android e iOS) e com o back-end real; acompanhar a revisão do PR (DT-31).
+1. **#492:** teste no Expo Go com uma conta Host, commit e PR.
+2. **#300:** commit e PR (validada no Expo Go: "Sair" e renovação após 15 minutos).
+3. **#299:** revisão e merge do PR !72.
+4. **#495:** push e PR para a `develop` (aprovada no iPhone e commitada).
 
 ## Em andamento
-- **#326, Cadastro do Host no app:** branch `feature/326-implementar-o-cadastro-do-host-no-app`, a partir da `develop`. Tela de Perfil com o convite "Quero ser Host", aprovada visualmente e enviada à branch do Azure DevOps (DT-29). É só um esqueleto, não a tela final. Sem teste no Expo Go. Feitas as três telas do cadastro (espaço, fotos e localização, e "em análise") com o fluxo no app, sem chamar o back-end e sem commit (DT-30). Faltam a integração (rascunho, fotos, documentos e submissão), os campos que o protótipo não tem e o upload com progresso e nova tentativa. Depende do back-end #325 (rascunho e submissão) e do protótipo; a #322 está como Removed.
+- **#326, Cadastro do Host no app:** branch `feature/326-implementar-o-cadastro-do-host-no-app`. Perfil com "Quero ser Host" (DT-29); cadastro em duas etapas com rascunho retomável, envio de fotos e documentos com progresso e nova tentativa, erros do servidor na etapa certa e tela de análise, integrados à #325 (DT-30 e DT-31); Painel do Anfitrião como esqueleto (DT-32). Testado pela desenvolvedora na web; pronto para PR na `develop`. Falta testar no Expo Go (Android e iOS). Depende do design das seções que o protótipo não tinha e das tasks #315 e #406 (aprovação no painel Web).
+- **#492, Aceitar e recusar solicitações do Host:** implementada na branch `feature/492-implementar-as-acoes-de-aceitar-e-recusar-no-mobile` (DT-28). Falta teste manual, commit e PR.
 - **#299, Login e feedback da senha:** PR !72 aberto para a `develop`, aguardando revisão. Branch `feature/299-implementar-a-tela-de-login-e-a-integracao`.
 - **#300, Renovação de sessão e logout:** logout local (DT-25) na branch `feature/300-implementar-a-renovacao-de-sessao-e-o-logout-no-mobile`, criada sobre a da #299. Sem commit. Validada no Expo Go.
 - **#270, Testes do fluxo de cadastro:** testes complementares na branch `test/270-criar-testes-automatizados-do-fluxo-de-cadastro`, rebaseada na `develop` após o merge do PR !70. Falta push, PR e revisão.

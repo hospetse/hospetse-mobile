@@ -82,3 +82,13 @@ export function fromIsoDate(text: string | undefined): Date | null {
   }
   return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
 }
+
+// Formata um timestamp ISO usando o fuso horário local do aparelho.
+// Não corte a string antes da conversão: o servidor envia o instante em UTC.
+export function formatIsoDateTime(value: string | null): string {
+  if (!value) {
+    return 'Não informado';
+  }
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 'Não informado' : formatDate(date);
+}

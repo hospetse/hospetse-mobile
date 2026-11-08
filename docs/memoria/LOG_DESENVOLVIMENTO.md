@@ -366,6 +366,34 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Decisão:** DT-24.
 - **Verificação:** `tsc --noEmit` sem erros, 17 de 17 testes da reserva passando e a suíte completa será conferida antes do commit.
 - **Ficou pendente:** testar visualmente no Expo Go (iPhone e Android), conferir a web e commit/PR autorizados separadamente.
+## 2026-11-02: Lista de solicitações pendentes do Host (#486)
+- **Objetivo:** iniciar o fluxo do prestador com a fila de solicitações recebidas.
+- **Branch:** `feature/486-implementar-a-lista-de-solicitacoes-pendentes-no-mobile`, a partir da `develop` (`26ebfa3`).
+- **Arquivos:**
+  - `app/reservas.tsx` (novo): consulta a API, total, cards, carregamento, vazio, erro com retry, pull-to-refresh e aba Reservas ativa.
+  - `components/HostRequestCard.tsx` (novo): card adaptado da referência do Tutor para mostrar status, Tutor, pet, período, total e observações.
+  - `services/hostReservations.ts` (novo): tipo separado `HostPendingReservation` e `listPendingHostReservations`.
+  - `app/home.tsx` e `app/resultados.tsx`: a aba Reservas agora abre `/reservas`.
+  - `__tests__/host-reservations-test.tsx` (novo, 5 testes).
+- **Contrato usado:** `GET /api/v1/me/host/reservations?status=requested&page=1&pageSize=20`, dependência #485.
+- **Decisão:** DT-26. Aceitar/recusar não entrou nesta task.
+- **Verificação:** `tsc --noEmit` sem erros e 145 de 145 testes passando. Ainda não testado no Expo Go com uma conta Host.
+- **Ficou pendente:** teste manual, commit e PR; detalhe e decisões do PBI #042 em task posterior.
+## 2026-11-02: Correções apontadas no PR !77 da #486
+- **Correções:** `reservas.tsx` passou a usar `SafeAreaView` do `react-native-safe-area-context`; `HostRequestCard` passou a converter `createdAt` com `new Date()` antes de formatar o dia no fuso local do aparelho.
+- **Testes:** acrescentado teste de timestamp local. `tsc --noEmit` sem erros e 146 de 146 testes passando.
+## 2026-11-02: Aceitar e recusar solicitações do Host (#492)
+- **Objetivo:** permitir que o Host aceite ou recuse uma solicitação pendente pela tela adaptada da referência do histórico do Tutor.
+- **Branch:** `feature/492-implementar-as-acoes-de-aceitar-e-recusar-no-mobile`, a partir da `develop` após o merge do PR !77 (`986ed52`).
+- **Arquivos:**
+  - `app/reserva-host/[id].tsx` (novo): detalhe da solicitação, confirmação de aceite, recusa com motivo obrigatório, cuidados médicos e comportamento do pet.
+  - `services/hostReservations.ts`: tipos de decisão, POST de aceite/recusa e mensagens dos conflitos.
+  - `app/reservas.tsx`: cards agora abrem o detalhe.
+  - `__tests__/host-reservation-decision-test.tsx` (novo, 4 testes).
+- **Contrato:** `POST /api/v1/me/host/reservations/:id/accept` e `POST /api/v1/me/host/reservations/:id/reject` (#491).
+- **Decisão:** DT-28.
+- **Verificação:** `tsc --noEmit` sem erros e 150 de 150 testes passando. Ainda não testado no Expo Go com uma conta Host.
+- **Ficou pendente:** teste manual, commit e PR.
 ## 2026-11-07: Tela de Perfil e entrada do cadastro de Host (#326)
 - **Branch:** `feature/326-implementar-o-cadastro-do-host-no-app`, a partir da `develop` (`26ebfa3`).
 - **Escopo:** a tela de Perfil é só um esqueleto, não a versão final. Serve para dar ao usuário comum a entrada "Quero ser Host". Só nome e e-mail são dados reais.

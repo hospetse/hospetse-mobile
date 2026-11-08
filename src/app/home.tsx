@@ -107,6 +107,10 @@ export default function HomeScreen() {
       setSearchOpen(true);
       return;
     }
+    if (key === 'reservas') {
+      router.push('/reservas');
+      return;
+    }
     // O Perfil é outra rota: a Home continua com a aba Home ativa para quando o usuário voltar
     if (key === 'perfil') {
       router.push('/perfil');

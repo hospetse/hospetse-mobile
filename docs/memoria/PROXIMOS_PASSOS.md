@@ -8,7 +8,7 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 1. **#486:** teste no Expo Go com uma conta Host, commit e PR.
 
 ## Em andamento
-- **#486, Lista de solicitações pendentes do Host:** implementada na branch `feature/486-implementar-a-lista-de-solicitacoes-pendentes-no-mobile` (DT-26). Falta teste manual, commit e PR.
+  - **#486, Lista de solicitações pendentes do Host:** correções do PR !77 aplicadas na branch `feature/486-implementar-a-lista-de-solicitacoes-pendentes-no-mobile` (DT-26 e DT-27). Falta push, nova revisão e merge.
 
 ## Pendente
 - **Tela de Reservas do Tutor** ("Ver minhas reservas"): PBI #199 (HSP-PBI-046), sem task. O back-end ainda não tem a lista de reservas do Tutor.

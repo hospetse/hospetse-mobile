@@ -379,3 +379,6 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Decisão:** DT-26. Aceitar/recusar não entrou nesta task.
 - **Verificação:** `tsc --noEmit` sem erros e 145 de 145 testes passando. Ainda não testado no Expo Go com uma conta Host.
 - **Ficou pendente:** teste manual, commit e PR; detalhe e decisões do PBI #042 em task posterior.
+## 2026-11-02: Correções apontadas no PR !77 da #486
+- **Correções:** `reservas.tsx` passou a usar `SafeAreaView` do `react-native-safe-area-context`; `HostRequestCard` passou a converter `createdAt` com `new Date()` antes de formatar o dia no fuso local do aparelho.
+- **Testes:** acrescentado teste de timestamp local. `tsc --noEmit` sem erros e 146 de 146 testes passando.

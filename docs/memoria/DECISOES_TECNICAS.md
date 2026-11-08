@@ -283,3 +283,6 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
   - Aceitar e recusar ficam fora da #486. A task apenas permite tocar no card para a futura tela de detalhe/decisão do PBI #042.
   - Usuários que não são Host recebem uma mensagem de acesso não habilitado quando a API responde 403.
 - **Motivo:** iniciar o fluxo do prestador pela fila de solicitações, cuja rota e dependência #485 já estão prontas, sem presumir as ações transacionais da #491.
+### DT-27: Área segura e data da solicitação no fuso local
+- **Data:** 2026-11-02 · **Task:** #486 · **Status:** Em validação
+- **Decisão:** a tela `/reservas` usa `SafeAreaView` do `react-native-safe-area-context`, compatível com iOS e Android. O timestamp `createdAt`, enviado em UTC, passa por `new Date()` antes de virar texto, para o dia seguir o fuso local do aparelho. Não se deve cortar os primeiros 10 caracteres do timestamp.

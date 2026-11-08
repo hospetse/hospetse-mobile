@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { theme } from '../constants/theme';
 import { HostPendingReservation } from '../services/hostReservations';
-import { formatDate, fromIsoDate } from '../utils/calendar';
+import { formatDate, formatIsoDateTime, fromIsoDate } from '../utils/calendar';
 import { formatCurrency } from '../utils/money';
 import { Icon } from './Icon';
 
@@ -13,6 +13,10 @@ type HostRequestCardProps = {
 
 const SPECIES: Record<string, string> = { cat: 'Gato', dog: 'Cachorro' };
 const SIZES: Record<string, string> = { small: 'Pequeno', medium: 'Médio', large: 'Grande' };
+
+function createdAtLabel(value: string): string {
+  return `Solicitado em ${formatIsoDateTime(value)}`;
+}
 
 function dateLabel(value: string | null): string {
   const date = value ? fromIsoDate(value) : null;
@@ -34,7 +38,7 @@ export function HostRequestCard({ onPress, request }: HostRequestCardProps) {
         </View>
         <View style={styles.titleArea}>
           <Text style={styles.status}>PENDENTE</Text>
-          <Text style={styles.createdAt}>Solicitado em {dateLabel(request.createdAt.slice(0, 10))}</Text>
+          <Text style={styles.createdAt}>{createdAtLabel(request.createdAt)}</Text>
         </View>
       </View>
 

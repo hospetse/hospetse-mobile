@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import HostReservationsScreen, { hostReservationsErrorMessage } from '../src/app/reservas';
 import { backendApi } from '../src/services/api';
 import { HostPendingReservation } from '../src/services/hostReservations';
+import { formatDate, formatIsoDateTime } from '../src/utils/calendar';
 import { httpError, networkError } from '../test-utils/http';
 
 jest.mock('expo-router', () => ({
@@ -54,7 +55,7 @@ describe('Tela de solicitações pendentes do Host', () => {
       params: { status: 'requested', page: 1, pageSize: 20 },
     });
     expect(await screen.findByRole('header', { name: /solicitações pendentes/i })).toBeOnTheScreen();
-    expect(screen.getByText('Tutor')).toBeOnTheScreen();
+    expect(screen.getByText(`Solicitado em ${formatIsoDateTime(REQUEST.createdAt)}`)).toBeOnTheScreen();
     expect(screen.getByText('Ana Clara')).toBeOnTheScreen();
     expect(screen.getByText('Luna')).toBeOnTheScreen();
     expect(screen.getByText('18/12/2026')).toBeOnTheScreen();
@@ -77,6 +78,11 @@ describe('Tela de solicitações pendentes do Host', () => {
     expect(await screen.findByText('Não foi possível conectar. Verifique sua internet e tente de novo.')).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: 'Tentar de novo' }));
     expect(await screen.findByText('Ana Clara')).toBeOnTheScreen();
+  });
+
+  test('converte o timestamp UTC para o fuso local antes de formatar o dia', () => {
+    const timestamp = '2026-12-02T01:00:00.000Z';
+    expect(formatIsoDateTime(timestamp)).toBe(formatDate(new Date(timestamp)));
   });
 
   test('a aba Home volta para a Home', async () => {

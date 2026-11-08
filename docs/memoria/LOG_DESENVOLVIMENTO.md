@@ -373,8 +373,39 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Dados:** o Perfil mostra só o que o cadastro coleta: nome e e-mail, do `GET /api/v1/me`. Sem sessão, mostra "Usuário" e nenhum e-mail. O cadastro não tem foto, então o avatar é um ícone. Telefone, cidade, selo de verificação, pets de exemplo e a troca de foto foram removidos. Os textos do menu ainda são de exemplo.
 - **Ajustes pedidos após a primeira versão:** saíram "Minhas Reservas" (já há a aba) e "Garantia"; no lugar entrou "Completar perfil" (perfil `incomplete`, com selo "Pendente") ou "Editar perfil" (perfil `complete`).
 - **Sem ação ainda:** "Quero ser Host", "Acessar Meus Pets", linhas do menu (inclusive "Completar/Editar perfil"), sino e engrenagem.
-- **Decisão:** DT-26.
+- **Decisão:** DT-29.
 - **Verificação:** `tsc --noEmit` sem erros; Jest 140 de 140; `expo export --platform web` gerou o bundle `perfil`. Um teste temporário confirmou os cenários do Perfil (completo, incompleto, sem sessão, logout e aba Home) e foi removido. A desenvolvedora aprovou a tela visualmente; não foi testada no Expo Go.
 - **Testes:** não foram criados testes Jest do Perfil.
 - **Arquivos:** `app/perfil.tsx`, `app/home.tsx`, `components/StatusPill.tsx`, `components/ProfileMenuItem.tsx`, `components/HostInviteCard.tsx`, `components/Button.tsx`, `components/Icon.tsx` e `constants/theme.ts`.
 - **Commits:** um `feat:`, um `docs:` e outro `docs:` que marca a tela como esqueleto. Enviados ao Azure DevOps, na branch que a desenvolvedora criou, com a autorização dela.
+## 2026-11-07: Telas do cadastro de Host (#326)
+- **Branch:** `feature/326-implementar-o-cadastro-do-host-no-app`. Sem commit desta parte.
+- **O que mudou:** três rotas novas em `src/app/cadastro-host/`: etapa 1 "Torne-se Anfitrião" (espaço, portes, experiência, interruptores e apresentação), etapa 2 (fotos e localização) e a tela final "Cadastro enviado para análise". "Quero ser Host", no Perfil, abre a etapa 1. O estado das etapas fica no `HostRegistrationContext`, apagado ao sair da conta.
+- **Botão da etapa 2:** o protótipo repetia "Avançar para fotos e Endereço". Como não há tela depois dela, virou "Enviar para análise".
+- **Tela final:** segue os documentos do produto. O HPET10 (US-HPET10-01) diz que o perfil nasce "pendente de validação" e não recebe reservas antes da aprovação do Administrador (HPET20b). O inventário de telas trata o cadastro de Host como jornada nova ("documentos, fotos e pendente de validação"), sem frames no Figma.
+- **Lógica nova:** máscara e busca de CEP no ViaCEP (`zip-code.ts`), seleção de foto na galeria (`photo-picker.ts`, limite de 5 MB) e validações que espelham o back-end (`validateHostRegistration.ts`). Componentes: `OptionCard`, `SwitchRow`, `FormField`, `PhotoTile`, `HostFormHeader`, `HostTermsNote`. Cinco ícones oficiais novos. Dependência nova: `expo-image-picker ~58.0.10`.
+- **Não fazia ainda (resolvido na entrada seguinte, DT-31):** nenhuma chamada ao back-end, porque as rotas da #325 estavam só na branch do back-end.
+- **Lacunas entre o protótipo e o back-end (#325):** para submeter, o back-end exige CPF ou CNPJ, capacidade, espécies aceitas e os documentos `identity` e `proof_of_address` (mais `cnpj_card` para CNPJ). Essas telas não existem no protótipo. Em sentido contrário, o protótipo tem estrutura do espaço, outros pets, experiência, idosos/medicação e castrados, que o contrato não aceita (rejeita campo desconhecido). Ver DT-30.
+- **Verificação:** `tsc --noEmit` sem erros; Jest 140 de 140; build web ok; servidor de desenvolvimento compilou sem erro. Dois testes temporários (10 cenários das telas e 8 dos serviços e validações) passaram e foram removidos. Não testado no Expo Go (galeria de fotos e busca de CEP em aparelho real).
+- **Testes:** não foram criados testes Jest do cadastro de Host.
+- **Arquivos:** `app/cadastro-host/*`, `app/_layout.tsx`, `app/perfil.tsx`, `context/HostRegistrationContext.tsx`, `constants/hostRegistration.ts`, `constants/theme.ts`, `services/photo-picker.ts`, `services/zip-code.ts`, `utils/formatZipCode.ts`, `utils/validateHostRegistration.ts`, seis componentes novos, `components/Icon.tsx`, `package.json` e `package-lock.json`.
+## 2026-11-08: Integração do cadastro de Host com o back-end (#326)
+- **Branch:** `feature/326-implementar-o-cadastro-do-host-no-app`. Sem commit desta parte.
+- **Contexto:** a #325 do back-end foi mergeada na `develop` (PR 75) e as rotas já estão no contrato publicado do Railway. A #326 passou para a Sprint 8.
+- **O que mudou:**
+  - Rascunho: a etapa 1 salva em `PUT /api/v1/me/host` ao avançar; o Perfil busca `GET /api/v1/me/host` e retoma na etapa onde o usuário parou (etapa 2 se a 1 estiver completa, tela de análise se já foi enviado).
+  - Envio: "Enviar para análise" salva o rascunho completo, sobe fotos e documentos um por requisição (com progresso) e submete. Em falha, a janela de envio mostra o motivo e "Tentar de novo", que não repete o que já subiu. Arquivo recusado pelo servidor mostra o motivo, sem repetir.
+  - Erros do servidor: o `VALIDATION_ERROR` por campo aparece no campo certo; os da etapa 1 voltam para ela; `HOST_ALREADY_SUBMITTED` leva à tela de análise.
+  - Campos que o back-end exige e o protótipo não tinha: espécies (cães e gatos), capacidade, CPF ou CNPJ (com dígitos verificadores) e documentos (identidade, comprovante de endereço e, para CNPJ, cartão CNPJ). Entraram como seções nas duas telas, sem design no Figma. O nome do Host é o da conta.
+  - Tela de análise mostra pendente, aprovado ou não aprovado.
+  - Dependência nova: `expo-document-picker ~58.0.4`. Componentes novos: `DocumentRow` e `UploadProgressModal`. `HostInviteCard` ganhou `loading`.
+- **Testes novos (3 arquivos, 56 testes):** `host-registration-service-test.ts` (validações, CPF/CNPJ, erros, cliente e fila de envio), `host-registration-test.tsx` (navegação entre etapas, erros do servidor, falha e nova tentativa de upload, retomada e entrada pelo Perfil) e `host-pickers-test.ts` (CEP, foto e documento).
+- **Verificação:** `tsc --noEmit` sem erros; Jest 196 de 196; build web ok. **Não rodei contra o back-end real**, para não criar rascunho de Host na conta; só com a API mockada. Não testado no Expo Go (galeria, seletor de arquivos, envio multipart e progresso em aparelho).
+- **Limitações:** estrutura do espaço, outros pets, experiência, idosos/medicação e castrados não têm campo no back-end: não são enviados nem voltam ao retomar. Foto e documento já enviados não podem ser removidos (sem rota). Ao retomar, as fotos do servidor aparecem numa lista à parte, não nos espaços de Sala, Copa e Quintal.
+## 2026-11-08: Painel do Anfitrião (prévia) e teste do cadastro de Host (#326)
+- **Branch:** `feature/326-implementar-o-cadastro-do-host-no-app`. Sem commit desta parte.
+- **Teste real:** com um e-mail do Gmail o PIN chegou e a conta foi criada. A desenvolvedora fez o cadastro de Host em produção, enviou fotos e documentos (o progresso apareceu) e o app respondeu "enviado". O perfil fica `pending`: só vira Anfitrião quando o Administrador aprova (HPET20b), e o back-end ainda não tem a rota de aprovação (ela é das tasks #315 e #406, no painel Web).
+- **O que mudou:** nova rota `/anfitriao` (Painel do Anfitrião, esqueleto com dados de exemplo) e `SAMPLE_HOST_PANEL` em `sampleData.ts`. A tela de análise ganhou o botão "Abrir painel do Anfitrião" quando o cadastro está aprovado e, só em `__DEV__`, o link "Ver prévia do painel do Anfitrião". Cinco ícones oficiais novos.
+- **Base:** casos de uso do módulo Host (HPET10a, 10b, 11, 11a, 12, 12a, 12b, 12c, 12d, 12e, 12f, 06b, 06c) e a jornada "J08 — Operação Mobile do Host" do inventário de telas, que lista as telas como "novas", sem frames no Figma.
+- **Decisão:** DT-32.
+- **Verificação:** `tsc --noEmit` sem erros; Jest 199 de 199 com um teste temporário do painel (removido). Painel não testado no Expo Go. Sem testes permanentes do painel.

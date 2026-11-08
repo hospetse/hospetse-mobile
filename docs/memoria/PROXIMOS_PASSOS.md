@@ -5,13 +5,13 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 > Última atualização: 2026-11-07
 
 ## Próxima atividade recomendada
-0. **#326:** testar o Perfil no Expo Go e começar a primeira etapa do cadastro de Host (ligar o botão "Quero ser Host").
+0. **#326:** testar o cadastro de Host de ponta a ponta no Expo Go, com o back-end real e uma conta de teste (galeria, seletor de arquivos, envio, progresso, nova tentativa e retomada do rascunho); commit, push e PR (DT-31).
 1. **#300:** commit e PR (validada no Expo Go: "Sair" e renovação após 15 minutos).
 2. **#299:** revisão e merge do PR !72.
 3. **#495:** push e PR para a `develop` (aprovada no iPhone e commitada).
 
 ## Em andamento
-- **#326, Cadastro do Host no app:** branch `feature/326-implementar-o-cadastro-do-host-no-app`, a partir da `develop`. Tela de Perfil com o convite "Quero ser Host", aprovada visualmente e enviada à branch do Azure DevOps (DT-26). É só um esqueleto, não a tela final. Sem teste no Expo Go. Faltam as etapas do cadastro, o rascunho, o upload com progresso e a tela "em análise". Depende do back-end #325 (rascunho e submissão) e do protótipo; a #322 está como Removed.
+- **#326, Cadastro do Host no app:** branch `feature/326-implementar-o-cadastro-do-host-no-app`, a partir da `develop`. Tela de Perfil com o convite "Quero ser Host", aprovada visualmente e enviada à branch do Azure DevOps (DT-29). É só um esqueleto, não a tela final. Sem teste no Expo Go. Feitas as três telas do cadastro (espaço, fotos e localização, e "em análise") com o fluxo no app, sem chamar o back-end e sem commit (DT-30). Faltam a integração (rascunho, fotos, documentos e submissão), os campos que o protótipo não tem e o upload com progresso e nova tentativa. Depende do back-end #325 (rascunho e submissão) e do protótipo; a #322 está como Removed.
 - **#299, Login e feedback da senha:** PR !72 aberto para a `develop`, aguardando revisão. Branch `feature/299-implementar-a-tela-de-login-e-a-integracao`.
 - **#300, Renovação de sessão e logout:** logout local (DT-25) na branch `feature/300-implementar-a-renovacao-de-sessao-e-o-logout-no-mobile`, criada sobre a da #299. Sem commit. Validada no Expo Go.
 - **#270, Testes do fluxo de cadastro:** testes complementares na branch `test/270-criar-testes-automatizados-do-fluxo-de-cadastro`, rebaseada na `develop` após o merge do PR !70. Falta push, PR e revisão.
@@ -33,7 +33,11 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 - **Home com dados reais:** o nome e o aviso do perfil vêm do `/me` após login ou cadastro. Os cards de exemplo ainda abrem um id que não existe na API ("Hospedagem não encontrada") e precisam de uma rota de destaques.
 - **Botões sem ação:** "Ver todos" e a galeria completa.
 - **Perfil (#326), só um esqueleto:** sem ação "Quero ser Host", "Acessar Meus Pets", as cinco linhas do menu (inclusive "Completar/Editar perfil", que precisa de uma tela de edição com troca de foto), sino e engrenagem. Os textos do menu são de exemplo e "Meus Pets" não mostra os pets reais. A aba Perfil só abre a partir da Home (os resultados ainda não a ligam). Esconder o convite de Host e "Meus Pets" por papel depende de o `/me` informar isso.
-- **Testes Jest do Perfil:** não foram criados.
+- **Testes Jest do Perfil:** só a entrada "Quero ser Host" está coberta; o resto do Perfil não tem teste.
+- **Painel do Anfitrião (#326, DT-32):** é um esqueleto com dados de exemplo e sem telas nos 7 acessos. Cada um vira tela nas tasks do Host (jornada J08). Ligar primeiro as rotas que já existem: solicitações (`GET /me/host/reservations`, aceitar e recusar) e agenda. A aprovação do cadastro depende das tasks #315 e #406 (painel Web). O Perfil deveria trocar "Quero ser Host" por "Painel do Anfitrião" quando o `/me` informar o papel.
+- **Cadastro de Host (#326), design:** espécies, capacidade, CPF ou CNPJ e documentos foram acrescentados às duas telas porque o back-end os exige, mas não têm design no Figma. Pedir revisão da UX e da PO.
+- **Cadastro de Host (#326), dados sem campo no back-end:** estrutura do espaço, outros pets, experiência, idosos/medicação e castrados ficam só no app e se perdem ao retomar. Decidir com a PO e o Lucas se o contrato ganha esses campos.
+- **Cadastro de Host (#326), limites:** o back-end não tem rota para remover foto ou documento já enviado; as fotos do servidor aparecem numa lista à parte ao retomar; mapa real no lugar do bloco de aviso; revisão final antes do envio (a tarefa cita "revisão"); revisar o texto do interruptor "castrados"; motivo da reprovação ainda não chega ao app.
 - **Pets da busca:** o `SearchModal` ainda usa os pets de exemplo (#371); a reserva já usa os pets reais.
 - Itens da #477: o aviso para Tutor sem pet (tela 08I).
 - Itens da #472: estados de carregamento, vazio e erro e testes da Home; navegação de Reservas, Perfil, "ver mais" e sino.
@@ -56,7 +60,7 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 - Criar os testes Jest da Home.
 
 ## Informações necessárias para continuar
-- O link do Figma "Hospetse - Design Telas" com as telas do cadastro de Host (#326): o Azure DevOps não trouxe o anexo, e a #322 está como Removed.
+- O design das seções de identificação, documentos, espécies e capacidade do cadastro de Host (#326). O Azure DevOps não trouxe o anexo, e a #322 está como Removed.
 - As telas 08D, 08E e 08I do Figma (HPET03), para o Tutor sem pet.
 - A confirmação da regra "não criar pastas fora de `src/`" para a pasta `docs/` (DT-10).
 - No Azure Boards: tempo trabalhado e status das tasks. Isso cabe à desenvolvedora.

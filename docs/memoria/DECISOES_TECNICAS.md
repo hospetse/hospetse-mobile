@@ -274,9 +274,9 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
   - `PET_ALREADY_BOOKED` continua como erro abaixo dos pets, porque significa conflito do pet no período, não incompatibilidade com o Host.
 - **Dependência:** `expo-blur` instalado na versão compatível com o Expo SDK 58. Documentação consultada: [Expo BlurView](https://docs.expo.dev/versions/v58.0.0/sdk/blur-view/).
 ## Perfil
-### DT-26: Perfil como rota própria, com dados parciais e entrada do cadastro de Host
+### DT-29: Perfil como rota própria, com dados parciais e entrada do cadastro de Host
 - **Data:** 2026-11-07 · **Task:** #326 · **Status:** Aceita (esqueleto)
-- **Decisão:** `/perfil` é uma rota do Stack, aberta por `router.push` na aba Perfil da Home. No Perfil, a aba Home usa `router.dismissTo('/home')`, a aba Buscar abre o `SearchModal` por cima e a aba Reservas segue sem tela. O Perfil mostra "Sair da conta" com o logout local da DT-25.
+- **Decisão:** `/perfil` é uma rota do Stack, aberta por `router.push` na aba Perfil da Home. No Perfil, a aba Home usa `router.dismissTo('/home')`, a aba Buscar abre o `SearchModal` por cima e a aba Reservas abre `/reservas` (as solicitações do Host, #486). O Perfil mostra "Sair da conta" com o logout local da DT-25.
   - **Esqueleto:** a tela é só a estrutura do Perfil, não a versão final. O objetivo é dar ao usuário comum a entrada "Quero ser Host". Os textos do menu são de exemplo e quase todos os botões não têm ação. A tela final virá em outra task.
   - **Dados:** o Perfil mostra só o que o cadastro coleta (nome e e-mail, do `/me`) e nunca dados inventados: sem sessão, aparece "Usuário" e nenhum e-mail. O cadastro não tem foto, então o avatar é um ícone. Telefone, cidade, selo de verificação, pets de exemplo e a troca de foto não entram; a troca de foto fica na futura tela de editar perfil. Os textos do menu são de exemplo.
   - **Perfil do usuário comum:** a tela não é específica de Tutor nem de Host, e o título é "Meu Perfil". "Minhas Reservas" saiu do menu (já existe a aba Reservas). O último item do menu depende do `profile.status` do `/me`: `incomplete` mostra "Completar perfil" com o selo "Pendente"; `complete` mostra "Editar perfil". Ainda sem ação, até existir a tela de edição.
@@ -285,3 +285,34 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
   - **Barra de abas:** o protótipo tem 5 abas (com "Mensagens"). O app mantém as 4 abas atuais, porque não há tela de mensagens.
   - **Versão do app:** o rodapé lê a versão do `app.json` por `expo-constants`, em vez do texto fixo do protótipo.
 - **Limite:** "Meus Pets" e "Quero ser Host" aparecem para todo usuário, porque o `/me` ainda não informa papéis. "Meus Pets" não mostra os pets reais.
+### DT-30: Cadastro de Host em três rotas, com estado em memória e sem chamar o back-end
+- **Data:** 2026-11-07 · **Task:** #326 · **Status:** Aceita, exceto o "sem chamar o back-end" e as lacunas, substituídos pela DT-31
+- **Decisão:** o cadastro tem três rotas: `/cadastro-host` (espaço), `/cadastro-host/fotos` (fotos e localização) e `/cadastro-host/analise` (tela final). Os dados passam entre elas pelo `HostRegistrationContext`, só em memória, apagado ao concluir, ao sair da conta e ao fechar o app.
+  - **Tela final:** "Cadastro enviado para análise", com o selo "Pendente de validação". O texto segue US-HPET10-01 (perfil "pendente de validação", sem reservas antes da aprovação) e US-HPET20B (aparece nas buscas só depois de aprovado; rejeição avisa com o motivo). O botão "Enviar para análise" da etapa 2 substitui o "Avançar para fotos e Endereço" repetido do protótipo. A tela bloqueia o gesto e o botão voltar do Android, para não reabrir as etapas.
+  - **Esqueleto de integração:** o envio ainda não chama o back-end, porque as rotas da #325 não estão publicadas (só na branch `feature/325-...`). Os pontos de ligação estão marcados com `shortcut:` em `fotos.tsx` e `ESQUELETO` nos arquivos das telas.
+  - **CEP:** a busca usa o ViaCEP, serviço público de terceiros (`axios` próprio, sem o token do Hospetse). Só os 8 dígitos saem do aparelho, e a resposta é validada antes de usar. Bairro e cidade/UF vêm do CEP e ficam bloqueados; o bairro libera quando o CEP não o traz. Mudar o CEP depois da busca exige buscar de novo.
+  - **Fotos:** `expo-image-picker` (módulo do Expo Go, sem permissão para a galeria do sistema). Limite de 5 MB por foto, igual ao back-end. O tipo do arquivo fica para o back-end, que confere pelo conteúdo.
+  - **Mapa:** o protótipo mostra um mapa. Foi trocado por um bloco com o aviso "Apenas bairro e raio aproximado (500m) aparecem na busca", porque um mapa nativo exigiria development build.
+- **Lacunas a resolver com a PO e o Lucas (#325):**
+  - Faltam no protótipo: CPF ou CNPJ, capacidade, espécies aceitas (cão e gato) e os documentos `identity`, `proof_of_address` e `cnpj_card`. Sem eles, `POST /me/host/submit` devolve 400.
+  - Sem campo no contrato (que rejeita campo desconhecido): estrutura do espaço, outros pets, experiência, idosos/medicação e castrados.
+  - `name` é obrigatório no back-end; a tela não pergunta (sugestão: usar o nome do cadastro).
+  - O texto do interruptor "Aceita animais castrados?" ("Requer mais atenção com marcação de território") parece descrever animais não castrados. Copiado como está no protótipo.
+### DT-31: Integração do cadastro de Host com a #325, com retomada, progresso e nova tentativa
+- **Data:** 2026-11-08 · **Task:** #326 · **Status:** Em validação (só com a API mockada)
+- **Decisão:** o cadastro usa as rotas da #325 pelo `backendApi`: `GET` e `PUT /api/v1/me/host`, `POST .../photos`, `POST .../documents` e `POST .../submit`. Substitui o "sem chamar o back-end" e as lacunas da DT-30.
+  - **Rascunho retomável:** a etapa 1 salva ao avançar. O Perfil lê o cadastro e abre a etapa onde o Host parou: etapa 2 se a 1 estiver completa (com a 1 por baixo, para o voltar), tela de análise se já foi enviado. O CPF ou CNPJ volta mascarado (`***4725`): em branco, o do servidor é mantido.
+  - **Envio em fila:** `submitHostRegistration` salva o rascunho completo, sobe um arquivo por requisição (capa primeiro, porque o back-end usa a primeira foto como principal) e submete. Para na primeira falha e informa a fase e o arquivo. Nova tentativa salva o rascunho de novo (idempotente) e pula os arquivos já enviados, guardados no contexto como "campo|arquivo" -> id. Trocar o arquivo do campo envia de novo.
+  - **Erros do servidor** (`toHostError`): `VALIDATION_ERROR` por campo vai para o campo da tela, e os da etapa 1 voltam para ela; `HOST_ALREADY_SUBMITTED` leva à análise; `STORAGE_UNAVAILABLE`, `HOST_DRAFT_CONFLICT` e falta de rede permitem tentar de novo; `FILE_LIMIT_REACHED` e arquivo recusado não (é preciso trocar o arquivo).
+  - **Campos que o protótipo não tinha** e o back-end exige para submeter: espécies, capacidade, CPF ou CNPJ e documentos. Foram acrescentados como seções nas duas telas, sem design no Figma, e precisam de revisão da UX/PO. Usei o nome da conta como `name`.
+  - **Documentos:** `expo-document-picker` (PDF, JPEG ou PNG, até 10 MB). Foto e documento seguem o limite do back-end, que confere o tipo pelo conteúdo.
+  - **Multipart:** `FormData` com o campo `type` (documentos) antes do `file`, `Content-Type: multipart/form-data` sem boundary (o React Native completa) e timeout de 60 s por arquivo.
+- **Não persiste no back-end:** estrutura do espaço, outros pets, experiência, idosos/medicação e castrados. Ficam no app, não são enviados e se perdem ao retomar. Decisão pendente com a PO e o Lucas.
+- **Limites:** sem rota para remover foto ou documento já enviado; fotos do servidor aparecem numa lista à parte ao retomar. Não foi testado contra o back-end real nem em aparelho.
+### DT-32: Painel do Anfitrião como esqueleto, aberto só com o cadastro aprovado
+- **Data:** 2026-11-08 · **Task:** #326 · **Status:** Em validação visual
+- **Decisão:** a interface do Anfitrião é a rota `/anfitriao`. Os documentos de produto não trazem telas do Host (o inventário lista a jornada J08 como "nova", sem frames no Figma); a estrutura vem dos casos de uso do módulo Host: solicitações (HPET12, 12a), hospedagem ativa (12b, 12c, 12d), agenda (11), preços (11a), financeiro e repasse (12e, 12f), Assistente de IA e conversas escaladas (06b, 06c) e perfil (10a, 10b).
+  - **Quando abre:** o botão "Abrir painel do Anfitrião" aparece na tela de análise só com `validationStatus = approved`. Em `__DEV__` há também um link de prévia, porque a aprovação é do Administrador e o back-end ainda não tem a rota de aprovação (tasks #315 e #406, no Web).
+  - **Modo:** o mesmo usuário pode ser Tutor e Host (o schema permite). O painel tem "Voltar ao modo Tutor".
+  - **Esqueleto:** ganhos, saldo e hospedagens ativas são de exemplo (`SAMPLE_HOST_PANEL`). Só "Solicitações de reserva" tem tela: abre `/reservas`, a lista real feita na #486 (e a decisão da #492). Os outros 6 acessos ainda não fazem nada. Rotas do back-end que já existem para ligar depois: `GET/POST/DELETE /me/host/agenda`.
+- **Limite:** o Perfil ainda mostra "Quero ser Host" para quem já é Host aprovado (o `/me` não informa o papel); o botão leva à tela de análise, que então mostra o botão do painel.

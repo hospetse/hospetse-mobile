@@ -148,6 +148,8 @@ export default function ResultsScreen() {
       setSearchOpen(true);
     } else if (key === 'reservas') {
       router.push('/reservas');
+    } else if (key === 'perfil') {
+      router.push('/perfil');
     } else if (key === 'home') {
       router.back();
     }

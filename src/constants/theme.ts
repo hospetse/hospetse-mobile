@@ -23,7 +23,7 @@ export const theme = {
     rangeFill: '#FFDDC2',
     // Filtros
     selectedTint: '#FFF4EB',
-    // Perfil
+    // Perfil: cinza com contraste AA no branco e pares cor/fundo dos ícones e selos
     textMuted: '#6B6B6B',
     blue: '#3B6FE0',
     blueTint: '#E8F0FE',
@@ -84,6 +84,10 @@ export const theme = {
     // Perfil
     profileAvatar: 80,
     menuIcon: 40,
+    // Cadastro de Host
+    textAreaHeight: 140,
+    coverHeight: 180,
+    mapHeight: 120,
   },
   icon: {
     small: 12,

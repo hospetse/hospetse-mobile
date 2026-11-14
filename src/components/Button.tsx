@@ -11,6 +11,7 @@ type ButtonProps = {
 };
 
 // Enquanto loading, o botão fica desabilitado para não enviar duas vezes.
+// O ícone opcional aparece depois do texto
 export function Button({ onPress, title, icon, loading = false }: ButtonProps) {
   return (
     <TouchableOpacity

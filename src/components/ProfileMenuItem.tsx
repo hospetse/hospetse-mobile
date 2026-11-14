@@ -11,9 +11,12 @@ type ProfileMenuItemProps = {
   subtitle: string;
   title: string;
   badge?: string;
+  badgeBackground?: string;
+  badgeColor?: string;
   onPress?: () => void;
 };
 
+// Linha do menu "Minha conta": ícone colorido, título, subtítulo, selo opcional e seta
 export function ProfileMenuItem({
   icon,
   iconBackground,
@@ -21,6 +24,8 @@ export function ProfileMenuItem({
   subtitle,
   title,
   badge,
+  badgeBackground = theme.colors.selectedTint,
+  badgeColor = theme.colors.subtitle,
   onPress,
 }: ProfileMenuItemProps) {
   return (
@@ -33,7 +38,7 @@ export function ProfileMenuItem({
         <Text style={styles.subtitle}>{subtitle}</Text>
       </View>
       {badge ? (
-        <StatusPill backgroundColor={theme.colors.selectedTint} color={theme.colors.subtitle} label={badge} />
+        <StatusPill backgroundColor={badgeBackground} color={badgeColor} label={badge} />
       ) : null}
       <Icon color={theme.colors.placeholder} name="chevron_right" size={theme.icon.large} />
     </TouchableOpacity>
@@ -54,7 +59,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: theme.spacing.menuIcon,
   },
-  texts: { flex: 1 },
+  texts: {
+    flex: 1,
+  },
   title: {
     color: theme.colors.title,
     fontFamily: theme.fonts.semiBold,

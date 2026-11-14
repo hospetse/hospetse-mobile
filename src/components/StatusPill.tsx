@@ -10,6 +10,7 @@ type StatusPillProps = {
   icon?: IconName;
 };
 
+// Selo arredondado com texto curto e ícone opcional (ex.: "1 ativa", "Saudáveis")
 export function StatusPill({ backgroundColor, color, label, icon }: StatusPillProps) {
   return (
     <View style={[styles.pill, { backgroundColor }]}>

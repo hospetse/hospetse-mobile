@@ -26,6 +26,17 @@ function dateLabel(value: string): string {
   return parsed ? formatDate(parsed) : value;
 }
 
+function statusLabel(status: TutorTracking['reservation']['status']): string {
+  return status === 'completed' ? 'Concluída' : 'Em andamento';
+}
+
+function statusColors(status: TutorTracking['reservation']['status']): { color: string; background: string } {
+  return status === 'completed'
+    ? { color: theme.colors.green, background: theme.colors.greenTint }
+    : { color: theme.colors.blue, background: theme.colors.blueTint };
+}
+
+
 export default function TrackingScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [tracking, setTracking] = useState<TutorTracking | null>(null);
@@ -49,11 +60,9 @@ export default function TrackingScreen() {
     }
 
     void load();
-    // A API real será consultada periodicamente quando o endpoint estiver disponível.
-    const interval = setInterval(() => void load(), 30000);
+    // A atualização periódica entra quando a API real estiver disponível.
     return () => {
       active = false;
-      clearInterval(interval);
     };
   }, [id, attempt]);
 
@@ -89,6 +98,7 @@ export default function TrackingScreen() {
   }
 
   const { reservation, steps } = tracking;
+  const status = statusColors(reservation.status);
 
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
@@ -110,7 +120,7 @@ export default function TrackingScreen() {
               <Text style={styles.hostName}>{reservation.hostName}</Text>
               <Text style={styles.location}>{reservation.hostLocation}</Text>
             </View>
-            <StatusPill backgroundColor={theme.colors.blueTint} color={theme.colors.blue} label="Em andamento" />
+            <StatusPill backgroundColor={status.background} color={status.color} label={statusLabel(reservation.status)} />
           </View>
           <View style={styles.summaryDetails}>
             <View><Text style={styles.label}>Pet</Text><Text style={styles.value}>{reservation.petName}</Text></View>
@@ -132,7 +142,7 @@ export default function TrackingScreen() {
               <View style={styles.stepText}>
                 <Text style={[styles.stepTitle, step.status === 'current' && styles.currentText]}>{step.title}</Text>
                 <Text style={styles.stepDescription}>{step.description}</Text>
-                {step.date ? <Text style={styles.stepDate}>{step.date}</Text> : null}
+                {step.date ? <Text style={styles.stepDate}>{dateLabel(step.date)}</Text> : null}
               </View>
             </View>
           ))}
@@ -166,12 +176,12 @@ const styles = StyleSheet.create({
   total: { color: theme.colors.title, fontFamily: theme.fonts.bold, fontSize: theme.typography.button, marginTop: theme.spacing.tiny },
   sectionTitle: { color: theme.colors.title, fontFamily: theme.fonts.bold, fontSize: theme.typography.sectionTitle, marginTop: theme.spacing.page },
   timelineCard: { backgroundColor: theme.colors.white, borderRadius: theme.radius.card, boxShadow: theme.shadow.soft, marginTop: theme.spacing.medium, padding: theme.spacing.large },
-  timelineRow: { flexDirection: 'row', gap: theme.spacing.medium, minHeight: 90 },
+  timelineRow: { flexDirection: 'row', gap: theme.spacing.medium, minHeight: theme.spacing.footer + theme.spacing.large },
   timelineRail: { alignItems: 'center', width: theme.spacing.large },
   stepIcon: { alignItems: 'center', backgroundColor: theme.colors.green, borderRadius: theme.radius.round, height: theme.spacing.large, justifyContent: 'center', width: theme.spacing.large },
   currentStep: { backgroundColor: theme.colors.button },
   upcomingStep: { backgroundColor: theme.colors.divider },
-  line: { backgroundColor: theme.colors.divider, flex: 1, width: 2 },
+  line: { backgroundColor: theme.colors.divider, flex: 1, width: theme.spacing.tiny / 2 },
   completedLine: { backgroundColor: theme.colors.green },
   stepText: { flex: 1, paddingBottom: theme.spacing.medium },
   stepTitle: { color: theme.colors.title, fontFamily: theme.fonts.semiBold, fontSize: theme.typography.button },

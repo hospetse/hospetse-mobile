@@ -20,3 +20,11 @@ export const SAMPLE_PETS: PetSummary[] = [
     imageUri: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=300',
   },
 ];
+
+// PROVISÓRIO: números do painel do Anfitrião (#326) até as telas e as APIs de solicitações,
+// hospedagens e financeiro do Host existirem
+export const SAMPLE_HOST_PANEL = {
+  activeStays: 1,
+  monthEarnings: 1250,
+  availableBalance: 840,
+};

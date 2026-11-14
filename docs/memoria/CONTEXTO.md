@@ -1,7 +1,7 @@
 # Contexto do projeto: Hospetse Mobile
 
 > Resumo principal para retomar o trabalho. Mantenha curto e fiel ao código.
-> Última atualização: 2026-11-04. Descreve a `develop` (`26ebfa3`, com o PR !76) mais a #486 na branch `feature/486-implementar-a-lista-de-solicitacoes-pendentes-no-mobile`.
+> Última atualização: 2026-11-11. Descreve a implementação da #371 na branch `feature/371-implementar-a-lista-e-o-cadastro-de-pets`, baseada na `develop` (`b6eb43b`).
 >
 > Os repositórios `hospetse-backend` e `hospetse-auth-service` estão clonados em `HOSPETSE/`, ao lado deste. Use-os para ler as rotas reais (rodar `git pull` antes). Não edite sem pedido.
 
@@ -37,10 +37,10 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `src/constants/theme.ts` | Cores, fontes, espaçamentos, raios, tipografia e sombras. É a única fonte de valores visuais. |
 | `src/constants/terms.ts` | Versão dos Termos de Uso enviada no cadastro. |
 | `src/constants/search.ts` | Serviços (com nomes no singular e no plural), portes, comodidades filtráveis e faixa de preço. |
-| `src/constants/sampleData.ts` | Tutor e pets de exemplo, compartilhados pela Home e pelos resultados (provisório). |
+| `src/constants/sampleData.ts` | Usuário de exemplo e fallback de pets somente para a prévia de desenvolvimento do chat. |
 | `src/constants/sampleChat.ts`, `addOns.ts` | Conversa de exemplo do chat e serviços adicionais da reserva (provisórios). |
-| `src/context/SignupContext.tsx`, `SessionContext.tsx` | Dados do cadastro e perfil atual, somente em memória. O `SessionContext` tem o `logout()` local (DT-25). |
-| `src/services/` | `api.ts` (`authApi`, `backendApi` com token e renovação, `SessionExpiredError`), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`, `isRequestError`), `token-storage.ts` (SecureStore nativo), `token-storage.web.ts` (tokens em memória), `users.ts` (`GET /api/v1/me`), `hostReservations.ts` (fila de solicitações do Host) e os serviços de Hosts, pets e reservas do Tutor. |
+| `src/context/SignupContext.tsx`, `SessionContext.tsx`, `PetsContext.tsx` | Dados do cadastro, perfil atual e lista de pets do Tutor, somente em memória. O `SessionContext` tem o `logout()` local (DT-25), e o `PetsContext` carrega e atualiza pets pela API (DT-29). |
+| `src/services/` | `api.ts` (`authApi`, `backendApi` com token e renovação, `SessionExpiredError`), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`, `isRequestError`), `token-storage.ts` (SecureStore nativo), `token-storage.web.ts` (tokens em memória), `users.ts` (`GET /api/v1/me`), `pets.ts` (`GET` e `POST /api/v1/me/pets`), `hostReservations.ts` (fila de solicitações do Host) e os serviços de Hosts e reservas do Tutor. |
 | `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`, `validateSignup`, `validateLogin`, `validateReservation`, `calendar`, `chat`, `money` e `searchParams`, que converte a busca em parâmetros da rota). |
 | `__tests__/`, `test-utils/` | Testes Jest e utilitários de teste (erros HTTP falsos, espião do console). |
 | `.kiro/steering/` | Regras do Kiro: arquitetura e código (`hospetse-architecture.md`), git (`git-workflow.md`), memória (`memoria-projeto.md`) e retomada (`retomar-contexto.md`, manual). |
@@ -60,11 +60,14 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas", que abre o chat (#520), e "Solicitar reserva", que abre a confirmação (#495). Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
 | `/chat/[id]` | `chat/[id].tsx` | **#520.** Chat com o Host, aberto pelo detalhe com `checkIn`, `checkOut` e `petId`. Cabeçalho com voltar, foto, nome, status e mais opções (sem ligar). Faixa "Interesse em reservar" com datas, total e pet. Mensagens do Assistente ("Ativa"), do Tutor e do Host ("Atendimento Humano"), separadas por dia, com imagem e sugestões rápidas. Conversa de exemplo; o envio só mostra a mensagem na tela (DT-22). |
 | `/reservas` | `reservas.tsx` | **#486.** Lista as solicitações pendentes recebidas pelo Host via `GET /api/v1/me/host/reservations`, com total, cards de Tutor/pet/período/valor, estado vazio, erro, retry e atualização por gesto. Tocar no card abre `/reserva-host/[id]` para a decisão (#492). |
+| `/reserva-host/[id]` | `reserva-host/[id].tsx` | **#492.** Detalhe da solicitação para o Host, com confirmação de aceite, recusa com motivo obrigatório, dados médicos/comportamentais do pet e mensagens de conflito. |
 | `/agenda-host` | `agenda-host.tsx` | **#483.** Agenda mensal do Host com dias livres, bloqueados e ocupados, capacidade, legenda, bloqueio por período e desbloqueio de dia, usando as rotas da #482 (DT-29). |
+| `/pets` | `pets.tsx` | **#371.** Lista os pets ativos do Tutor, com carregamento, estado vazio, erro com nova tentativa e acesso ao cadastro. |
+| `/pets/cadastro` | `pets/cadastro.tsx` | **#371.** Cadastro de pet com nome, espécie, porte, raça, nascimento e observações médicas/comportamentais, usando o contrato do backend. |
 
 A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
-Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas da Home e "Ver minhas reservas"); cadastro de pet ("Adicionar Pet"); conclusão do perfil do Tutor (ADR-011; a rota `PUT /api/v1/me/tutor-profile` existe no back-end). Para a lista completa, consulte o Figma e a Wiki (Desenvolvimento > Front-end > Fluxo de Telas).
+Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas da Home e "Ver minhas reservas") e conclusão do perfil do Tutor (ADR-011; a rota `PUT /api/v1/me/tutor-profile` existe no back-end). Para a lista completa, consulte o Figma e a Wiki (Desenvolvimento > Front-end > Fluxo de Telas).
 
 ## Componentes reutilizáveis
 
@@ -119,7 +122,8 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 - Back-end principal (`EXPO_PUBLIC_API_URL`), pelo `backendApi` com token e renovação em fila (DT-19):
   - `GET /api/v1/hosts/search` (#476), usado nos resultados;
   - `GET /api/v1/hosts/{id}` (#479), usado no detalhe, no chat e na reserva. Manda só bairro e cidade.
-  - `GET /api/v1/me/pets` (#369), usado na reserva. Os pets não têm foto.
+  - `GET /api/v1/me/pets` (#369), usado na lista, na busca, no chat e na reserva. Os pets não têm foto.
+  - `POST /api/v1/me/pets` (#369), usado no cadastro da rota `/pets/cadastro`.
   - `POST /api/v1/reservations` (#494), com o header `Idempotency-Key` (DT-23).
   - `GET /api/v1/me/host/reservations` (#485), usado pela lista de solicitações do Host (#486).
   - `POST /api/v1/me/host/reservations/:id/accept` e `/reject` (#491), usados na decisão do Host (#492).
@@ -134,9 +138,9 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 - Commit, push, PR e merge só com autorização da desenvolvedora.
 - Bibliotecas com código nativo fora do Expo Go exigem development build: evite.
 
-## Último estado conhecido (2026-11-02)
+## Último estado conhecido (2026-11-11)
 
-- Na `develop` (`fdcf8e8`): PRs até o !69. A branch `feature/267-...` ainda existe no servidor, e só o Murilo pode apagá-la.
-- Branch atual: `feature/269-iniciar-a-sessao-apos-o-cadastro-e-exibir-a-confirmacao`, ainda sem commit ou push.
-- Verificações em 2026-11-02: `expo-doctor` 20/20, `tsc --noEmit` sem erros, Jest 126 de 126 e `npx expo export --platform web` concluído.
-- A #269 ainda precisa de validação manual no navegador e no Expo Go com cadastro e PIN reais.
+- Branch atual: `feature/371-implementar-a-lista-e-o-cadastro-de-pets`, criada a partir da `develop` (`b6eb43b`). O PR 86 foi revisado e sua tela de Perfil está incorporada localmente sem commit; a base remota `develop` está mais avançada e ainda precisa ser atualizada antes do commit.
+- A #371 implementa `/pets` e `/pets/cadastro`, `PetsContext`, cliente de criação/listagem, integração da busca e atualização do botão "Adicionar Pet" na reserva.
+- Verificações da implementação: `npx tsc --noEmit` passou; `npx expo export --platform web` passou; a suíte Jest passou com `--testTimeout=15000` após corrigir a compatibilidade do chat com a prévia de desenvolvimento.
+- Falta validar o fluxo com login real e perfil de Tutor concluído no Expo Go. Edição, remoção e foto de pet dependem de endpoints que o back-end ainda não possui.

@@ -397,13 +397,27 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 ## 2026-11-02: Agenda do Host (#483)
 - **Objetivo:** permitir que o Host veja dias livres, bloqueados e ocupados e bloqueie/libere períodos.
 - **Branch:** `feature/483-implementar-a-tela-de-agenda-do-host-no-mobile`, a partir da `develop` após o PR !78 (`b6eb43b`).
-- **Arquivos:**
-  - `app/agenda-host.tsx` (novo): agenda mensal, capacidade, legenda, bloqueio por período, desbloqueio de dia, carregamento e erros.
-  - `components/HostAgendaCalendar.tsx` (novo): calendário com os três estados.
-  - `services/hostAgenda.ts` (novo): GET, POST e DELETE da agenda.
-  - `app/reservas.tsx`: entrada "Gerenciar disponibilidade".
-  - `__tests__/host-agenda-test.tsx` (novo, 4 testes).
+- **Arquivos:** `app/agenda-host.tsx`, `components/HostAgendaCalendar.tsx`, `services/hostAgenda.ts`, `app/reservas.tsx` e `__tests__/host-agenda-test.tsx`.
 - **Contrato:** `GET /api/v1/me/host/agenda`, `POST /api/v1/me/host/agenda/blocks` e `DELETE /api/v1/me/host/agenda/blocks/{id}` (#482).
 - **Decisão:** DT-29.
 - **Verificação:** `tsc --noEmit` sem erros e 154 de 154 testes passando. Ainda não testado no Expo Go.
 - **Ficou pendente:** teste manual, commit e PR.
+
+## 2026-11-11: Lista e cadastro de pets (#371)
+- **Objetivo:** implementar a lista e o cadastro de pets do Tutor e ligar o fluxo aos pontos existentes de busca, chat e reserva.
+- **Arquivos:** criados `src/app/pets.tsx`, `src/app/pets/cadastro.tsx`, `src/components/TutorPetCard.tsx`, `src/constants/pets.ts`, `src/context/PetsContext.tsx` e `src/utils/validatePet.ts`; alterados o cliente de pets, layout, Home, resultados, chat, reserva, SearchModal e dados de exemplo.
+- **O que mudou:** a lista usa `GET /api/v1/me/pets`; o cadastro valida e envia todos os campos suportados por `POST /api/v1/me/pets`; o novo pet entra no contexto imediatamente; a busca deixa de usar pets fictícios; o botão "Adicionar Pet" da reserva abre o cadastro; estados vazio, carregamento e erro seguem o padrão das telas existentes.
+- **Decisões:** DT-31.
+- **Verificação:** `npx tsc --noEmit` passou; `npx expo export --platform web` passou; `npm test -- --runInBand --testTimeout=15000` passou com 16 suítes e 150 testes.
+- **Problemas e soluções:** os testes de Home e reserva renderizam telas sem o provider do Expo Router; `usePets` mantém um valor vazio compatível fora do provider, enquanto o app real usa `PetsProvider` no layout. O chat preserva pets de exemplo somente em `__DEV__` para links/testes antigos.
+- **Ficou pendente:** validação manual no Expo Go com usuário autenticado e perfil de Tutor concluído; edição, remoção e foto de pet dependem de rotas/modelo no backend.
+- **Commits / PR:** ainda não commitado nem enviado.
+
+## 2026-11-14: Integração da tela de Perfil do PR 86
+- **Objetivo:** revisar o PR 86 e atualizar a implementação local da #371 para que o Perfil use a lista e o cadastro reais de pets.
+- **Arquivos:** adicionados `src/app/perfil.tsx`, `src/components/ProfileMenuItem.tsx` e `src/components/StatusPill.tsx`; alterados `Button`, `Icon`, `theme`, Home, resultados e reservas para suportar a nova rota e navegação.
+- **O que mudou:** o Perfil foi incorporado sem a entrada de cadastro de Host; “Meus Pets” abre `/pets`; o Perfil, Home e resultados usam `PetsContext` no `SearchModal`; as abas Home, resultados e solicitações conseguem abrir `/perfil`.
+- **Decisões:** DT-32.
+- **Verificação:** `npx tsc --noEmit` passou; `npm test -- --runInBand --testTimeout=15000` passou com 16 suítes e 150 testes; `npx expo export --platform web` passou após a integração.
+- **Ficou pendente:** validar visualmente no Expo Go e decidir a rota de reservas do Tutor.
+- **Commits / PR:** nenhuma alteração foi commitada ou enviada.

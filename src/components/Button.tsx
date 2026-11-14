@@ -1,15 +1,17 @@
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import { theme } from '../constants/theme';
+import { Icon, IconName } from './Icon';
 
 type ButtonProps = {
   onPress: () => void;
   title: string;
+  icon?: IconName;
   loading?: boolean;
 };
 
-// Enquanto loading, o botão fica desabilitado para não enviar duas vezes
-export function Button({ onPress, title, loading = false }: ButtonProps) {
+// Enquanto loading, o botão fica desabilitado para não enviar duas vezes.
+export function Button({ onPress, title, icon, loading = false }: ButtonProps) {
   return (
     <TouchableOpacity
       accessibilityRole="button"
@@ -21,7 +23,10 @@ export function Button({ onPress, title, loading = false }: ButtonProps) {
       {loading ? (
         <ActivityIndicator color={theme.colors.white} />
       ) : (
-        <Text style={styles.text}>{title}</Text>
+        <>
+          <Text style={styles.text}>{title}</Text>
+          {icon ? <Icon color={theme.colors.white} name={icon} size={theme.icon.medium} /> : null}
+        </>
       )}
     </TouchableOpacity>
   );
@@ -32,6 +37,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: theme.colors.button,
     borderRadius: theme.radius.button,
+    flexDirection: 'row',
+    gap: theme.spacing.small,
     justifyContent: 'center',
     marginTop: theme.spacing.large,
     minHeight: 48,

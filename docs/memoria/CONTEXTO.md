@@ -63,7 +63,7 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/reserva-host/[id]` | `reserva-host/[id].tsx` | **#492.** Detalhe da solicitação para o Host, com confirmação de aceite, recusa com motivo obrigatório, dados médicos/comportamentais do pet e mensagens de conflito. |
 | `/agenda-host` | `agenda-host.tsx` | **#483.** Agenda mensal do Host com dias livres, bloqueados e ocupados, capacidade, legenda, bloqueio por período e desbloqueio de dia, usando as rotas da #482 (DT-29). |
 | `/pets` | `pets.tsx` | **#371.** Lista os pets ativos do Tutor, com carregamento, estado vazio, erro com nova tentativa e acesso ao cadastro. |
-| `/pets/cadastro` | `pets/cadastro.tsx` | **#371.** Cadastro de pet com nome, espécie, porte, raça, nascimento e observações médicas/comportamentais, usando o contrato do backend. |
+| `/minhas-contratacoes` | `minhas-contratacoes.tsx` | **#534.** Lista provisória de contratações do Tutor, com status, Host, pet, período, valor, estados de carregamento/vazio/erro e ações preparadas para pagamento, acompanhamento e chat. A fonte ainda é simulada até o backend publicar o contrato. |
 
 A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
@@ -124,6 +124,7 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
   - `GET /api/v1/hosts/{id}` (#479), usado no detalhe, no chat e na reserva. Manda só bairro e cidade.
   - `GET /api/v1/me/pets` (#369), usado na lista, na busca, no chat e na reserva. Os pets não têm foto.
   - `POST /api/v1/me/pets` (#369), usado no cadastro da rota `/pets/cadastro`.
+  - `GET /api/v1/me/reservations` (futuro HSP-PBI-046-TSK-01), ainda não disponível; `/minhas-contratacoes` usa dados simulados.
   - `POST /api/v1/reservations` (#494), com o header `Idempotency-Key` (DT-23).
   - `GET /api/v1/me/host/reservations` (#485), usado pela lista de solicitações do Host (#486).
   - `POST /api/v1/me/host/reservations/:id/accept` e `/reject` (#491), usados na decisão do Host (#492).

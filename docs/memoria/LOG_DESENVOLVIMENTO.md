@@ -421,3 +421,12 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Verificação:** `npx tsc --noEmit` passou; `npm test -- --runInBand --testTimeout=15000` passou com 16 suítes e 150 testes; `npx expo export --platform web` passou após a integração.
 - **Ficou pendente:** validar visualmente no Expo Go e decidir a rota de reservas do Tutor.
 - **Commits / PR:** nenhuma alteração foi commitada ou enviada.
+
+## 2026-11-14: Minhas contratações no Mobile (#534)
+- **Objetivo:** criar a porta de entrada das contratações do Tutor com dados simulados enquanto a API ainda não está disponível.
+- **Arquivos:** criados `src/app/minhas-contratacoes.tsx`, `src/components/TutorReservationCard.tsx` e `src/services/tutorReservations.ts`; alterado `src/app/home.tsx` para o atalho da tela.
+- **O que mudou:** estados de carregamento, vazio e erro; cards com Host, pet, período, valor e status; ações visuais de pagamento/acompanhamento; atalho para buscar hospedagem no vazio; contrato provisório separado do componente visual.
+- **Decisões:** DT-34.
+- **Verificação:** `npx tsc --noEmit` passou e o teste da Home passou. A integração real não foi validada porque a API do backend ainda não existe.
+- **Ficou pendente:** testes específicos da nova tela, integração com a API HSP-PBI-046-TSK-01, pagamento, acompanhamento e chat pela contratação.
+- **Commits / PR:** ainda não commitado nem enviado.

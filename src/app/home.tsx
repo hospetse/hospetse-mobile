@@ -112,7 +112,7 @@ export default function HomeScreen() {
       return;
     }
     if (key === 'reservas') {
-      router.push('/reservas');
+      router.push('/minhas-contratacoes');
       return;
     }
     if (key === 'perfil') {

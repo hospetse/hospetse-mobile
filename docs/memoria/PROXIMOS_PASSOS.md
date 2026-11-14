@@ -5,10 +5,10 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 > Última atualização: 2026-11-14
 
 ## Próxima atividade recomendada
-1. **#534:** validar a tela de Minhas contratações no Expo Go com dados simulados e depois preparar o contrato com o backend.
+1. **#543:** validar a tela de acompanhamento no Expo Go com dados simulados, depois commit e PR.
 
 ## Em andamento
-- **#534:** tela de Minhas contratações implementada com dados simulados na branch `feature/534-implementar-a-tela-minhas-contratacoes-no-mobile`. Falta teste visual, commit e PR.
+- **#543:** timeline de acompanhamento implementada com contrato simulado na branch `feature/543-implementar-a-tela-de-acompanhamento-no-mobile`. Falta teste visual, commit e PR.
 
 ## Pendente
 - **Tela de Reservas do Tutor** ("Ver minhas reservas"): PBI #199 (HSP-PBI-046), sem task. O back-end ainda não tem a lista de reservas do Tutor.

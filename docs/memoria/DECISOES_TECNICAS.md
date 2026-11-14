@@ -323,3 +323,8 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
 - **Data:** 2026-11-14 · **Task:** #534 · **Status:** Provisória
 - **Decisão:** a rota `/minhas-contratacoes` começa com dados simulados no formato previsto para a futura API. A tela já define estados de carregamento, vazio, erro, status e ações por contratação.
 - **Limite:** pagamento, acompanhamento, chat a partir da contratação e a listagem real dependem das tasks de backend HSP-PBI-046-TSK-01 e relacionadas.
+
+### DT-35: Acompanhamento provisório do serviço
+- **Data:** 2026-11-14 · **Task:** #543 · **Status:** Provisória
+- **Decisão:** a rota `/acompanhamento/[id]` usa uma timeline simulada com estados concluído, atual e futuro. O carregamento é repetido a cada 30 segundos para preparar a futura atualização periódica do backend.
+- **Limite:** a fonte ainda é simulada; pagamento, eventos reais e atualização via API dependem da TSK-01 do backend, que não será alterada nesta tarefa.

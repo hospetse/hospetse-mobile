@@ -68,7 +68,13 @@ export default function MyReservationsScreen() {
               <TutorReservationCard
                 key={reservation.id}
                 onChat={() => router.push({ pathname: '/chat/[id]', params: { id: reservation.hostId } })}
-                onPrimaryAction={showUnavailable}
+                onPrimaryAction={() => {
+                  if (reservation.status === 'in_progress' || reservation.status === 'completed') {
+                    router.push({ pathname: '/acompanhamento/[id]', params: { id: reservation.id } });
+                  } else {
+                    showUnavailable();
+                  }
+                }}
                 reservation={reservation}
               />
             ))}

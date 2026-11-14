@@ -430,3 +430,12 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Verificação:** `npx tsc --noEmit` passou e o teste da Home passou. A integração real não foi validada porque a API do backend ainda não existe.
 - **Ficou pendente:** testes específicos da nova tela, integração com a API HSP-PBI-046-TSK-01, pagamento, acompanhamento e chat pela contratação.
 - **Commits / PR:** ainda não commitado nem enviado.
+
+## 2026-11-14: Acompanhamento do serviço no Mobile (#543)
+- **Objetivo:** criar a tela de acompanhamento do Tutor a partir do botão "Acompanhar" de Minhas contratações.
+- **Arquivos:** criados `src/app/acompanhamento/[id].tsx` e `src/services/tutorTracking.ts`; alterado `TutorReservationCard` para abrir a rota nos status em andamento/concluído.
+- **O que mudou:** timeline com Host, pet, período, status atual, eventos concluídos e próximos; estados de carregamento e erro; atualização periódica simulada a cada 30 segundos.
+- **Decisões:** DT-35.
+- **Verificação:** `npx tsc --noEmit` passou; `npm test -- --runInBand --testTimeout=15000` passou com 17 suítes e 154 testes; bundle web já validado na Task 534 antes da rota de acompanhamento.
+- **Ficou pendente:** integração real depende do backend; validação manual no Expo Go; commit e PR.
+- **Commits / PR:** ainda não commitado nem enviado.

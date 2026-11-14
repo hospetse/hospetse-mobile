@@ -64,7 +64,7 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/agenda-host` | `agenda-host.tsx` | **#483.** Agenda mensal do Host com dias livres, bloqueados e ocupados, capacidade, legenda, bloqueio por período e desbloqueio de dia, usando as rotas da #482 (DT-29). |
 | `/pets` | `pets.tsx` | **#371.** Lista os pets ativos do Tutor, com carregamento, estado vazio, erro com nova tentativa e acesso ao cadastro. |
 | `/minhas-contratacoes` | `minhas-contratacoes.tsx` | **#534.** Lista provisória de contratações do Tutor, com status, Host, pet, período, valor, estados de carregamento/vazio/erro e ações preparadas para pagamento, acompanhamento e chat. A fonte ainda é simulada até o backend publicar o contrato. |
-
+| `/acompanhamento/[id]` | `acompanhamento/[id].tsx` | **#543.** Timeline provisória do serviço, com Host, pet, período, status atual e atualização periódica simulada. A integração real depende da API do backend. |
 A busca (#477) é um modal por cima da Home ou dos resultados, não uma rota. Os filtros também são um modal (`FiltersModal`), aberto pelos resultados.
 
 Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas da Home e "Ver minhas reservas") e conclusão do perfil do Tutor (ADR-011; a rota `PUT /api/v1/me/tutor-profile` existe no back-end). Para a lista completa, consulte o Figma e a Wiki (Desenvolvimento > Front-end > Fluxo de Telas).

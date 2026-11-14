@@ -51,7 +51,7 @@ export default function PerfilScreen() {
   function handleChangeTab(key: TabKey) {
     if (key === 'home') router.dismissTo('/home');
     else if (key === 'buscar') setSearchOpen(true);
-    else if (key === 'reservas') router.push('/reservas');
+    else if (key === 'reservas') router.push('/minhas-contratacoes');
   }
 
   function handleSearch(filters: SearchFilters) {

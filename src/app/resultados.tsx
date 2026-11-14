@@ -150,7 +150,7 @@ export default function ResultsScreen() {
     if (key === 'buscar') {
       setSearchOpen(true);
     } else if (key === 'reservas') {
-      router.push('/reservas');
+      router.push('/minhas-contratacoes');
     } else if (key === 'home') {
       router.back();
     } else if (key === 'perfil') {

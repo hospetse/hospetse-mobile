@@ -318,3 +318,8 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
 - **Data:** 2026-11-14 · **Task:** #371 · **Status:** Aceita
 - **Decisão:** os cards da lista exibem ações de editar e excluir. Editar reutiliza `/pets/cadastro?id=<petId>` e excluir pede confirmação no app. O backend atualiza pets ativos com `PUT /api/v1/me/pets/:id` e desativa pets com `DELETE /api/v1/me/pets/:id`.
 - **Motivo:** manter o histórico das reservas; a exclusão remove o pet apenas da lista de ativos.
+
+### DT-34: Contratações do Tutor com contrato simulado
+- **Data:** 2026-11-14 · **Task:** #534 · **Status:** Provisória
+- **Decisão:** a rota `/minhas-contratacoes` começa com dados simulados no formato previsto para a futura API. A tela já define estados de carregamento, vazio, erro, status e ações por contratação.
+- **Limite:** pagamento, acompanhamento, chat a partir da contratação e a listagem real dependem das tasks de backend HSP-PBI-046-TSK-01 e relacionadas.

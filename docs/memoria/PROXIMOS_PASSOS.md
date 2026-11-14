@@ -5,10 +5,10 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 > Última atualização: 2026-11-14
 
 ## Próxima atividade recomendada
-1. **#371 + PR #86:** validar Perfil, lista e cadastro de pets no Expo Go, depois commit e PR.
+1. **#534:** validar a tela de Minhas contratações no Expo Go com dados simulados e depois preparar o contrato com o backend.
 
 ## Em andamento
-- **#371 + PR #86:** lista/cadastro de pets e Perfil estático integrados na branch `feature/371-implementar-a-lista-e-o-cadastro-de-pets` (DT-31 e DT-32). Falta validação manual no Expo Go, commit e PR.
+- **#534:** tela de Minhas contratações implementada com dados simulados na branch `feature/534-implementar-a-tela-minhas-contratacoes-no-mobile`. Falta teste visual, commit e PR.
 
 ## Pendente
 - **Tela de Reservas do Tutor** ("Ver minhas reservas"): PBI #199 (HSP-PBI-046), sem task. O back-end ainda não tem a lista de reservas do Tutor.

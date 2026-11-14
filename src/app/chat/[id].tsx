@@ -22,6 +22,7 @@ import { Skeleton } from '../../components/Skeleton';
 import { ChatMessage, SAMPLE_CHAT } from '../../constants/sampleChat';
 import { SAMPLE_PETS } from '../../constants/sampleData';
 import { theme } from '../../constants/theme';
+import { usePets } from '../../context/PetsContext';
 import { getHostPage, HostDetails, HostNotFoundError, lowestPrice } from '../../services/hosts';
 import { formatDate, fromIsoDate } from '../../utils/calendar';
 import { countNights, formatPrice, formatTime } from '../../utils/chat';
@@ -50,6 +51,7 @@ export default function ChatScreen() {
     petId?: string;
   }>();
   const insets = useSafeAreaInsets();
+  const { pets } = usePets();
   const scrollRef = useRef<ScrollViewInstance>(null);
 
   const [host, setHost] = useState<HostDetails | null>(null);
@@ -172,8 +174,7 @@ export default function ChatScreen() {
   const endDate = fromIsoDate(checkOut);
   const dates =
     startDate && endDate ? `${formatDate(startDate)} - ${formatDate(endDate)}` : 'Escolha as datas na busca';
-  // PROVISÓRIO: só os pets de exemplo têm nome, até a lista de pets do Tutor (#371)
-  const pet = SAMPLE_PETS.find((item) => item.id === petId) ?? null;
+  const pet = pets.find((item) => item.id === petId) ?? (__DEV__ ? SAMPLE_PETS.find((item) => item.id === petId) : null);
 
   return (
     <View

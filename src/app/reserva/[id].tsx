@@ -14,6 +14,7 @@ import { ReservationSuccess } from '../../components/ReservationSuccess';
 import { Skeleton } from '../../components/Skeleton';
 import { SAMPLE_ADD_ONS } from '../../constants/addOns';
 import { theme } from '../../constants/theme';
+import { usePets } from '../../context/PetsContext';
 import { formatHostLocation, getHostPage, HostDetails, HostNotFoundError } from '../../services/hosts';
 import { listMyPets, Pet } from '../../services/pets';
 import {
@@ -64,6 +65,7 @@ export default function ReservationScreen() {
     petId?: string;
   }>();
   const insets = useSafeAreaInsets();
+  const { pets: contextPets } = usePets();
 
   const [host, setHost] = useState<HostDetails | null>(null);
   const [pets, setPets] = useState<Pet[]>([]);
@@ -85,6 +87,10 @@ export default function ReservationScreen() {
   const idempotencyKey = useRef<string | null>(null);
   // O estado "sending" só muda na próxima renderização; o ref trava o envio na hora
   const sendingNow = useRef(false);
+
+  useEffect(() => {
+    setPets(contextPets);
+  }, [contextPets]);
 
   useEffect(() => {
     let active = true;
@@ -317,8 +323,7 @@ export default function ReservationScreen() {
 
         <View style={styles.petsHeader}>
           <Text style={styles.sectionLabelInline}>Quem vai se hospedar?</Text>
-          {/* O cadastro de pet (HSP-PBI-016) ainda não existe no app */}
-          <TouchableOpacity accessibilityRole="button">
+          <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/pets/cadastro')}>
             <Text style={styles.link}>Adicionar Pet</Text>
           </TouchableOpacity>
         </View>

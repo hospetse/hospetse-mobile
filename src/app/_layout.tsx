@@ -10,6 +10,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import { HostRegistrationProvider } from '../context/HostRegistrationContext';
+import { PetsProvider } from '../context/PetsContext';
 import { SessionProvider } from '../context/SessionContext';
 import { SignupProvider } from '../context/SignupContext';
 
@@ -28,12 +29,14 @@ export default function RootLayout() {
 
   return (
     <SessionProvider>
-      <SignupProvider>
-        <HostRegistrationProvider>
-          <StatusBar style="dark" />
-          <Stack screenOptions={{ headerShown: false }} />
-        </HostRegistrationProvider>
-      </SignupProvider>
+      <PetsProvider>
+        <SignupProvider>
+          <HostRegistrationProvider>
+            <StatusBar style="dark" />
+            <Stack screenOptions={{ headerShown: false }} />
+          </HostRegistrationProvider>
+        </SignupProvider>
+      </PetsProvider>
     </SessionProvider>
   );
 }

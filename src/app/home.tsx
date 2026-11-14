@@ -16,8 +16,9 @@ import { PetCard } from '../components/PetCard';
 import { SearchBar } from '../components/SearchBar';
 import { SearchFilters, SearchModal } from '../components/SearchModal';
 import { UserHeader } from '../components/UserHeader';
-import { SAMPLE_PETS, SAMPLE_USER } from '../constants/sampleData';
+import { SAMPLE_USER } from '../constants/sampleData';
 import { theme } from '../constants/theme';
+import { usePets } from '../context/PetsContext';
 import { useSession } from '../context/SessionContext';
 import { toSearchParams } from '../utils/searchParams';
 
@@ -88,6 +89,7 @@ const POPULAR_HOTELS: Hotel[] = [
 
 export default function HomeScreen() {
   const { currentUser, logout } = useSession();
+  const { pets, loading: petsLoading } = usePets();
   // O perfil vem do /me após o cadastro. O parâmetro continua como fallback dos fluxos antigos.
   const { nome } = useLocalSearchParams<{ nome?: string }>();
   const userName = currentUser?.user?.name?.split(' ')[0] || nome || SAMPLE_USER.name;
@@ -101,6 +103,8 @@ export default function HomeScreen() {
     router.push({ pathname: '/resultados', params: toSearchParams(filters) });
   }
 
+
+
   // A aba Buscar abre a busca por cima da Home, sem trocar a aba ativa
   function handleChangeTab(key: TabKey) {
     if (key === 'buscar') {
@@ -108,7 +112,7 @@ export default function HomeScreen() {
       return;
     }
     if (key === 'reservas') {
-      router.push('/reservas');
+      router.push('/minhas-contratacoes');
       return;
     }
     // O Perfil é outra rota: a Home continua com a aba Home ativa para quando o usuário voltar
@@ -129,6 +133,7 @@ export default function HomeScreen() {
   const popularCardWidth = width * 0.36;
 
   const nearbyTitle = FILTERS.find((filter) => filter.label === activeFilter)?.title;
+  const petSummaries = pets.map((pet) => ({ id: pet.id, imageUri: null, name: pet.name }));
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -230,9 +235,14 @@ export default function HomeScreen() {
       </View>
 
       <SearchModal
+        onAddPet={() => {
+          setSearchOpen(false);
+          router.push('/pets/cadastro');
+        }}
         onClose={() => setSearchOpen(false)}
         onSearch={handleSearch}
-        pets={SAMPLE_PETS}
+        pets={petSummaries}
+        petsLoading={petsLoading}
         visible={searchOpen}
       />
     </SafeAreaView>

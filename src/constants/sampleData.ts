@@ -7,7 +7,7 @@ export const SAMPLE_USER = {
   name: 'Murilo Barbosa',
 };
 
-// PROVISÓRIO: pets de exemplo até a lista de pets do Tutor (#371)
+// Fallback apenas para a prévia de desenvolvimento do chat; a busca usa PetsContext.
 export const SAMPLE_PETS: PetSummary[] = [
   {
     id: 'pet-1',

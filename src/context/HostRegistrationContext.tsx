@@ -1,12 +1,10 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
 import type {
-  Experience,
   HostDocumentType,
   LocalFile,
   PetSpecies,
   RoomKey,
-  SpaceStructure,
 } from '../constants/hostRegistration';
 import type { PetSize } from '../constants/search';
 import { useSession } from './SessionContext';
@@ -17,15 +15,10 @@ export type HostValidationStatus = 'draft' | 'pending' | 'approved' | 'rejected'
 // Tudo o que o Host preenche nas etapas do cadastro (#326)
 export type HostRegistrationData = {
   // Etapa 1: o espaço
-  structure: SpaceStructure;
-  hasOtherPets: boolean;
   acceptedSizes: PetSize[];
   acceptedSpecies: PetSpecies[];
   // Texto digitado; vira número no envio
   capacity: string;
-  experience: Experience | null;
-  acceptsSenior: boolean;
-  acceptsNeutered: boolean;
   description: string;
   // Etapa 2: fotos, localização e documentos
   coverPhoto: string | null;
@@ -57,14 +50,9 @@ export type HostRegistrationData = {
 };
 
 export const EMPTY_HOST_REGISTRATION: HostRegistrationData = {
-  structure: 'house',
-  hasOtherPets: false,
   acceptedSizes: [],
   acceptedSpecies: [],
   capacity: '',
-  experience: null,
-  acceptsSenior: true,
-  acceptsNeutered: false,
   description: '',
   coverPhoto: null,
   roomPhotos: {},

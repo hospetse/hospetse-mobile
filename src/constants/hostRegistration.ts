@@ -9,6 +9,8 @@ export const DESCRIPTION_MAX = 500;
 // Mesmo limite do back-end para cada foto (5 MB)
 export const PHOTO_MAX_BYTES = 5 * 1024 * 1024;
 
+// Estrutura, experiência e os interruptores (idosos/castrados) são campos só visuais da etapa 1:
+// o contrato do back-end ainda não os recebe (#326). Ficam na tela como estado local, sem persistir
 export type SpaceStructure = 'house' | 'apartment' | 'house_with_yard';
 
 export const SPACE_STRUCTURES: { value: SpaceStructure; label: string }[] = [

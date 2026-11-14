@@ -124,7 +124,7 @@ export async function uploadHostPhoto(
     '/api/v1/me/host/photos',
     await buildForm(file),
     {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      // Sem Content-Type manual: o axios/FormData geram o boundary do multipart, que o multer precisa
       timeout: UPLOAD_TIMEOUT_MS,
       onUploadProgress: progressReporter(onProgress),
     },
@@ -141,7 +141,7 @@ export async function uploadHostDocument(
     '/api/v1/me/host/documents',
     await buildForm(file, { type }),
     {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      // Sem Content-Type manual: o axios/FormData geram o boundary do multipart, que o multer precisa
       timeout: UPLOAD_TIMEOUT_MS,
       onUploadProgress: progressReporter(onProgress),
     },

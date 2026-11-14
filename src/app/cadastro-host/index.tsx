@@ -26,10 +26,12 @@ import {
   DESCRIPTION_MAX,
   DESCRIPTION_MIN,
   EXPERIENCES,
+  Experience,
   PET_SPECIES_OPTIONS,
   PetSpecies,
   SIZE_HINTS,
   SPACE_STRUCTURES,
+  SpaceStructure,
 } from '../../constants/hostRegistration';
 import { PET_SIZES, PetSize } from '../../constants/search';
 import { theme } from '../../constants/theme';
@@ -50,13 +52,23 @@ type Problem = {
 };
 
 // Etapa 1 do cadastro de Host (#326): estrutura do espaço, espécies e portes aceitos, capacidade,
-// experiência e apresentação. Ao avançar, o rascunho é salvo no back-end
+// experiência e apresentação. Ao avançar, o rascunho é salvo no back-end.
+// Estrutura, outros pets, experiência e os dois interruptores são só visuais (estado local): o
+// contrato ainda não os recebe, então não vão para o back-end nem entram no rascunho retomável (#326)
 export default function HostSpaceScreen() {
   const { data, update, clearServerError } = useHostRegistration();
   const { currentUser } = useSession();
   const [errors, setErrors] = useState<HostSpaceErrors>({});
   const [saving, setSaving] = useState(false);
   const [problem, setProblem] = useState<Problem | null>(null);
+
+  // Campos só visuais: o contrato do back-end ainda não os recebe (#326). Ficam como estado local
+  // da tela (não no contexto nem no rascunho) para deixar claro que não persistem nem são enviados
+  const [structure, setStructure] = useState<SpaceStructure>('house');
+  const [hasOtherPets, setHasOtherPets] = useState(false);
+  const [experience, setExperience] = useState<Experience | null>(null);
+  const [acceptsSenior, setAcceptsSenior] = useState(true);
+  const [acceptsNeutered, setAcceptsNeutered] = useState(false);
 
   const scrollRef = useRef<ScrollViewInstance>(null);
   const capacityRef = useRef<TextInputInstance>(null);
@@ -180,21 +192,21 @@ export default function HostSpaceScreen() {
             <OptionCard
               key={item.value}
               label={item.label}
-              onPress={() => update({ structure: item.value })}
-              selected={data.structure === item.value}
+              onPress={() => setStructure(item.value)}
+              selected={structure === item.value}
             />
           ))}
         </View>
 
         <TouchableOpacity
           accessibilityRole="checkbox"
-          accessibilityState={{ checked: data.hasOtherPets }}
+          accessibilityState={{ checked: hasOtherPets }}
           hitSlop={theme.spacing.medium}
-          onPress={() => update({ hasOtherPets: !data.hasOtherPets })}
+          onPress={() => setHasOtherPets((current) => !current)}
           style={styles.checkRow}
         >
-          <View style={[styles.checkbox, data.hasOtherPets ? styles.checkboxChecked : null]}>
-            {data.hasOtherPets ? (
+          <View style={[styles.checkbox, hasOtherPets ? styles.checkboxChecked : null]}>
+            {hasOtherPets ? (
               <Icon color={theme.colors.white} name="check" size={theme.icon.small} />
             ) : null}
           </View>
@@ -258,8 +270,8 @@ export default function HostSpaceScreen() {
             <OptionCard
               key={item.value}
               label={item.label}
-              onPress={() => update({ experience: item.value })}
-              selected={data.experience === item.value}
+              onPress={() => setExperience(item.value)}
+              selected={experience === item.value}
             />
           ))}
         </View>
@@ -267,16 +279,16 @@ export default function HostSpaceScreen() {
         <View style={styles.switchCard}>
           <SwitchRow
             description="Mais cuidados , rotinas calmas e atenção especial"
-            onValueChange={(value) => update({ acceptsSenior: value })}
+            onValueChange={setAcceptsSenior}
             title="Aceita animais idosos ou sob medicação?"
-            value={data.acceptsSenior}
+            value={acceptsSenior}
           />
           <View style={styles.switchDivider} />
           <SwitchRow
             description="Requer mais atenção com marcação de território"
-            onValueChange={(value) => update({ acceptsNeutered: value })}
+            onValueChange={setAcceptsNeutered}
             title="Aceita animais castrados?"
-            value={data.acceptsNeutered}
+            value={acceptsNeutered}
           />
         </View>
 

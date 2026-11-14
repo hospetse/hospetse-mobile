@@ -15,7 +15,8 @@ type DocumentRowProps = {
   error?: string;
 };
 
-// Linha de um documento do cadastro: nome, arquivo escolhido e botão para enviar ou trocar
+// Linha de um documento do cadastro: nome, arquivo escolhido e botão para enviar ou trocar.
+// O que já está no servidor não pode ser trocado: o back-end só adiciona, não substitui (#326)
 export function DocumentRow({
   label,
   onPick,
@@ -26,6 +27,8 @@ export function DocumentRow({
 }: DocumentRowProps) {
   const hasFile = Boolean(fileName) || alreadySent;
   const detail = fileName ?? (alreadySent ? 'Já enviado' : 'Nenhum arquivo escolhido');
+  // Enviado ao servidor e sem arquivo novo nesta sessão: não dá para trocar nem remover
+  const locked = alreadySent && !fileName;
 
   return (
     <View>
@@ -46,16 +49,26 @@ export function DocumentRow({
             <Icon color={theme.colors.error} name="delete" size={theme.icon.medium} />
           </TouchableOpacity>
         ) : null}
-        <TouchableOpacity
-          accessibilityLabel={`${hasFile ? 'Trocar arquivo' : 'Enviar arquivo'}: ${label}`}
-          accessibilityRole="button"
-          onPress={onPick}
-          style={styles.button}
-        >
-          <Icon color={theme.colors.button} name="upload" size={theme.icon.medium} />
-          <Text style={styles.buttonText}>{hasFile ? 'Trocar' : 'Enviar'}</Text>
-        </TouchableOpacity>
+        {locked ? (
+          <View accessibilityRole="text" style={styles.sentTag}>
+            <Icon color={theme.colors.subtitle} name="check" size={theme.icon.small} />
+            <Text style={styles.sentTagText}>Enviado</Text>
+          </View>
+        ) : (
+          <TouchableOpacity
+            accessibilityLabel={`${hasFile ? 'Trocar arquivo' : 'Enviar arquivo'}: ${label}`}
+            accessibilityRole="button"
+            onPress={onPick}
+            style={styles.button}
+          >
+            <Icon color={theme.colors.button} name="upload" size={theme.icon.medium} />
+            <Text style={styles.buttonText}>{hasFile ? 'Trocar' : 'Enviar'}</Text>
+          </TouchableOpacity>
+        )}
       </View>
+      {locked ? (
+        <Text style={styles.lockedNote}>Enviado para análise. Não é possível alterar por aqui.</Text>
+      ) : null}
       <FieldError message={error} />
     </View>
   );
@@ -105,5 +118,22 @@ const styles = StyleSheet.create({
     color: theme.colors.button,
     fontFamily: theme.fonts.bold,
     fontSize: theme.typography.caption,
+  },
+  sentTag: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: theme.spacing.tiny,
+    paddingHorizontal: theme.spacing.small,
+  },
+  sentTagText: {
+    color: theme.colors.subtitle,
+    fontFamily: theme.fonts.semiBold,
+    fontSize: theme.typography.caption,
+  },
+  lockedNote: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.regular,
+    fontSize: theme.typography.caption,
+    marginTop: theme.spacing.tiny,
   },
 });

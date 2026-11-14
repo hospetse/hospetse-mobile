@@ -423,6 +423,8 @@ export default function HostPhotosScreen() {
   }
 
   const cityAndState = data.city ? `${data.city} - ${data.state}` : '';
+  // Já há foto no servidor: a capa não pode ser trocada por aqui (o back-end não substitui)
+  const coverLocked = data.serverPhotos.length > 0;
   const showCnpjCard =
     needsCnpjCard(data.cpfCnpj) ||
     data.serverDocumentTypes.includes('cnpj_card') ||
@@ -462,13 +464,21 @@ export default function HostPhotosScreen() {
               <Text style={styles.coverLabel}>Foto principal (Capa)</Text>
             </>
           )}
-          <View style={styles.coverButton}>
-            <OutlineButton
-              icon="upload"
-              onPress={handlePickCover}
-              title={data.coverPhoto ? 'Trocar foto' : 'Enviar Foto'}
-            />
-          </View>
+          {/* A capa já enviada não pode ser trocada: o back-end só adiciona fotos, e a primeira
+              continua sendo a capa (#326). Sem fotos no servidor, enviar/trocar segue liberado */}
+          {coverLocked ? (
+            <Text style={styles.coverLockedNote}>
+              A foto de capa já foi enviada e não pode ser trocada por aqui.
+            </Text>
+          ) : (
+            <View style={styles.coverButton}>
+              <OutlineButton
+                icon="upload"
+                onPress={handlePickCover}
+                title={data.coverPhoto ? 'Trocar foto' : 'Enviar Foto'}
+              />
+            </View>
+          )}
         </View>
         <FieldError message={errorOf('coverPhoto') ?? photoError} />
 
@@ -758,6 +768,13 @@ const styles = StyleSheet.create({
   coverButton: {
     alignSelf: 'stretch',
     paddingHorizontal: theme.spacing.page,
+  },
+  coverLockedNote: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.regular,
+    fontSize: theme.typography.caption,
+    marginTop: theme.spacing.medium,
+    textAlign: 'center',
   },
   sentPhotos: {
     marginTop: theme.spacing.medium,

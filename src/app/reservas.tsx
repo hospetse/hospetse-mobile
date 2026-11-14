@@ -59,6 +59,9 @@ export default function HostReservationsScreen() {
     if (key === 'buscar') {
       router.push('/home');
     }
+    if (key === 'perfil') {
+      router.push('/perfil');
+    }
   }
 
   return (

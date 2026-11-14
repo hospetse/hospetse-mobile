@@ -2,17 +2,16 @@
 
 Lista viva. Mova os itens entre as seções conforme o estado real, e apague da seção **Concluído** o que tiver mais de duas tasks (o histórico fica no `LOG_DESENVOLVIMENTO.md`).
 
-> Última atualização: 2026-11-04
+> Última atualização: 2026-11-14
 
 ## Próxima atividade recomendada
-1. **#483:** teste no Expo Go com uma conta Host, commit e PR.
+1. **#371 + PR #86:** validar Perfil, lista e cadastro de pets no Expo Go, depois commit e PR.
 
 ## Em andamento
-- **#483, Agenda do Host:** implementada na branch `feature/483-implementar-a-tela-de-agenda-do-host-no-mobile` (DT-29). Falta teste manual, commit e PR.
+- **#371 + PR #86:** lista/cadastro de pets e Perfil estático integrados na branch `feature/371-implementar-a-lista-e-o-cadastro-de-pets` (DT-31 e DT-32). Falta validação manual no Expo Go, commit e PR.
 
 ## Pendente
 - **Tela de Reservas do Tutor** ("Ver minhas reservas"): PBI #199 (HSP-PBI-046), sem task. O back-end ainda não tem a lista de reservas do Tutor.
-- **Cadastro de pet** (HSP-PBI-016): "Adicionar Pet" da reserva está sem ação, e o Tutor sem pet não é levado ao cadastro.
 - **Conclusão do perfil** (HSP-PBI-002): "Completar Cadastro" só fecha o aviso.
 - **Serviços adicionais e horários de entrada e saída** na API (DT-23).
 - **Texto da "Garantia Veterinária Hospetse"** no modal de rotina: é de exemplo, confirmar com a PO.
@@ -24,7 +23,7 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 - **Paginação** dos resultados: hoje vêm até 50.
 - **Home com dados reais:** o nome e o aviso do perfil vêm do `/me` após login ou cadastro. Os cards de exemplo ainda abrem um id que não existe na API ("Hospedagem não encontrada") e precisam de uma rota de destaques.
 - **Botões sem ação:** "Ver todos" e a galeria completa.
-- **Pets da busca:** o `SearchModal` ainda usa os pets de exemplo (#371); a reserva já usa os pets reais.
+- **Pets da API:** a lista, o cadastro, a busca e o botão "Adicionar Pet" estão implementados na #371. Edição, remoção/desativação e foto continuam dependentes de endpoints futuros.
 - Itens da #477: o aviso para Tutor sem pet (tela 08I).
 - Itens da #472: estados de carregamento, vazio e erro e testes da Home; navegação de Reservas, Perfil, "ver mais" e sino.
 - Fora dessas tasks: recuperar senha, textos de erro do design, ícone do `ErrorModal` em SVG e ESLint.

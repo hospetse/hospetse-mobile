@@ -9,6 +9,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { PetsProvider } from '../context/PetsContext';
 import { SessionProvider } from '../context/SessionContext';
 import { SignupProvider } from '../context/SignupContext';
 
@@ -27,10 +28,12 @@ export default function RootLayout() {
 
   return (
     <SessionProvider>
-      <SignupProvider>
-        <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false }} />
-      </SignupProvider>
+      <PetsProvider>
+        <SignupProvider>
+          <StatusBar style="dark" />
+          <Stack screenOptions={{ headerShown: false }} />
+        </SignupProvider>
+      </PetsProvider>
     </SessionProvider>
   );
 }

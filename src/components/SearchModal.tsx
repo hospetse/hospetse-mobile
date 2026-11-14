@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  ActivityIndicator,
   Modal,
   Pressable,
   ScrollView,
@@ -39,7 +40,7 @@ export const EMPTY_FILTERS: SearchFilters = {
 
 export type PetSummary = {
   id: string;
-  imageUri: string;
+  imageUri: string | null;
   name: string;
 };
 
@@ -56,25 +57,42 @@ const SECTIONS: { key: SectionKey; title: string }[] = [
 const CITY_SUGGESTIONS = ['Maringá, PR', 'Londrina, PR', 'Sarandi, PR'];
 
 type SearchModalProps = {
+  onAddPet?: () => void;
   onClose: () => void;
   onSearch: (filters: SearchFilters) => void;
   pets: PetSummary[];
+  petsLoading?: boolean;
   visible: boolean;
 };
 
 // Modal de busca: uma secao aberta por vez (onde, quando, servico e pet)
-export function SearchModal({ onClose, onSearch, pets, visible }: SearchModalProps) {
+export function SearchModal({
+  onAddPet,
+  onClose,
+  onSearch,
+  pets,
+  petsLoading = false,
+  visible,
+}: SearchModalProps) {
   return (
     <Modal animationType="fade" onRequestClose={onClose} transparent visible={visible}>
       {/* O formulario so existe com o modal aberto: cada abertura comeca vazia */}
-      {visible ? <SearchForm onClose={onClose} onSearch={onSearch} pets={pets} /> : null}
+      {visible ? (
+        <SearchForm
+          onAddPet={onAddPet}
+          onClose={onClose}
+          onSearch={onSearch}
+          pets={pets}
+          petsLoading={petsLoading}
+        />
+      ) : null}
     </Modal>
   );
 }
 
 type SearchFormProps = Omit<SearchModalProps, 'visible'>;
 
-function SearchForm({ onClose, onSearch, pets }: SearchFormProps) {
+function SearchForm({ onAddPet, onClose, onSearch, pets, petsLoading }: SearchFormProps) {
   const [filters, setFilters] = useState<SearchFilters>(EMPTY_FILTERS);
   const [openSection, setOpenSection] = useState<SectionKey>('where');
 
@@ -168,8 +186,21 @@ function SearchForm({ onClose, onSearch, pets }: SearchFormProps) {
         );
 
       case 'who':
+        if (petsLoading) {
+          return (
+            <View style={styles.petsLoading}>
+              <ActivityIndicator color={theme.colors.button} />
+              <Text style={styles.noPets}>Carregando seus pets...</Text>
+            </View>
+          );
+        }
         if (pets.length === 0) {
-          return <Text style={styles.noPets}>Você ainda não tem pets cadastrados.</Text>;
+          return (
+            <View style={styles.noPetsContainer}>
+              <Text style={styles.noPets}>Você ainda não tem pets cadastrados.</Text>
+              {onAddPet ? <Button onPress={onAddPet} title="Cadastrar pet" /> : null}
+            </View>
+          );
         }
         return (
           <View style={styles.pets}>
@@ -325,6 +356,14 @@ const styles = StyleSheet.create({
   pets: {
     flexDirection: 'row',
     gap: theme.spacing.large,
+  },
+  petsLoading: {
+    alignItems: 'center',
+    gap: theme.spacing.small,
+    paddingVertical: theme.spacing.medium,
+  },
+  noPetsContainer: {
+    gap: theme.spacing.small,
   },
   noPets: {
     color: theme.colors.placeholder,

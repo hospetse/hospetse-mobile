@@ -304,3 +304,17 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
   - Dia bloqueado abre confirmação e chama `DELETE /api/v1/me/host/agenda/blocks/{id}`. Dia ocupado não pode ser bloqueado e mostra aviso.
   - O calendário foi criado especificamente para a agenda porque o `Calendar` existente seleciona datas da busca e não possui estados de agenda.
 - **Motivo:** seguir o contrato da #482 sem biblioteca externa, mantendo a estética da fila do Host e deixando as ações de aceitar/recusar separadas.
+### DT-31: Pets reais compartilhados pelo contexto do Tutor
+- **Data:** 2026-11-11 · **Task:** #371 · **Status:** Aceita
+- **Decisão:** a lista de pets do Tutor fica em `PetsContext`, carregado pelo `GET /api/v1/me/pets` após a sessão existir. A Home, os resultados, o chat e a reserva consomem os pets reais; a rota `/pets` lista os pets e `/pets/cadastro` cria um pet pelo `POST /api/v1/me/pets`.
+- **Limites:** fotos de pets ainda não existem no contrato do backend.
+
+### DT-32: Perfil estático integrado à lista de pets
+- **Data:** 2026-11-14 · **PR:** #86 · **Status:** Provisória
+- **Decisão:** a rota `/perfil` usa o `PetsContext`. O card “Meus Pets” abre `/pets`, o estado vazio da busca abre `/pets/cadastro`, e o Perfil passa pets reais ao `SearchModal` em vez de pets de exemplo.
+- **Limites:** os menus de conta e a rota de reservas do Tutor continuam fora do escopo disponível.
+
+### DT-33: Gerenciamento de pets no card e exclusão lógica
+- **Data:** 2026-11-14 · **Task:** #371 · **Status:** Aceita
+- **Decisão:** os cards da lista exibem ações de editar e excluir. Editar reutiliza `/pets/cadastro?id=<petId>` e excluir pede confirmação no app. O backend atualiza pets ativos com `PUT /api/v1/me/pets/:id` e desativa pets com `DELETE /api/v1/me/pets/:id`.
+- **Motivo:** manter o histórico das reservas; a exclusão remove o pet apenas da lista de ativos.

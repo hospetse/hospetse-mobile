@@ -19,9 +19,10 @@ import { SearchBar } from '../components/SearchBar';
 import { SearchFilters, SearchModal } from '../components/SearchModal';
 import { Skeleton } from '../components/Skeleton';
 import { UserHeader } from '../components/UserHeader';
-import { SAMPLE_PETS, SAMPLE_USER } from '../constants/sampleData';
+import { SAMPLE_USER } from '../constants/sampleData';
 import { SERVICE_PLURAL, SERVICE_SINGULAR, ServiceType } from '../constants/search';
 import { theme } from '../constants/theme';
+import { usePets } from '../context/PetsContext';
 import { useSession } from '../context/SessionContext';
 import { getErrorStatus, isRequestError } from '../services/auth';
 import { formatHostLocation, HostSearchResult, HostSummary, searchHosts } from '../services/hosts';
@@ -67,6 +68,7 @@ export function searchErrorMessage(error: unknown): string {
 
 export default function ResultsScreen() {
   const { currentUser, logout } = useSession();
+  const { pets, loading: petsLoading } = usePets();
   const params = useLocalSearchParams<SearchRouteParams>();
   const { width } = useWindowDimensions();
   const initialService = serviceFromParam(params.service);
@@ -130,6 +132,7 @@ export default function ResultsScreen() {
   const activeFilters = countFilters(filters);
   const cardWidth = width - theme.spacing.page * 2;
   const userName = currentUser?.user?.name || SAMPLE_USER.name;
+  const petSummaries = pets.map((pet) => ({ id: pet.id, imageUri: null, name: pet.name }));
 
   // Nova busca feita daqui: troca os parâmetros desta mesma tela
   function handleSearch(search: SearchFilters) {
@@ -150,6 +153,8 @@ export default function ResultsScreen() {
       router.push('/reservas');
     } else if (key === 'home') {
       router.back();
+    } else if (key === 'perfil') {
+      router.push('/perfil');
     }
   }
 
@@ -275,9 +280,14 @@ export default function ResultsScreen() {
       />
 
       <SearchModal
+        onAddPet={() => {
+          setSearchOpen(false);
+          router.push('/pets/cadastro');
+        }}
         onClose={() => setSearchOpen(false)}
         onSearch={handleSearch}
-        pets={SAMPLE_PETS}
+        pets={petSummaries}
+        petsLoading={petsLoading}
         visible={searchOpen}
       />
     </SafeAreaView>

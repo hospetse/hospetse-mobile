@@ -6,19 +6,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BottomTabBar, TabKey } from '../components/BottomTabBar';
 import { Button } from '../components/Button';
-import { ErrorModal } from '../components/ErrorModal';
-import { HostInviteCard } from '../components/HostInviteCard';
 import { Icon, IconName } from '../components/Icon';
 import { ProfileMenuItem } from '../components/ProfileMenuItem';
 import { SearchFilters, SearchModal } from '../components/SearchModal';
 import { StatusPill } from '../components/StatusPill';
 import { theme } from '../constants/theme';
-import { useHostRegistration } from '../context/HostRegistrationContext';
 import { usePets } from '../context/PetsContext';
 import { useSession } from '../context/SessionContext';
-import { SessionExpiredError } from '../services/api';
-import { getHostProfile } from '../services/host-registration';
-import { profileToRegistration, resumeRoutes } from '../utils/hostRegistrationMapping';
 import { toSearchParams } from '../utils/searchParams';
 
 type MenuItem = {
@@ -41,11 +35,7 @@ const MENU_ITEMS: MenuItem[] = [
 export default function PerfilScreen() {
   const { currentUser, logout } = useSession();
   const { pets, loading: petsLoading } = usePets();
-  const { update: updateHostRegistration } = useHostRegistration();
   const [searchOpen, setSearchOpen] = useState(false);
-  // Abertura do cadastro de Host (#326): trava contra clique duplo e aviso de falha
-  const [startingHost, setStartingHost] = useState(false);
-  const [hostProblem, setHostProblem] = useState(false);
   const userName = currentUser?.user?.name || 'Usuário';
   const userEmail = currentUser?.user?.email;
   const version = Constants.expoConfig?.version;
@@ -73,33 +63,6 @@ export default function PerfilScreen() {
     router.replace('/');
   }
 
-  // Abre o cadastro de Host retomando o rascunho do servidor, na etapa onde o usuário parou (#326)
-  async function handleBecomeHost() {
-    if (startingHost) {
-      return;
-    }
-    setStartingHost(true);
-    try {
-      const profile = await getHostProfile();
-      if (profile) {
-        updateHostRegistration(profileToRegistration(profile));
-        for (const route of resumeRoutes(profile)) {
-          router.push(route);
-        }
-      } else {
-        router.push('/cadastro-host');
-      }
-    } catch (error) {
-      if (error instanceof SessionExpiredError) {
-        // O cliente da API já levou ao login
-        return;
-      }
-      setHostProblem(true);
-    } finally {
-      setStartingHost(false);
-    }
-  }
-
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -117,11 +80,13 @@ export default function PerfilScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
         <View style={[styles.card, styles.profileCard]}>
           <View style={styles.avatar}><Icon color={theme.colors.button} name="person" size={theme.icon.huge} /></View>
           <Text style={styles.name}>{userName}</Text>
           {userEmail ? <View style={styles.contact}><Icon color={theme.colors.button} name="mail" size={theme.icon.medium} /><Text style={styles.contactText}>{userEmail}</Text></View> : null}
         </View>
+
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.iconBox}><Icon color={theme.colors.button} name="pets" size={theme.icon.large} /></View>
@@ -130,7 +95,7 @@ export default function PerfilScreen() {
           </View>
           <Button icon="arrow_forward" onPress={() => router.push('/pets')} title="Acessar Meus Pets" />
         </View>
-        <HostInviteCard loading={startingHost} onPress={handleBecomeHost} />
+
         <View style={styles.section}>
           <View style={styles.sectionHeader}><Text accessibilityRole="header" style={styles.sectionLabel}>MINHA CONTA</Text><Text style={styles.sectionHint}>Preferências & Dados</Text></View>
           <View style={[styles.card, styles.menuCard]}>
@@ -141,11 +106,13 @@ export default function PerfilScreen() {
             ))}
           </View>
         </View>
+
         <TouchableOpacity accessibilityLabel="Sair da conta" accessibilityRole="button" onPress={handleLogout} style={styles.logout}>
           <Icon color={theme.colors.error} name="logout" size={theme.icon.medium} /><Text style={styles.logoutText}>Sair da conta</Text>
         </TouchableOpacity>
         <Text style={styles.footer}>{`Hospetse App${version ? ` v${version}` : ''} • Feito com amor para pets`}</Text>
       </ScrollView>
+
       <View style={styles.tabBarWrapper}><BottomTabBar activeTab="perfil" onChangeTab={handleChangeTab} /></View>
       <SearchModal
         onAddPet={() => { setSearchOpen(false); router.push('/pets/cadastro'); }}
@@ -154,12 +121,6 @@ export default function PerfilScreen() {
         pets={petSummaries}
         petsLoading={petsLoading}
         visible={searchOpen}
-      />
-      <ErrorModal
-        message="Não foi possível abrir o cadastro agora. Verifique a conexão e tente de novo."
-        onClose={() => setHostProblem(false)}
-        title="Algo deu errado"
-        visible={hostProblem}
       />
     </SafeAreaView>
   );

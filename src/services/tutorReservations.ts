@@ -1,3 +1,5 @@
+import type { ServiceType } from '../constants/search';
+
 // Contrato provisório da futura lista de contratações do Tutor (#534).
 // A API HSP-PBI-046-TSK-01 ainda não está disponível; os dados abaixo permitem validar a tela.
 export type TutorReservationStatus =
@@ -12,6 +14,7 @@ export type TutorReservation = {
   id: string;
   status: TutorReservationStatus;
   hostId: string;
+  serviceId?: string;
   hostName: string;
   hostLocation: string;
   hostPicture: string | null;
@@ -21,9 +24,17 @@ export type TutorReservation = {
   endDate: string;
   dailyPrice: number;
   totalValue: number;
+  notes?: string | null;
+  createdAt?: string;
+  // Campos adicionais da solicitação de visita/passeio (#565), ausentes nas hospedagens antigas.
+  serviceType?: ServiceType;
+  scheduledTime?: string;
+  address?: string;
+  accessInstructions?: string | null;
+  medication?: string | null;
 };
 
-const MOCK_RESERVATIONS: TutorReservation[] = [
+const INITIAL_MOCK_RESERVATIONS: TutorReservation[] = [
   {
     id: 'reservation-awaiting-payment',
     status: 'awaiting_payment',
@@ -54,6 +65,8 @@ const MOCK_RESERVATIONS: TutorReservation[] = [
   },
 ];
 
+let mockReservations: TutorReservation[] = [...INITIAL_MOCK_RESERVATIONS];
+
 export type TutorReservationsPage = {
   items: TutorReservation[];
   total: number;
@@ -61,5 +74,14 @@ export type TutorReservationsPage = {
 
 // TODO(#534): substituir pelo GET da TSK-01 quando o backend publicar o contrato.
 export async function listMyReservations(): Promise<TutorReservationsPage> {
-  return { items: MOCK_RESERVATIONS, total: MOCK_RESERVATIONS.length };
+  return { items: [...mockReservations], total: mockReservations.length };
+}
+
+// Mantém a contratação simulada visível em Minhas contratações nesta sessão.
+export function addMockReservation(reservation: TutorReservation): void {
+  mockReservations = [reservation, ...mockReservations];
+}
+
+export function resetMockReservations(): void {
+  mockReservations = [...INITIAL_MOCK_RESERVATIONS];
 }

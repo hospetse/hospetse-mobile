@@ -168,6 +168,7 @@ export default function ResultsScreen() {
         ...(params.checkIn ? { checkIn: params.checkIn } : {}),
         ...(params.checkOut ? { checkOut: params.checkOut } : {}),
         ...(params.petId ? { petId: params.petId } : {}),
+        ...(filters.services.length === 1 ? { service: filters.services[0] } : {}),
       },
     });
   }

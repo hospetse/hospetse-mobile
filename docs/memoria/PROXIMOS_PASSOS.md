@@ -2,15 +2,16 @@
 
 Lista viva. Mova os itens entre as seções conforme o estado real, e apague da seção **Concluído** o que tiver mais de duas tasks (o histórico fica no `LOG_DESENVOLVIMENTO.md`).
 
-> Última atualização: 2026-11-14
+> Última atualização: 2026-11-16
 
 ## Próxima atividade recomendada
-1. **#543:** validar a tela de acompanhamento no Expo Go com dados simulados, depois commit e PR.
+1. **#565:** validar a solicitação de visita/passeio no Expo Go e, com autorização, fazer commit e PR.
 
 ## Em andamento
-- **#543:** timeline de acompanhamento implementada com contrato simulado na branch `feature/543-implementar-a-tela-de-acompanhamento-no-mobile`. Falta teste visual, commit e PR.
+- **#565:** fluxo implementado na branch `feature/565-implementar-a-solicitacao-de-visita-ou-passeio-no-mobile`, com contrato simulado e testes. Falta teste visual, commit e PR.
 
 ## Pendente
+- **Integração real da #565:** substituir o contrato simulado pela API da TSK-01 do backend quando publicada; não alterar o backend nesta etapa.
 - **Tela de Reservas do Tutor** ("Ver minhas reservas"): PBI #199 (HSP-PBI-046), sem task. O back-end ainda não tem a lista de reservas do Tutor.
 - **Conclusão do perfil** (HSP-PBI-002): "Completar Cadastro" só fecha o aviso.
 - **Serviços adicionais e horários de entrada e saída** na API (DT-23).
@@ -41,7 +42,7 @@ Lista viva. Mova os itens entre as seções conforme o estado real, e apague da 
 - A primeira rodada do Jest às vezes estoura o limite de 5 s em alguns testes de tela. Na segunda, passa.
 
 ## Testes que ainda precisam rodar
-- No Expo Go: a solicitação de hospedagem (#495) no Android, os modais de erro dela, o modal de rotina no Android, a renovação do token depois de 15 minutos e os testes em Android e iOS separados.
+- No Expo Go: a solicitação de hospedagem (#495) no Android, a solicitação de visita/passeio (#565), os modais de erro dela, o modal de rotina no Android, a renovação do token depois de 15 minutos e os testes em Android e iOS separados.
 - Criar os testes Jest da Home.
 
 ## Informações necessárias para continuar

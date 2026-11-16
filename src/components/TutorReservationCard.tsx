@@ -35,9 +35,19 @@ function actionTitle(status: TutorReservationStatus): string | null {
   return null;
 }
 
+function serviceLabel(type: TutorReservation['serviceType']): string | null {
+  if (type === 'Pet Walker') return 'Passeio';
+  if (type === 'Pet Sitter') return 'Visita';
+  return null;
+}
+
 export function TutorReservationCard({ reservation, onPrimaryAction, onChat }: TutorReservationCardProps) {
   const status = STATUS[reservation.status];
   const primaryTitle = actionTitle(reservation.status);
+  const service = serviceLabel(reservation.serviceType);
+  const sameDay = reservation.startDate === reservation.endDate;
+  const periodLabel = service && sameDay ? 'Data' : 'Período';
+  const periodValue = sameDay ? date(reservation.startDate) : `${date(reservation.startDate)} a ${date(reservation.endDate)}`;
 
   return (
     <View style={styles.card}>
@@ -50,6 +60,7 @@ export function TutorReservationCard({ reservation, onPrimaryAction, onChat }: T
         <View style={styles.hostText}>
           <Text style={styles.hostName}>{reservation.hostName}</Text>
           <Text style={styles.location}>{reservation.hostLocation}</Text>
+          {service ? <Text style={styles.service}>{service}</Text> : null}
         </View>
         <StatusPill backgroundColor={status.background} color={status.color} label={status.label} />
       </View>
@@ -57,7 +68,8 @@ export function TutorReservationCard({ reservation, onPrimaryAction, onChat }: T
       <View style={styles.separator} />
       <View style={styles.infoRow}>
         <View style={styles.infoBlock}><Text style={styles.label}>Pet</Text><Text style={styles.value}>{reservation.petName}</Text></View>
-        <View style={styles.infoBlock}><Text style={styles.label}>Período</Text><Text style={styles.value}>{date(reservation.startDate)} a {date(reservation.endDate)}</Text></View>
+        <View style={styles.infoBlock}><Text style={styles.label}>{periodLabel}</Text><Text style={styles.value}>{periodValue}</Text></View>
+        {reservation.scheduledTime ? <View style={styles.infoBlock}><Text style={styles.label}>Horário</Text><Text style={styles.value}>{reservation.scheduledTime}</Text></View> : null}
       </View>
       <View style={styles.totalRow}><Text style={styles.label}>Total</Text><Text style={styles.total}>{formatCurrency(reservation.totalValue)}</Text></View>
 
@@ -75,6 +87,7 @@ const styles = StyleSheet.create({
   hostText: { flex: 1 },
   hostName: { color: theme.colors.title, fontFamily: theme.fonts.bold, fontSize: theme.typography.button },
   location: { color: theme.colors.subtitle, fontFamily: theme.fonts.regular, fontSize: theme.typography.caption, marginTop: theme.spacing.tiny },
+  service: { color: theme.colors.button, fontFamily: theme.fonts.semiBold, fontSize: theme.typography.caption, marginTop: theme.spacing.tiny },
   separator: { backgroundColor: theme.colors.divider, height: 1, marginVertical: theme.spacing.medium },
   infoRow: { flexDirection: 'row', gap: theme.spacing.medium },
   infoBlock: { flex: 1 },

@@ -26,6 +26,7 @@ import {
   lowestPrice,
 } from '../../services/hosts';
 import { formatDate, fromIsoDate } from '../../utils/calendar';
+import { serviceFromParam } from '../../utils/searchParams';
 
 // Quantas fotos da galeria aparecem; a última mostra "+N" quando há mais
 const GALLERY_VISIBLE = 4;
@@ -38,11 +39,12 @@ type LoadState = 'loading' | 'ready' | 'not-found' | 'error';
 
 export default function HostDetailsScreen() {
   // O id vem na rota. As datas (2026-08-01) e o pet são opcionais e chegam da busca
-  const { id, checkIn, checkOut, petId } = useLocalSearchParams<{
+  const { id, checkIn, checkOut, petId, service } = useLocalSearchParams<{
     id: string;
     checkIn?: string;
     checkOut?: string;
     petId?: string;
+    service?: string;
   }>();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -129,11 +131,14 @@ export default function HostDetailsScreen() {
   const { rating, reviewCount } = host.reputation;
 
   // O chat (#520) e a solicitação de reserva (#495) recebem o mesmo contexto da busca que chegou aqui
+  const requestedService = serviceFromParam(service);
+  const isVisitOrWalk = requestedService === 'Pet Walker' || requestedService === 'Pet Sitter';
   const searchContext = {
     id: host.id,
     ...(checkIn ? { checkIn } : {}),
     ...(checkOut ? { checkOut } : {}),
     ...(petId ? { petId } : {}),
+    ...(requestedService ? { service: requestedService } : {}),
   };
 
   function openChat() {
@@ -141,6 +146,10 @@ export default function HostDetailsScreen() {
   }
 
   function openReservation() {
+    if (isVisitOrWalk) {
+      router.push({ pathname: '/solicitar-servico/[id]', params: searchContext });
+      return;
+    }
     router.push({ pathname: '/reserva/[id]', params: searchContext });
   }
 
@@ -296,7 +305,7 @@ export default function HostDetailsScreen() {
           <OutlineButton icon="chat" onPress={openChat} title="Tire suas dúvidas" />
         </View>
         <View style={styles.footerButton}>
-          <Button onPress={openReservation} title="Solicitar reserva" />
+          <Button onPress={openReservation} title={isVisitOrWalk ? (requestedService === 'Pet Walker' ? 'Solicitar passeio' : 'Solicitar visita') : 'Solicitar reserva'} />
         </View>
       </View>
 

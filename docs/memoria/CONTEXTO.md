@@ -1,7 +1,7 @@
 # Contexto do projeto: Hospetse Mobile
 
 > Resumo principal para retomar o trabalho. Mantenha curto e fiel ao código.
-> Última atualização: 2026-11-11. Descreve a implementação da #371 na branch `feature/371-implementar-a-lista-e-o-cadastro-de-pets`, baseada na `develop` (`b6eb43b`).
+> Última atualização: 2026-11-16. A Task 565 está implementada localmente na branch `feature/565-implementar-a-solicitacao-de-visita-ou-passeio-no-mobile`, baseada no `develop` após o PR 106 (`89702bd`).
 >
 > Os repositórios `hospetse-backend` e `hospetse-auth-service` estão clonados em `HOSPETSE/`, ao lado deste. Use-os para ler as rotas reais (rodar `git pull` antes). Não edite sem pedido.
 
@@ -40,7 +40,7 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `src/constants/sampleData.ts` | Usuário de exemplo e fallback de pets somente para a prévia de desenvolvimento do chat. |
 | `src/constants/sampleChat.ts`, `addOns.ts` | Conversa de exemplo do chat e serviços adicionais da reserva (provisórios). |
 | `src/context/SignupContext.tsx`, `SessionContext.tsx`, `PetsContext.tsx` | Dados do cadastro, perfil atual e lista de pets do Tutor, somente em memória. O `SessionContext` tem o `logout()` local (DT-25), e o `PetsContext` carrega e atualiza pets pela API (DT-29). |
-| `src/services/` | `api.ts` (`authApi`, `backendApi` com token e renovação, `SessionExpiredError`), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`, `isRequestError`), `token-storage.ts` (SecureStore nativo), `token-storage.web.ts` (tokens em memória), `users.ts` (`GET /api/v1/me`), `pets.ts` (`GET` e `POST /api/v1/me/pets`), `hostReservations.ts` (fila de solicitações do Host) e os serviços de Hosts e reservas do Tutor. |
+| `src/services/` | `api.ts` (`authApi`, `backendApi` com token e renovação, `SessionExpiredError`), `auth.ts` (`requestPin`, `register`, `login`, `getErrorStatus`, `isRequestError`), `token-storage.ts` (SecureStore nativo), `token-storage.web.ts` (tokens em memória), `users.ts` (`GET /api/v1/me`), `pets.ts` (`GET` e `POST /api/v1/me/pets`), `hostReservations.ts` (fila de solicitações do Host) e os serviços de Hosts e reservas do Tutor. `serviceRequests.ts` mantém o contrato simulado da #565 até a API existir. |
 | `src/utils/` | Funções sem visual (`formatPhone`, `isStrongPassword`, `requestPinErrorMessage`, `validateSignup`, `validateLogin`, `validateReservation`, `calendar`, `chat`, `money` e `searchParams`, que converte a busca em parâmetros da rota). |
 | `__tests__/`, `test-utils/` | Testes Jest e utilitários de teste (erros HTTP falsos, espião do console). |
 | `.kiro/steering/` | Regras do Kiro: arquitetura e código (`hospetse-architecture.md`), git (`git-workflow.md`), memória (`memoria-projeto.md`) e retomada (`retomar-contexto.md`, manual). |
@@ -57,7 +57,8 @@ App mobile do Hospetse para tutores encontrarem e contratarem cuidadores de pets
 | `/recuperar-senha` | `recuperar-senha.tsx` | Só valida o formato do e-mail no aparelho; não chama nenhuma API. |
 | `/home` | `home.tsx` | Visual completo da task #472, com cards ainda fixos. Depois do cadastro, mostra o nome e o aviso de perfil incompleto a partir do `SessionContext`, carregado do `/me`; os demais fluxos mantêm o fallback de exemplo. O campo de busca e a aba Buscar abrem o `SearchModal`. |
 | `/resultados` | `resultados.tsx` | **#480.** Recebe `city`, `checkIn`, `checkOut`, `service` e `petId` pela rota. O título mostra a contagem e o serviço ("1 Pet-Sitter encontrado"). Lista vertical de `PetCard`, com o botão `tune` que abre o `FiltersModal` (com o número de filtros ativos) e o estado vazio com "Ajustar filtros". O campo e a aba Buscar refazem a busca. **#518:** dados reais do `GET /api/v1/hosts/search`, com erro e "Tentar de novo". |
-| `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas", que abre o chat (#520), e "Solicitar reserva", que abre a confirmação (#495). Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
+| `/host/[id]` | `host/[id].tsx` | **#480.** Detalhe do Host no formato do `GET /api/v1/hosts/{id}` (#479), com dados reais desde a #518 (comodidades, requisitos e rotina ainda de exemplo): capa, nome, preço por noite, bairro e cidade, nota, comodidades, disponibilidade (datas da busca), descrição com "Ler mais", rotina com "Ler mais" que abre o `RoutineModal` (#519), galeria com "+N", endereço e requisitos. Rodapé com "Tire suas dúvidas", que abre o chat (#520), e ação de reserva. Para buscas de Pet Sitter ou Pet Walker, a ação abre `/solicitar-servico/[id]` da #565. Tem carregamento (`Skeleton`) e "Hospedagem não encontrada". |
+| `/solicitar-servico/[id]` | `solicitar-servico/[id].tsx` | **#565.** Solicitação simulada de visita ou passeio: pet, data, horário, endereço, instruções de acesso quando o Tutor está ausente, medicação quando o Pet Sitter oferece esse cuidado, resumo de preço, sucesso e entrada em Minhas contratações. |
 | `/chat/[id]` | `chat/[id].tsx` | **#520.** Chat com o Host, aberto pelo detalhe com `checkIn`, `checkOut` e `petId`. Cabeçalho com voltar, foto, nome, status e mais opções (sem ligar). Faixa "Interesse em reservar" com datas, total e pet. Mensagens do Assistente ("Ativa"), do Tutor e do Host ("Atendimento Humano"), separadas por dia, com imagem e sugestões rápidas. Conversa de exemplo; o envio só mostra a mensagem na tela (DT-22). |
 | `/reservas` | `reservas.tsx` | **#486.** Lista as solicitações pendentes recebidas pelo Host via `GET /api/v1/me/host/reservations`, com total, cards de Tutor/pet/período/valor, estado vazio, erro, retry e atualização por gesto. Tocar no card abre `/reserva-host/[id]` para a decisão (#492). |
 | `/reserva-host/[id]` | `reserva-host/[id].tsx` | **#492.** Detalhe da solicitação para o Host, com confirmação de aceite, recusa com motivo obrigatório, dados médicos/comportamentais do pet e mensagens de conflito. |
@@ -94,6 +95,8 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 | `DateRangeModal` | Calendário por cima da tela para trocar o período, com "Confirmar datas". |
 | `AddOnItem` | Serviço adicional da reserva: caixa de marcar, nome, descrição e preço por dia. |
 | `ReservationSuccess` | Sucesso da solicitação: resumo do Host, datas, pet, diárias e total, "Ver minhas reservas" e "Voltar para Início". |
+| `ServiceDateModal` | Calendário de um dia para escolher a data da visita ou passeio. |
+| `ServiceRequestSuccess` | Sucesso da solicitação de visita ou passeio, com resumo e ações para Minhas contratações ou Início. |
 | `HostRequestCard` | Card da fila do Host: status, Tutor, pet, período, valor e observações. |
 | `SearchBar` | Campo de busca com lupa. |
 | `FilterChip` | Chip de categoria, ativo ou inativo. |
@@ -126,6 +129,7 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
   - `POST /api/v1/me/pets` (#369), usado no cadastro da rota `/pets/cadastro`.
   - `GET /api/v1/me/reservations` (futuro HSP-PBI-046-TSK-01), ainda não disponível; `/minhas-contratacoes` usa dados simulados.
   - `POST /api/v1/reservations` (#494), com o header `Idempotency-Key` (DT-23).
+  - Solicitações de visita e passeio (#565) ainda usam `serviceRequests.ts` e atualizam o contrato simulado de Minhas contratações; a integração depende da TSK-01 do backend.
   - `GET /api/v1/me/host/reservations` (#485), usado pela lista de solicitações do Host (#486).
   - `POST /api/v1/me/host/reservations/:id/accept` e `/reject` (#491), usados na decisão do Host (#492).
   - `GET /api/v1/me/host/agenda`, `POST /api/v1/me/host/agenda/blocks` e `DELETE /api/v1/me/host/agenda/blocks/{id}` (#482), usados na agenda (#483).
@@ -139,9 +143,11 @@ Telas que o código já indica e que ainda não existem: Reservas e Perfil (abas
 - Commit, push, PR e merge só com autorização da desenvolvedora.
 - Bibliotecas com código nativo fora do Expo Go exigem development build: evite.
 
-## Último estado conhecido (2026-11-11)
+## Último estado conhecido (2026-11-16)
 
-- Branch atual: `feature/371-implementar-a-lista-e-o-cadastro-de-pets`, criada a partir da `develop` (`b6eb43b`). O PR 86 foi revisado e sua tela de Perfil está incorporada localmente sem commit; a base remota `develop` está mais avançada e ainda precisa ser atualizada antes do commit.
-- A #371 implementa `/pets` e `/pets/cadastro`, `PetsContext`, cliente de criação/listagem, integração da busca e atualização do botão "Adicionar Pet" na reserva.
-- Verificações da implementação: `npx tsc --noEmit` passou; `npx expo export --platform web` passou; a suíte Jest passou com `--testTimeout=15000` após corrigir a compatibilidade do chat com a prévia de desenvolvimento.
-- Falta validar o fluxo com login real e perfil de Tutor concluído no Expo Go. Edição, remoção e foto de pet dependem de endpoints que o back-end ainda não possui.
+- O PR 106 restaurou o cadastro de Host no `develop` no commit `89702bd`, após o revert do PR 105.
+- A Task 565 está implementada localmente na branch `feature/565-implementar-a-solicitacao-de-visita-ou-passeio-no-mobile`; ainda não foi commitada nem enviada.
+- A #565 criou `/solicitar-servico/[id]`, o contrato simulado de solicitação e os testes do fluxo de visita/passeio.
+- A validação local passou: `npx tsc --noEmit`, `npm test -- --runInBand` com 21 suítes e 211 testes, `npx expo install --check`, `npx expo-doctor` com 20/20 e `npx expo export --platform web` com 1031 módulos.
+- A integração real da #565 depende do contrato da task backend HSP-PBI-043-TSK-01. Nenhum backend foi alterado.
+- Falta validar o fluxo visual no Expo Go, depois obter autorização para commit, push e PR.

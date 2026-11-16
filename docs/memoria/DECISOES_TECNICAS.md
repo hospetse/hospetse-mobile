@@ -328,3 +328,9 @@ Status possíveis: **Aceita**, **Provisória** (vale até uma condição conheci
 - **Data:** 2026-11-14 · **Task:** #543 · **Status:** Provisória
 - **Decisão:** a rota `/acompanhamento/[id]` usa uma timeline simulada com estados concluído, atual e futuro. O carregamento é repetido a cada 30 segundos para preparar a futura atualização periódica do backend.
 - **Limite:** a fonte ainda é simulada; pagamento, eventos reais e atualização via API dependem da TSK-01 do backend, que não será alterada nesta tarefa.
+
+### DT-36: Solicitação de visita e passeio com contrato simulado
+- **Data:** 2026-11-16 · **Task:** #565 · **Status:** Provisória
+- **Decisão:** a busca que identifica Pet Sitter ou Pet Walker abre `/solicitar-servico/[id]`. A tela usa o Host e os pets atuais, permite escolher um dia, horário, endereço, instruções de acesso quando o Tutor está ausente e medicamentos somente quando o serviço simulado oferece esse cuidado. O resumo mostra o preço antes da confirmação.
+- **Persistência provisória:** `serviceRequests.ts` cria uma solicitação em memória com status `requested` e a insere em `/minhas-contratacoes` durante a sessão.
+- **Limite:** não há chamada ao backend. A integração real depende da TSK-01 do backend HSP-PBI-043 e deverá substituir o serviço simulado sem alterar a regra visual da tela.

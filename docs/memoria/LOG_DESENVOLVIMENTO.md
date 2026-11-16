@@ -439,3 +439,13 @@ Trabalho de outra pessoa do time, registrado aqui só como contexto. Os detalhes
 - **Verificação:** `npx tsc --noEmit` passou; `npm test -- --runInBand --testTimeout=15000` passou com 17 suítes e 154 testes; bundle web já validado na Task 534 antes da rota de acompanhamento.
 - **Ficou pendente:** integração real depende do backend; validação manual no Expo Go; commit e PR.
 - **Commits / PR:** ainda não commitado nem enviado.
+
+## 2026-11-16: Solicitação de visita ou passeio no Mobile (#565)
+- **Objetivo:** implementar o fluxo do Tutor para solicitar visita de Pet Sitter ou passeio de Pet Walker.
+- **Branch:** `feature/565-implementar-a-solicitacao-de-visita-ou-passeio-no-mobile`, baseada no `develop` após o PR 106 (`89702bd`).
+- **Arquivos:** criada a rota `app/solicitar-servico/[id].tsx`, os componentes `ServiceDateModal` e `ServiceRequestSuccess`, o serviço simulado `serviceRequests.ts` e os testes `service-request-test.tsx`; ajustados o detalhe do Host, os resultados, `TutorReservationCard` e o contrato simulado de `tutorReservations.ts`.
+- **O que mudou:** a busca com Pet Sitter ou Pet Walker encaminha para a nova tela; o Tutor escolhe pet, data, horário e endereço, informa instruções quando estará ausente, vê medicamentos apenas quando o serviço simulado oferece o cuidado, confere o preço e cria uma solicitação com status `requested` em Minhas contratações.
+- **Decisões:** DT-36.
+- **Verificação:** `npx tsc --noEmit`, 21 suítes e 211 testes Jest, `npx expo install --check`, `npx expo-doctor` com 20/20 e `npx expo export --platform web` com 1031 módulos passaram. O export exibiu apenas a recuperação automática do cache do Metro.
+- **Limite:** a solicitação ainda é simulada. A integração depende da TSK-01 do backend; nenhum backend foi alterado.
+- **Ficou pendente:** validação visual no Expo Go, commit, push e PR, que dependem de autorização.
